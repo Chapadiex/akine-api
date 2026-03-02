@@ -1,0 +1,19 @@
+spring:
+  profiles:
+    active: dev
+
+  jpa:
+    open-in-view: false
+
+logging:
+  pattern:
+    console: '{"timestamp":"%d{yyyy-MM-dd HH:mm:ss.SSS}","level":"%p","service":"akine-api","traceId":"%X{traceId:-}","message":"%msg"}%n'
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:changeme-this-is-a-very-long-secret-key-for-dev-only-32chars+}
+    access-token-expiration-ms: 900000       # 15 min
+    refresh-token-expiration-days: 30
+  admin:
+    email: ${ADMIN_EMAIL:admin@akine.com}
+    password: ${ADMIN_PASSWORD:Admin1234!}

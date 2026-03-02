@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: akine-postgres
+    environment:
+      POSTGRES_DB: akine
+      POSTGRES_USER: akine
+      POSTGRES_PASSWORD: akine
+      TZ: America/Argentina/Buenos_Aires
+    command: ["postgres", "-c", "TimeZone=America/Argentina/Buenos_Aires"]
+    ports:
+      - "5432:5432"
+    volumes:
+      - akine_pgdata:/var/lib/postgresql/data
+volumes:
+  akine_pgdata:
