@@ -81,7 +81,7 @@ public class AuthController {
                 r.expiresInMs(),
                 new AuthResponse.UserInfo(
                         r.userId(), r.email(), r.firstName(), r.lastName(),
-                        r.roles(), r.consultorioIds()
+                        r.roles(), r.consultorioIds(), r.profesionalId()
                 )
         );
     }

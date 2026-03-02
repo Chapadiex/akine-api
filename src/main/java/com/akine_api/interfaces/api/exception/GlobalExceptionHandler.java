@@ -71,7 +71,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             ProfesionalNotFoundException.class,
             ProfesionalConsultorioNotFoundException.class,
             ConsultorioHorarioNotFoundException.class,
-            DisponibilidadProfesionalNotFoundException.class
+            DisponibilidadProfesionalNotFoundException.class,
+            TurnoNotFoundException.class
     })
     public ProblemDetail handleEntityNotFound(DomainException ex) {
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
@@ -93,6 +94,54 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
         pd.setType(URI.create("urn:akine:error:disponibilidad-solapamiento"));
         pd.setTitle("Disponibilidad solapada");
+        return pd;
+    }
+
+    @ExceptionHandler(TurnoConflictException.class)
+    public ProblemDetail handleTurnoConflict(TurnoConflictException ex) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        pd.setType(URI.create("urn:akine:error:turno-conflicto"));
+        pd.setTitle("Conflicto de turno");
+        return pd;
+    }
+
+    @ExceptionHandler(PacienteDuplicadoException.class)
+    public ProblemDetail handlePacienteDuplicado(PacienteDuplicadoException ex) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        pd.setType(URI.create("urn:akine:error:paciente-duplicado"));
+        pd.setTitle("Paciente duplicado");
+        return pd;
+    }
+
+    @ExceptionHandler(PacienteYaVinculadoException.class)
+    public ProblemDetail handlePacienteYaVinculado(PacienteYaVinculadoException ex) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        pd.setType(URI.create("urn:akine:error:paciente-ya-vinculado"));
+        pd.setTitle("Paciente ya vinculado");
+        return pd;
+    }
+
+    @ExceptionHandler(PacienteNotFoundException.class)
+    public ProblemDetail handlePacienteNotFound(PacienteNotFoundException ex) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        pd.setType(URI.create("urn:akine:error:paciente-not-found"));
+        pd.setTitle("Paciente no encontrado");
+        return pd;
+    }
+
+    @ExceptionHandler(TransicionEstadoInvalidaException.class)
+    public ProblemDetail handleTransicionEstadoInvalida(TransicionEstadoInvalidaException ex) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
+        pd.setType(URI.create("urn:akine:error:transicion-estado-invalida"));
+        pd.setTitle("Transición de estado inválida");
+        return pd;
+    }
+
+    @ExceptionHandler(SlotNoDisponibleException.class)
+    public ProblemDetail handleSlotNoDisponible(SlotNoDisponibleException ex) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
+        pd.setType(URI.create("urn:akine:error:slot-no-disponible"));
+        pd.setTitle("Slot no disponible");
         return pd;
     }
 

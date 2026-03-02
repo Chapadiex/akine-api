@@ -8,6 +8,7 @@ import com.akine_api.domain.exception.InvalidCredentialsException;
 import com.akine_api.domain.exception.InvalidTokenException;
 import com.akine_api.domain.exception.UserNotFoundException;
 import com.akine_api.domain.exception.UserNotActiveException;
+import com.akine_api.domain.model.Profesional;
 import com.akine_api.domain.model.RefreshToken;
 import com.akine_api.domain.model.User;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,6 +28,7 @@ public class AuthenticationService {
     private final UserRepositoryPort userRepo;
     private final RefreshTokenRepositoryPort refreshTokenRepo;
     private final ConsultorioRepositoryPort consultorioRepo;
+    private final ProfesionalRepositoryPort profesionalRepo;
     private final PasswordEncoderPort passwordEncoder;
     private final TokenGeneratorPort tokenGenerator;
 
@@ -39,11 +41,13 @@ public class AuthenticationService {
     public AuthenticationService(UserRepositoryPort userRepo,
                                  RefreshTokenRepositoryPort refreshTokenRepo,
                                  ConsultorioRepositoryPort consultorioRepo,
+                                 ProfesionalRepositoryPort profesionalRepo,
                                  PasswordEncoderPort passwordEncoder,
                                  TokenGeneratorPort tokenGenerator) {
         this.userRepo = userRepo;
         this.refreshTokenRepo = refreshTokenRepo;
         this.consultorioRepo = consultorioRepo;
+        this.profesionalRepo = profesionalRepo;
         this.passwordEncoder = passwordEncoder;
         this.tokenGenerator = tokenGenerator;
     }
@@ -108,6 +112,10 @@ public class AuthenticationService {
                 .map(r -> r.getName().name())
                 .collect(Collectors.toList());
 
+        UUID profesionalId = profesionalRepo.findByEmail(user.getEmail())
+                .map(Profesional::getId)
+                .orElse(null);
+
         return new AuthResult(
                 accessToken,
                 rawRefresh,
@@ -117,7 +125,8 @@ public class AuthenticationService {
                 user.getFirstName(),
                 user.getLastName(),
                 roles,
-                consultorioIds
+                consultorioIds,
+                profesionalId
         );
     }
 

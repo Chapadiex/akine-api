@@ -76,7 +76,7 @@ class AuthControllerTest {
         UUID userId = UUID.randomUUID();
         AuthResult mockResult = new AuthResult(
                 "access-token", "refresh-token", 900000L,
-                userId, "u@test.com", "Carlos", "G", List.of("PACIENTE"), List.of()
+                userId, "u@test.com", "Carlos", "G", List.of("PACIENTE"), List.of(), null
         );
         when(authService.login(any())).thenReturn(mockResult);
 

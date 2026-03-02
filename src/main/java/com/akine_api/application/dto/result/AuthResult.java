@@ -12,5 +12,6 @@ public record AuthResult(
         String firstName,
         String lastName,
         List<String> roles,
-        List<UUID> consultorioIds
+        List<UUID> consultorioIds,
+        UUID profesionalId
 ) {}
