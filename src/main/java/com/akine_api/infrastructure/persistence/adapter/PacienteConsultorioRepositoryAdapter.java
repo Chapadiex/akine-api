@@ -32,6 +32,11 @@ public class PacienteConsultorioRepositoryAdapter implements PacienteConsultorio
     }
 
     @Override
+    public List<UUID> findPacienteIdsByConsultorioId(UUID consultorioId) {
+        return jpaRepository.findPacienteIdsByConsultorioId(consultorioId);
+    }
+
+    @Override
     public List<UUID> findPacienteIdsByConsultorioIdAndPacienteIds(UUID consultorioId, List<UUID> pacienteIds) {
         if (pacienteIds.isEmpty()) {
             return List.of();

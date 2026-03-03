@@ -40,6 +40,12 @@ public class TurnoRepositoryAdapter implements TurnoRepositoryPort {
     }
 
     @Override
+    public List<Turno> findByPacienteIdAndRange(UUID pacienteId, LocalDateTime from, LocalDateTime to) {
+        return repo.findByPacienteIdAndFechaHoraInicioGreaterThanEqualAndFechaHoraInicioLessThan(
+                pacienteId, from, to).stream().map(mapper::toDomain).toList();
+    }
+
+    @Override
     public Turno save(Turno turno) {
         return mapper.toDomain(repo.save(mapper.toEntity(turno)));
     }

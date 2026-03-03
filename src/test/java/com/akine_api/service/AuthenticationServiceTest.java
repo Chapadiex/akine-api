@@ -30,6 +30,7 @@ class AuthenticationServiceTest {
     @Mock UserRepositoryPort userRepo;
     @Mock RefreshTokenRepositoryPort refreshTokenRepo;
     @Mock ConsultorioRepositoryPort consultorioRepo;
+    @Mock ProfesionalRepositoryPort profesionalRepo;
     @Mock PasswordEncoderPort passwordEncoder;
     @Mock TokenGeneratorPort tokenGenerator;
 
@@ -38,7 +39,7 @@ class AuthenticationServiceTest {
     @BeforeEach
     void setUp() {
         service = new AuthenticationService(userRepo, refreshTokenRepo, consultorioRepo,
-                passwordEncoder, tokenGenerator);
+                profesionalRepo, passwordEncoder, tokenGenerator);
         ReflectionTestUtils.setField(service, "accessTokenExpirationMs", 900000L);
         ReflectionTestUtils.setField(service, "refreshTokenExpirationDays", 30L);
     }

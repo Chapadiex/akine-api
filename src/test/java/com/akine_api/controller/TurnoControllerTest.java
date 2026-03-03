@@ -38,13 +38,19 @@ class TurnoControllerTest {
     private static final UUID PROF_ID = UUID.randomUUID();
 
     private TurnoResult sampleResult() {
+        return sampleResult(TurnoEstado.PROGRAMADO,
+                LocalDateTime.of(2026, 3, 9, 10, 0),
+                LocalDateTime.of(2026, 3, 9, 10, 30));
+    }
+
+    private TurnoResult sampleResult(TurnoEstado estado, LocalDateTime inicio, LocalDateTime fin) {
         return new TurnoResult(
                 TURNO_ID, CID, PROF_ID, "Juan", "Perez",
-                null, null, null,
-                LocalDateTime.of(2026, 3, 9, 10, 0),
-                LocalDateTime.of(2026, 3, 9, 10, 30),
-                30, TurnoEstado.PROGRAMADO,
+                null, null, null, null, null, null,
+                inicio, fin,
+                30, estado, null,
                 "Consulta", null,
+                null, null, null,
                 Instant.now(), Instant.now()
         );
     }
@@ -112,15 +118,9 @@ class TurnoControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void reprogramar_asAdmin_returns200() throws Exception {
-        TurnoResult moved = new TurnoResult(
-                TURNO_ID, CID, PROF_ID, "Juan", "Perez",
-                null, null, null,
+        TurnoResult moved = sampleResult(TurnoEstado.PROGRAMADO,
                 LocalDateTime.of(2026, 3, 9, 14, 0),
-                LocalDateTime.of(2026, 3, 9, 14, 30),
-                30, TurnoEstado.PROGRAMADO,
-                "Consulta", null,
-                Instant.now(), Instant.now()
-        );
+                LocalDateTime.of(2026, 3, 9, 14, 30));
         when(service.reprogramar(any(), any(), any(), any())).thenReturn(moved);
 
         mvc.perform(patch("/api/v1/consultorios/" + CID + "/turnos/" + TURNO_ID + "/reprogramar")
@@ -137,15 +137,9 @@ class TurnoControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void cambiarEstado_asAdmin_returns200() throws Exception {
-        TurnoResult confirmed = new TurnoResult(
-                TURNO_ID, CID, PROF_ID, "Juan", "Perez",
-                null, null, null,
+        TurnoResult confirmed = sampleResult(TurnoEstado.CONFIRMADO,
                 LocalDateTime.of(2026, 3, 9, 10, 0),
-                LocalDateTime.of(2026, 3, 9, 10, 30),
-                30, TurnoEstado.CONFIRMADO,
-                "Consulta", null,
-                Instant.now(), Instant.now()
-        );
+                LocalDateTime.of(2026, 3, 9, 10, 30));
         when(service.cambiarEstado(any(), any(), any(), any())).thenReturn(confirmed);
 
         mvc.perform(patch("/api/v1/consultorios/" + CID + "/turnos/" + TURNO_ID + "/estado")

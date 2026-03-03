@@ -1,5 +1,6 @@
 package com.akine_api.infrastructure.persistence.entity;
 
+import com.akine_api.domain.model.TipoConsulta;
 import com.akine_api.domain.model.TurnoEstado;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -23,7 +24,7 @@ public class TurnoEntity {
     @Column(name = "consultorio_id", nullable = false)
     private UUID consultorioId;
 
-    @Column(name = "profesional_id", nullable = false)
+    @Column(name = "profesional_id")
     private UUID profesionalId;
 
     @Column(name = "box_id")
@@ -47,6 +48,22 @@ public class TurnoEntity {
 
     @Column(length = 1000)
     private String notas;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_consulta", length = 20)
+    private TipoConsulta tipoConsulta;
+
+    @Column(name = "telefono_contacto", length = 50)
+    private String telefonoContacto;
+
+    @Column(name = "creado_por_user_id")
+    private UUID creadoPorUserId;
+
+    @Column(name = "motivo_cancelacion", length = 500)
+    private String motivoCancelacion;
+
+    @Column(name = "cancelado_por_user_id")
+    private UUID canceladoPorUserId;
 
     @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP")
     private Instant createdAt;

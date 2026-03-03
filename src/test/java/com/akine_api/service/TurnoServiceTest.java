@@ -38,6 +38,9 @@ class TurnoServiceTest {
     @Mock ConsultorioHorarioRepositoryPort horarioRepo;
     @Mock DisponibilidadProfesionalRepositoryPort disponibilidadRepo;
     @Mock UserRepositoryPort userRepo;
+    @Mock HistorialEstadoTurnoRepositoryPort historialRepo;
+    @Mock ConsultorioFeriadoRepositoryPort feriadoRepo;
+    @Mock PacienteRepositoryPort pacienteRepo;
 
     TurnoService service;
 
@@ -54,7 +57,8 @@ class TurnoServiceTest {
     void setUp() {
         service = new TurnoService(
                 turnoRepo, consultorioRepo, profesionalRepo, profesionalConsultorioRepo,
-                boxRepo, duracionRepo, horarioRepo, disponibilidadRepo, userRepo);
+                boxRepo, duracionRepo, horarioRepo, disponibilidadRepo, userRepo,
+                historialRepo, feriadoRepo, pacienteRepo);
     }
 
     private void stubConsultorioExists() {
@@ -78,7 +82,7 @@ class TurnoServiceTest {
 
     private void stubHorarioMonday() {
         when(horarioRepo.findByConsultorioIdAndDiaSemana(CONSULTORIO_ID, DayOfWeek.MONDAY))
-                .thenReturn(Optional.of(new ConsultorioHorario(UUID.randomUUID(), CONSULTORIO_ID, DayOfWeek.MONDAY,
+                .thenReturn(List.of(new ConsultorioHorario(UUID.randomUUID(), CONSULTORIO_ID, DayOfWeek.MONDAY,
                         LocalTime.of(8, 0), LocalTime.of(20, 0), true)));
     }
 
@@ -90,13 +94,27 @@ class TurnoServiceTest {
 
     private void stubNoConflicts() {
         when(turnoRepo.findByProfesionalIdAndRange(any(), any(), any())).thenReturn(List.of());
-        when(turnoRepo.findByConsultorioIdAndRange(any(), any(), any())).thenReturn(List.of());
+    }
+
+    private void stubNoFeriado() {
+        when(feriadoRepo.existsByConsultorioIdAndFecha(any(), any())).thenReturn(false);
+    }
+
+    private void stubHistorialSave() {
+        when(historialRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+    }
+
+    private void stubAdminUser() {
+        UUID adminUserId = UUID.randomUUID();
+        when(userRepo.findByEmail("admin@test.com"))
+                .thenReturn(Optional.of(new User(adminUserId, "admin@test.com", "hashed", "Admin", "User", null, UserStatus.ACTIVE, Instant.now())));
     }
 
     private CreateTurnoCommand validCreateCommand() {
         return new CreateTurnoCommand(
                 CONSULTORIO_ID, PROFESIONAL_ID, null, null,
-                NEXT_MONDAY_10, 30, "Consulta", null);
+                NEXT_MONDAY_10, 30, "Consulta", null,
+                null, null, null);
     }
 
     // ── create ──────────────────────────────────────────────────────
@@ -110,6 +128,9 @@ class TurnoServiceTest {
         stubHorarioMonday();
         stubDisponibilidadMonday();
         stubNoConflicts();
+        stubNoFeriado();
+        stubHistorialSave();
+        stubAdminUser();
         when(turnoRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         TurnoResult result = service.create(validCreateCommand(), "admin@test.com", ADMIN_ROLES);
@@ -140,7 +161,7 @@ class TurnoServiceTest {
 
         assertThatThrownBy(() -> service.create(validCreateCommand(), "admin@test.com", ADMIN_ROLES))
                 .isInstanceOf(SlotNoDisponibleException.class)
-                .hasMessageContaining("duración");
+                .hasMessageContaining("duracion");
     }
 
     @Test
@@ -149,9 +170,10 @@ class TurnoServiceTest {
         stubProfesionalExists();
         stubProfesionalAssigned();
         stubDuracionAllowed(30);
+        stubNoFeriado();
         // Consultorio opens 8-12 but turno is at 10:00-10:30 on Monday... let's make it closed that day
         when(horarioRepo.findByConsultorioIdAndDiaSemana(CONSULTORIO_ID, DayOfWeek.MONDAY))
-                .thenReturn(Optional.empty());
+                .thenReturn(List.of());
 
         assertThatThrownBy(() -> service.create(validCreateCommand(), "admin@test.com", ADMIN_ROLES))
                 .isInstanceOf(SlotNoDisponibleException.class)
@@ -164,6 +186,7 @@ class TurnoServiceTest {
         stubProfesionalExists();
         stubProfesionalAssigned();
         stubDuracionAllowed(30);
+        stubNoFeriado();
         stubHorarioMonday();
         // Profesional only available 14-18, turno at 10
         when(disponibilidadRepo.findByProfesionalIdAndConsultorioIdAndDiaSemana(PROFESIONAL_ID, CONSULTORIO_ID, DayOfWeek.MONDAY))
@@ -181,6 +204,7 @@ class TurnoServiceTest {
         stubProfesionalExists();
         stubProfesionalAssigned();
         stubDuracionAllowed(30);
+        stubNoFeriado();
         stubHorarioMonday();
         stubDisponibilidadMonday();
 
@@ -217,9 +241,11 @@ class TurnoServiceTest {
                 NEXT_MONDAY_10, 30, TurnoEstado.PROGRAMADO, null, null, Instant.now());
         when(turnoRepo.findById(turno.getId())).thenReturn(Optional.of(turno));
         when(turnoRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        stubHistorialSave();
+        stubAdminUser();
 
         TurnoResult result = service.cambiarEstado(turno.getId(),
-                new CambiarEstadoTurnoCommand(turno.getId(), TurnoEstado.CONFIRMADO),
+                new CambiarEstadoTurnoCommand(turno.getId(), TurnoEstado.CONFIRMADO, null, null),
                 "admin@test.com", ADMIN_ROLES);
 
         assertThat(result.estado()).isEqualTo(TurnoEstado.CONFIRMADO);
@@ -232,7 +258,7 @@ class TurnoServiceTest {
         when(turnoRepo.findById(turno.getId())).thenReturn(Optional.of(turno));
 
         assertThatThrownBy(() -> service.cambiarEstado(turno.getId(),
-                new CambiarEstadoTurnoCommand(turno.getId(), TurnoEstado.PROGRAMADO),
+                new CambiarEstadoTurnoCommand(turno.getId(), TurnoEstado.PROGRAMADO, null, null),
                 "admin@test.com", ADMIN_ROLES))
                 .isInstanceOf(TransicionEstadoInvalidaException.class);
     }
@@ -245,9 +271,12 @@ class TurnoServiceTest {
         Turno turno = new Turno(UUID.randomUUID(), CONSULTORIO_ID, PROFESIONAL_ID, null, null,
                 NEXT_MONDAY_10, 30, TurnoEstado.PROGRAMADO, null, null, Instant.now());
         when(turnoRepo.findById(turno.getId())).thenReturn(Optional.of(turno));
+        stubNoFeriado();
         stubHorarioMonday();
         stubDisponibilidadMonday();
         stubNoConflicts();
+        stubHistorialSave();
+        stubAdminUser();
         when(turnoRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         TurnoResult result = service.reprogramar(turno.getId(),
@@ -262,10 +291,11 @@ class TurnoServiceTest {
     @Test
     void getDisponibilidad_returnsAvailableSlots() {
         stubConsultorioExists();
+        stubNoFeriado();
         LocalDate monday = NEXT_MONDAY_10.toLocalDate();
 
         when(horarioRepo.findByConsultorioIdAndDiaSemana(CONSULTORIO_ID, DayOfWeek.MONDAY))
-                .thenReturn(Optional.of(new ConsultorioHorario(UUID.randomUUID(), CONSULTORIO_ID, DayOfWeek.MONDAY,
+                .thenReturn(List.of(new ConsultorioHorario(UUID.randomUUID(), CONSULTORIO_ID, DayOfWeek.MONDAY,
                         LocalTime.of(9, 0), LocalTime.of(12, 0), true)));
         when(disponibilidadRepo.findByProfesionalIdAndConsultorioIdAndDiaSemana(PROFESIONAL_ID, CONSULTORIO_ID, DayOfWeek.MONDAY))
                 .thenReturn(List.of(new DisponibilidadProfesional(UUID.randomUUID(), PROFESIONAL_ID, CONSULTORIO_ID,
@@ -285,10 +315,11 @@ class TurnoServiceTest {
     @Test
     void getDisponibilidad_noHorarioForDay_returnsEmpty() {
         stubConsultorioExists();
+        stubNoFeriado();
         LocalDate monday = NEXT_MONDAY_10.toLocalDate();
 
         when(horarioRepo.findByConsultorioIdAndDiaSemana(CONSULTORIO_ID, DayOfWeek.MONDAY))
-                .thenReturn(Optional.empty());
+                .thenReturn(List.of());
 
         List<SlotDisponibleResult> slots = service.getDisponibilidad(
                 CONSULTORIO_ID, PROFESIONAL_ID, monday, 30,
@@ -326,13 +357,148 @@ class TurnoServiceTest {
         assertThat(results.get(0).profesionalId()).isEqualTo(PROFESIONAL_ID);
     }
 
+    // ── create: feriado ─────────────────────────────────────────────
+
+    @Test
+    void create_onFeriado_throws() {
+        stubConsultorioExists();
+        stubProfesionalExists();
+        stubProfesionalAssigned();
+        stubDuracionAllowed(30);
+        when(feriadoRepo.existsByConsultorioIdAndFecha(any(), any())).thenReturn(true);
+
+        assertThatThrownBy(() -> service.create(validCreateCommand(), "admin@test.com", ADMIN_ROLES))
+                .isInstanceOf(FeriadoException.class)
+                .hasMessageContaining("feriado");
+    }
+
+    // ── create: paciente overlap ─────────────────────────────────────
+
+    @Test
+    void create_pacienteOverlap_throws() {
+        UUID pacienteId = UUID.randomUUID();
+        CreateTurnoCommand cmd = new CreateTurnoCommand(
+                CONSULTORIO_ID, PROFESIONAL_ID, null, pacienteId,
+                NEXT_MONDAY_10, 30, "Consulta", null, null, null, null);
+
+        stubConsultorioExists();
+        stubProfesionalExists();
+        stubProfesionalAssigned();
+        stubDuracionAllowed(30);
+        stubNoFeriado();
+        stubHorarioMonday();
+        stubDisponibilidadMonday();
+        stubNoConflicts();
+
+        // Paciente ya tiene turno solapado
+        Turno existing = new Turno(UUID.randomUUID(), CONSULTORIO_ID, UUID.randomUUID(), null, pacienteId,
+                NEXT_MONDAY_10.minusMinutes(15), 30, TurnoEstado.PROGRAMADO, null, null, Instant.now());
+        when(turnoRepo.findByPacienteIdAndRange(any(), any(), any())).thenReturn(List.of(existing));
+
+        assertThatThrownBy(() -> service.create(cmd, "admin@test.com", ADMIN_ROLES))
+                .isInstanceOf(TurnoPacienteSolapadoException.class);
+    }
+
+    // ── create: tipoConsulta y metadata ──────────────────────────────
+
+    @Test
+    void create_setsMetadata() {
+        stubConsultorioExists();
+        stubProfesionalExists();
+        stubProfesionalAssigned();
+        stubDuracionAllowed(30);
+        stubHorarioMonday();
+        stubDisponibilidadMonday();
+        stubNoConflicts();
+        stubNoFeriado();
+        stubHistorialSave();
+        stubAdminUser();
+        when(turnoRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        CreateTurnoCommand cmd = new CreateTurnoCommand(
+                CONSULTORIO_ID, PROFESIONAL_ID, null, null,
+                NEXT_MONDAY_10, 30, "Consulta", null,
+                TipoConsulta.OBRA_SOCIAL, "1155667788", null);
+
+        TurnoResult result = service.create(cmd, "admin@test.com", ADMIN_ROLES);
+
+        assertThat(result.tipoConsulta()).isEqualTo(TipoConsulta.OBRA_SOCIAL);
+        assertThat(result.telefonoContacto()).isEqualTo("1155667788");
+        assertThat(result.creadoPorUserId()).isNotNull();
+    }
+
+    // ── cambiarEstado: EN_ESPERA ─────────────────────────────────────
+
+    @Test
+    void cambiarEstado_CONFIRMADO_to_EN_ESPERA_works() {
+        Turno turno = new Turno(UUID.randomUUID(), CONSULTORIO_ID, PROFESIONAL_ID, null, null,
+                NEXT_MONDAY_10, 30, TurnoEstado.CONFIRMADO, null, null, Instant.now());
+        when(turnoRepo.findById(turno.getId())).thenReturn(Optional.of(turno));
+        when(turnoRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        stubHistorialSave();
+        stubAdminUser();
+
+        TurnoResult result = service.cambiarEstado(turno.getId(),
+                new CambiarEstadoTurnoCommand(turno.getId(), TurnoEstado.EN_ESPERA, null, null),
+                "admin@test.com", ADMIN_ROLES);
+
+        assertThat(result.estado()).isEqualTo(TurnoEstado.EN_ESPERA);
+    }
+
+    @Test
+    void cambiarEstado_EN_ESPERA_to_EN_CURSO_works() {
+        Turno turno = new Turno(UUID.randomUUID(), CONSULTORIO_ID, PROFESIONAL_ID, null, null,
+                NEXT_MONDAY_10, 30, TurnoEstado.CONFIRMADO, null, null, Instant.now());
+        turno.cambiarEstado(TurnoEstado.EN_ESPERA); // transition to EN_ESPERA first
+        when(turnoRepo.findById(turno.getId())).thenReturn(Optional.of(turno));
+        when(turnoRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        stubHistorialSave();
+        stubAdminUser();
+
+        TurnoResult result = service.cambiarEstado(turno.getId(),
+                new CambiarEstadoTurnoCommand(turno.getId(), TurnoEstado.EN_CURSO, null, null),
+                "admin@test.com", ADMIN_ROLES);
+
+        assertThat(result.estado()).isEqualTo(TurnoEstado.EN_CURSO);
+    }
+
+    // ── cambiarEstado: cancelar con motivo ───────────────────────────
+
+    @Test
+    void cambiarEstado_toCancelado_setsMotivoCancelacion() {
+        Turno turno = new Turno(UUID.randomUUID(), CONSULTORIO_ID, PROFESIONAL_ID, null, null,
+                NEXT_MONDAY_10, 30, TurnoEstado.PROGRAMADO, null, null, Instant.now());
+        when(turnoRepo.findById(turno.getId())).thenReturn(Optional.of(turno));
+        when(turnoRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        stubHistorialSave();
+        stubAdminUser();
+
+        TurnoResult result = service.cambiarEstado(turno.getId(),
+                new CambiarEstadoTurnoCommand(turno.getId(), TurnoEstado.CANCELADO, "Paciente no puede asistir", null),
+                "admin@test.com", ADMIN_ROLES);
+
+        assertThat(result.estado()).isEqualTo(TurnoEstado.CANCELADO);
+        assertThat(result.motivoCancelacion()).isEqualTo("Paciente no puede asistir");
+    }
+
+    // ── getDisponibilidad: feriado ───────────────────────────────────
+
+    @Test
+    void getDisponibilidad_onFeriado_returnsEmpty() {
+        stubConsultorioExists();
+        when(feriadoRepo.existsByConsultorioIdAndFecha(any(), any())).thenReturn(true);
+
+        LocalDate monday = NEXT_MONDAY_10.toLocalDate();
+        List<SlotDisponibleResult> slots = service.getDisponibilidad(
+                CONSULTORIO_ID, PROFESIONAL_ID, monday, 30,
+                "admin@test.com", ADMIN_ROLES);
+
+        assertThat(slots).isEmpty();
+    }
+
     // ── Helpers ─────────────────────────────────────────────────────
 
-    private com.akine_api.domain.model.User createUser(UUID id) {
-        // Minimal user for access checks — using reflection or a test-friendly constructor
-        // Since User model might not have a simple constructor, we use a mock approach
-        var user = org.mockito.Mockito.mock(com.akine_api.domain.model.User.class);
-        when(user.getId()).thenReturn(id);
-        return user;
+    private User createUser(UUID id) {
+        return new User(id, "prof@test.com", "hashed", "Test", "User", null, UserStatus.ACTIVE, Instant.now());
     }
 }

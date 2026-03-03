@@ -5,10 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.DayOfWeek;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface ConsultorioHorarioJpaRepository extends JpaRepository<ConsultorioHorarioEntity, UUID> {
     List<ConsultorioHorarioEntity> findByConsultorioId(UUID consultorioId);
-    Optional<ConsultorioHorarioEntity> findByConsultorioIdAndDiaSemana(UUID consultorioId, DayOfWeek diaSemana);
+    List<ConsultorioHorarioEntity> findByConsultorioIdAndDiaSemanaOrderByHoraAperturaAsc(UUID consultorioId, DayOfWeek diaSemana);
+    void deleteByConsultorioIdAndDiaSemana(UUID consultorioId, DayOfWeek diaSemana);
 }

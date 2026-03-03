@@ -11,5 +11,6 @@ public interface TurnoRepositoryPort {
     Optional<Turno> findById(UUID id);
     List<Turno> findByConsultorioIdAndRange(UUID consultorioId, LocalDateTime from, LocalDateTime to);
     List<Turno> findByProfesionalIdAndRange(UUID profesionalId, LocalDateTime from, LocalDateTime to);
+    List<Turno> findByPacienteIdAndRange(UUID pacienteId, LocalDateTime from, LocalDateTime to);
     Turno save(Turno turno);
 }

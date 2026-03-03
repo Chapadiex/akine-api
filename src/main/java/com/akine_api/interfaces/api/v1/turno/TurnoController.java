@@ -5,6 +5,7 @@ import com.akine_api.application.dto.command.CreateTurnoCommand;
 import com.akine_api.application.dto.command.ReprogramarTurnoCommand;
 import com.akine_api.application.dto.result.TurnoResult;
 import com.akine_api.application.service.TurnoService;
+import com.akine_api.domain.model.TipoConsulta;
 import com.akine_api.domain.model.TurnoEstado;
 import com.akine_api.interfaces.api.v1.turno.dto.*;
 import jakarta.validation.Valid;
@@ -55,6 +56,11 @@ public class TurnoController {
             @Valid @RequestBody CreateTurnoRequest req,
             @AuthenticationPrincipal UserDetails principal) {
 
+        TipoConsulta tipoConsulta = null;
+        if (req.tipoConsulta() != null) {
+            tipoConsulta = TipoConsulta.valueOf(req.tipoConsulta());
+        }
+
         TurnoResult result = service.create(
                 new CreateTurnoCommand(
                         consultorioId,
@@ -64,7 +70,10 @@ public class TurnoController {
                         req.fechaHoraInicio(),
                         req.duracionMinutos(),
                         req.motivoConsulta(),
-                        req.notas()
+                        req.notas(),
+                        tipoConsulta,
+                        req.telefonoContacto(),
+                        null
                 ),
                 principal.getUsername(),
                 roles(principal)
@@ -97,7 +106,7 @@ public class TurnoController {
 
         TurnoResult result = service.cambiarEstado(
                 id,
-                new CambiarEstadoTurnoCommand(id, req.nuevoEstado()),
+                new CambiarEstadoTurnoCommand(id, req.nuevoEstado(), req.motivo(), null),
                 principal.getUsername(),
                 roles(principal)
         );
@@ -119,14 +128,38 @@ public class TurnoController {
         return ResponseEntity.ok(result);
     }
 
+    @GetMapping("/{id}/historial")
+    public ResponseEntity<List<HistorialEstadoTurnoResponse>> historial(
+            @PathVariable UUID consultorioId,
+            @PathVariable UUID id,
+            @AuthenticationPrincipal UserDetails principal) {
+
+        List<HistorialEstadoTurnoResponse> result = service
+                .getHistorial(id, principal.getUsername(), roles(principal))
+                .stream().map(h -> new HistorialEstadoTurnoResponse(
+                        h.id(), h.turnoId(),
+                        h.estadoAnterior() != null ? h.estadoAnterior().name() : null,
+                        h.estadoNuevo().name(),
+                        h.cambiadoPorUserEmail(),
+                        h.motivo(),
+                        h.createdAt()
+                )).toList();
+        return ResponseEntity.ok(result);
+    }
+
     private TurnoResponse toResponse(TurnoResult r) {
         return new TurnoResponse(
                 r.id(), r.consultorioId(), r.profesionalId(),
                 r.profesionalNombre(), r.profesionalApellido(),
                 r.boxId(), r.boxNombre(), r.pacienteId(),
+                r.pacienteNombre(), r.pacienteApellido(), r.pacienteDni(),
                 r.fechaHoraInicio(), r.fechaHoraFin(),
                 r.duracionMinutos(), r.estado().name(),
+                r.tipoConsulta() != null ? r.tipoConsulta().name() : null,
                 r.motivoConsulta(), r.notas(),
+                r.telefonoContacto(),
+                r.creadoPorUserId(),
+                r.motivoCancelacion(),
                 r.createdAt(), r.updatedAt()
         );
     }

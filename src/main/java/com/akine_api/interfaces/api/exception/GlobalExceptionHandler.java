@@ -145,6 +145,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return pd;
     }
 
+    @ExceptionHandler(FeriadoException.class)
+    public ProblemDetail handleFeriado(FeriadoException ex) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        pd.setType(URI.create("urn:akine:error:feriado"));
+        pd.setTitle("Día feriado");
+        return pd;
+    }
+
+    @ExceptionHandler(TurnoPacienteSolapadoException.class)
+    public ProblemDetail handleTurnoPacienteSolapado(TurnoPacienteSolapadoException ex) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        pd.setType(URI.create("urn:akine:error:turno-paciente-solapado"));
+        pd.setTitle("Turno de paciente solapado");
+        return pd;
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ProblemDetail handleIllegalArgument(IllegalArgumentException ex) {
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());

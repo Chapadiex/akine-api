@@ -67,6 +67,15 @@ public class PacienteController {
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(result));
     }
 
+    @GetMapping
+    public ResponseEntity<List<PacienteSearchResponse>> list(@RequestParam UUID consultorioId,
+                                                             @AuthenticationPrincipal UserDetails principal) {
+        List<PacienteSearchResponse> result = service.listByConsultorio(
+                consultorioId, principal.getUsername(), roles(principal)
+        ).stream().map(this::toSearchResponse).toList();
+        return ResponseEntity.ok(result);
+    }
+
     @GetMapping("/search")
     public ResponseEntity<List<PacienteSearchResponse>> search(@RequestParam UUID consultorioId,
                                                                @RequestParam(required = false) String dni,

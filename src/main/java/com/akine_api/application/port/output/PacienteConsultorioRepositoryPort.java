@@ -8,5 +8,6 @@ import java.util.UUID;
 public interface PacienteConsultorioRepositoryPort {
     PacienteConsultorio save(PacienteConsultorio pacienteConsultorio);
     boolean existsByPacienteIdAndConsultorioId(UUID pacienteId, UUID consultorioId);
+    List<UUID> findPacienteIdsByConsultorioId(UUID consultorioId);
     List<UUID> findPacienteIdsByConsultorioIdAndPacienteIds(UUID consultorioId, List<UUID> pacienteIds);
 }

@@ -6,5 +6,7 @@ import java.util.UUID;
 
 public record CambiarEstadoTurnoCommand(
         UUID turnoId,
-        TurnoEstado nuevoEstado
+        TurnoEstado nuevoEstado,
+        String motivo,
+        UUID cambiadoPorUserId
 ) {}

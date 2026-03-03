@@ -14,7 +14,12 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalTime;
+import java.time.DayOfWeek;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
 
@@ -46,30 +51,100 @@ public class ConsultorioHorarioService {
     public ConsultorioHorarioResult set(SetHorarioConsultorioCommand cmd, String userEmail, Set<String> roles) {
         assertConsultorioExists(cmd.consultorioId());
         assertCanWrite(cmd.consultorioId(), userEmail, roles);
-        ConsultorioHorario horario = horarioRepo
-                .findByConsultorioIdAndDiaSemana(cmd.consultorioId(), cmd.diaSemana())
-                .map(existing -> {
-                    existing.update(cmd.horaApertura(), cmd.horaCierre());
-                    return existing;
-                })
-                .orElseGet(() -> new ConsultorioHorario(
+        horarioRepo.deleteByConsultorioIdAndDiaSemana(cmd.consultorioId(), cmd.diaSemana());
+        ConsultorioHorario horario = new ConsultorioHorario(
+                UUID.randomUUID(),
+                cmd.consultorioId(),
+                cmd.diaSemana(),
+                cmd.horaApertura(),
+                cmd.horaCierre(),
+                true
+        );
+        return toResult(horarioRepo.save(horario));
+    }
+
+    public ConsultorioHorarioResult add(SetHorarioConsultorioCommand cmd, String userEmail, Set<String> roles) {
+        assertConsultorioExists(cmd.consultorioId());
+        assertCanWrite(cmd.consultorioId(), userEmail, roles);
+        validateNoOverlap(cmd.consultorioId(), cmd.diaSemana(), cmd.horaApertura(), cmd.horaCierre());
+
+        ConsultorioHorario horario = new ConsultorioHorario(
+                UUID.randomUUID(),
+                cmd.consultorioId(),
+                cmd.diaSemana(),
+                cmd.horaApertura(),
+                cmd.horaCierre(),
+                true
+        );
+        return toResult(horarioRepo.save(horario));
+    }
+
+    public List<ConsultorioHorarioResult> addBatch(UUID consultorioId,
+                                                   List<SetHorarioConsultorioCommand> commands,
+                                                   String userEmail,
+                                                   Set<String> roles) {
+        assertConsultorioExists(consultorioId);
+        assertCanWrite(consultorioId, userEmail, roles);
+
+        if (commands == null || commands.isEmpty()) {
+            throw new IllegalArgumentException("Debe enviar al menos una franja horaria");
+        }
+
+        Map<DayOfWeek, List<ConsultorioHorario>> byDay = new HashMap<>();
+        for (ConsultorioHorario existing : horarioRepo.findByConsultorioId(consultorioId)) {
+            if (!existing.isActivo()) continue;
+            byDay.computeIfAbsent(existing.getDiaSemana(), k -> new ArrayList<>()).add(existing);
+        }
+
+        for (SetHorarioConsultorioCommand cmd : commands) {
+            if (!consultorioId.equals(cmd.consultorioId())) {
+                throw new IllegalArgumentException("Todos los tramos deben pertenecer al mismo consultorio");
+            }
+            validateNoOverlap(byDay.getOrDefault(cmd.diaSemana(), List.of()), cmd.diaSemana(), cmd.horaApertura(), cmd.horaCierre());
+
+            ConsultorioHorario staged = new ConsultorioHorario(
+                    UUID.randomUUID(),
+                    consultorioId,
+                    cmd.diaSemana(),
+                    cmd.horaApertura(),
+                    cmd.horaCierre(),
+                    true
+            );
+            byDay.computeIfAbsent(cmd.diaSemana(), k -> new ArrayList<>()).add(staged);
+        }
+
+        return commands.stream()
+                .map(cmd -> new ConsultorioHorario(
                         UUID.randomUUID(),
-                        cmd.consultorioId(),
+                        consultorioId,
                         cmd.diaSemana(),
                         cmd.horaApertura(),
                         cmd.horaCierre(),
                         true
-                ));
-        return toResult(horarioRepo.save(horario));
+                ))
+                .map(horarioRepo::save)
+                .map(this::toResult)
+                .toList();
     }
 
     public void delete(DeleteHorarioConsultorioCommand cmd, String userEmail, Set<String> roles) {
         assertConsultorioExists(cmd.consultorioId());
         assertCanWrite(cmd.consultorioId(), userEmail, roles);
-        ConsultorioHorario horario = horarioRepo
-                .findByConsultorioIdAndDiaSemana(cmd.consultorioId(), cmd.diaSemana())
-                .orElseThrow(() -> new ConsultorioHorarioNotFoundException(
-                        "Horario no encontrado para " + cmd.diaSemana()));
+        List<ConsultorioHorario> horarios = horarioRepo
+                .findByConsultorioIdAndDiaSemana(cmd.consultorioId(), cmd.diaSemana());
+        if (horarios.isEmpty()) {
+            throw new ConsultorioHorarioNotFoundException("Horario no encontrado para " + cmd.diaSemana());
+        }
+        horarioRepo.deleteByConsultorioIdAndDiaSemana(cmd.consultorioId(), cmd.diaSemana());
+    }
+
+    public void deleteById(UUID consultorioId, UUID horarioId, String userEmail, Set<String> roles) {
+        assertConsultorioExists(consultorioId);
+        assertCanWrite(consultorioId, userEmail, roles);
+        ConsultorioHorario horario = horarioRepo.findByConsultorioId(consultorioId).stream()
+                .filter(h -> h.getId().equals(horarioId))
+                .findFirst()
+                .orElseThrow(() -> new ConsultorioHorarioNotFoundException("Horario no encontrado: " + horarioId));
         horarioRepo.deleteById(horario.getId());
     }
 
@@ -103,6 +178,26 @@ public class ConsultorioHorarioService {
         return userRepo.findByEmail(email)
                 .map(User::getId)
                 .orElseThrow(() -> new AccessDeniedException("Usuario no encontrado"));
+    }
+
+    private void validateNoOverlap(UUID consultorioId, java.time.DayOfWeek diaSemana,
+                                   LocalTime apertura, LocalTime cierre) {
+        boolean overlap = horarioRepo.findByConsultorioIdAndDiaSemana(consultorioId, diaSemana).stream()
+                .filter(ConsultorioHorario::isActivo)
+                .anyMatch(existing -> apertura.isBefore(existing.getHoraCierre()) && cierre.isAfter(existing.getHoraApertura()));
+        if (overlap) {
+            throw new IllegalArgumentException("La franja horaria se solapa con otra ya configurada para el mismo dia");
+        }
+    }
+
+    private void validateNoOverlap(List<ConsultorioHorario> dayHorarios, java.time.DayOfWeek diaSemana,
+                                   LocalTime apertura, LocalTime cierre) {
+        boolean overlap = dayHorarios.stream()
+                .filter(ConsultorioHorario::isActivo)
+                .anyMatch(existing -> apertura.isBefore(existing.getHoraCierre()) && cierre.isAfter(existing.getHoraApertura()));
+        if (overlap) {
+            throw new IllegalArgumentException("La franja horaria se solapa en " + diaSemana);
+        }
     }
 
     private ConsultorioHorarioResult toResult(ConsultorioHorario h) {

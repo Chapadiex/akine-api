@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.DayOfWeek;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Component
@@ -29,8 +28,11 @@ public class ConsultorioHorarioRepositoryAdapter implements ConsultorioHorarioRe
     }
 
     @Override
-    public Optional<ConsultorioHorario> findByConsultorioIdAndDiaSemana(UUID consultorioId, DayOfWeek diaSemana) {
-        return repo.findByConsultorioIdAndDiaSemana(consultorioId, diaSemana).map(mapper::toDomain);
+    public List<ConsultorioHorario> findByConsultorioIdAndDiaSemana(UUID consultorioId, DayOfWeek diaSemana) {
+        return repo.findByConsultorioIdAndDiaSemanaOrderByHoraAperturaAsc(consultorioId, diaSemana)
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
     }
 
     @Override
@@ -41,5 +43,10 @@ public class ConsultorioHorarioRepositoryAdapter implements ConsultorioHorarioRe
     @Override
     public void deleteById(UUID id) {
         repo.deleteById(id);
+    }
+
+    @Override
+    public void deleteByConsultorioIdAndDiaSemana(UUID consultorioId, DayOfWeek diaSemana) {
+        repo.deleteByConsultorioIdAndDiaSemana(consultorioId, diaSemana);
     }
 }

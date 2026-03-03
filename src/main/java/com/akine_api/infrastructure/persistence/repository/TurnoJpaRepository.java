@@ -14,4 +14,7 @@ public interface TurnoJpaRepository extends JpaRepository<TurnoEntity, UUID> {
 
     List<TurnoEntity> findByProfesionalIdAndFechaHoraInicioGreaterThanEqualAndFechaHoraInicioLessThan(
             UUID profesionalId, LocalDateTime from, LocalDateTime to);
+
+    List<TurnoEntity> findByPacienteIdAndFechaHoraInicioGreaterThanEqualAndFechaHoraInicioLessThan(
+            UUID pacienteId, LocalDateTime from, LocalDateTime to);
 }

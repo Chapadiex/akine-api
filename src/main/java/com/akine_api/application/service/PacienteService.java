@@ -146,6 +146,35 @@ public class PacienteService {
     }
 
     @Transactional(readOnly = true)
+    public List<PacienteSearchResult> listByConsultorio(UUID consultorioId,
+                                                         String userEmail,
+                                                         Set<String> roles) {
+        assertBackofficeRole(roles);
+        assertCanManageConsultorio(consultorioId, userEmail, roles);
+
+        List<UUID> linkedIds = pacienteConsultorioRepo.findPacienteIdsByConsultorioId(consultorioId).stream()
+                .limit(200)
+                .toList();
+        if (linkedIds.isEmpty()) {
+            return List.of();
+        }
+
+        List<Paciente> pacientes = pacienteRepo.findByIds(linkedIds);
+        Set<UUID> linkedSet = new HashSet<>(linkedIds);
+
+        return pacientes.stream().map(p -> new PacienteSearchResult(
+                p.getId(),
+                p.getDni(),
+                p.getNombre(),
+                p.getApellido(),
+                p.getTelefono(),
+                p.getEmail(),
+                p.isActivo(),
+                linkedSet.contains(p.getId())
+        )).toList();
+    }
+
+    @Transactional(readOnly = true)
     public List<PacienteSearchResult> search(UUID consultorioId,
                                              String dni,
                                              String q,
@@ -155,20 +184,28 @@ public class PacienteService {
         assertCanManageConsultorio(consultorioId, userEmail, roles);
 
         List<Paciente> pacientes = new ArrayList<>();
+        List<UUID> linkedIdsList = List.of();
         if (dni != null && !dni.isBlank()) {
             pacienteRepo.findByDni(normalizeDni(dni)).ifPresent(pacientes::add);
         } else if (q != null && !q.isBlank()) {
             pacientes = pacienteRepo.searchByNombreApellido(q.trim(), 20);
+        } else {
+            return listByConsultorio(consultorioId, userEmail, roles);
         }
 
         if (pacientes.isEmpty()) {
             return List.of();
         }
 
-        List<UUID> ids = pacientes.stream().map(Paciente::getId).toList();
-        Set<UUID> linkedIds = new HashSet<>(
-                pacienteConsultorioRepo.findPacienteIdsByConsultorioIdAndPacienteIds(consultorioId, ids)
-        );
+        Set<UUID> linkedIds;
+        if (!linkedIdsList.isEmpty()) {
+            linkedIds = new HashSet<>(linkedIdsList);
+        } else {
+            List<UUID> ids = pacientes.stream().map(Paciente::getId).toList();
+            linkedIds = new HashSet<>(
+                    pacienteConsultorioRepo.findPacienteIdsByConsultorioIdAndPacienteIds(consultorioId, ids)
+            );
+        }
 
         return pacientes.stream().map(p -> new PacienteSearchResult(
                 p.getId(),

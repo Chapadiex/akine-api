@@ -15,6 +15,14 @@ public interface PacienteConsultorioJpaRepository extends JpaRepository<Paciente
             SELECT pc.pacienteId
             FROM PacienteConsultorioEntity pc
             WHERE pc.consultorioId = :consultorioId
+            ORDER BY pc.createdAt DESC
+            """)
+    List<UUID> findPacienteIdsByConsultorioId(@Param("consultorioId") UUID consultorioId);
+
+    @Query("""
+            SELECT pc.pacienteId
+            FROM PacienteConsultorioEntity pc
+            WHERE pc.consultorioId = :consultorioId
             AND pc.pacienteId IN :pacienteIds
             """)
     List<UUID> findPacienteIdsByConsultorioIdAndPacienteIds(@Param("consultorioId") UUID consultorioId,

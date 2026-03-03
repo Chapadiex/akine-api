@@ -6,6 +6,7 @@ import com.akine_api.infrastructure.persistence.mapper.PacienteEntityMapper;
 import com.akine_api.infrastructure.persistence.repository.PacienteJpaRepository;
 import org.springframework.stereotype.Component;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -40,6 +41,18 @@ public class PacienteRepositoryAdapter implements PacienteRepositoryPort {
     @Override
     public Optional<Paciente> findByUserId(UUID userId) {
         return jpaRepository.findByUserId(userId).map(mapper::toDomain);
+    }
+
+    @Override
+    public List<Paciente> findByIds(List<UUID> ids) {
+        if (ids.isEmpty()) return List.of();
+        List<Paciente> pacientes = jpaRepository.findAllById(ids)
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
+        return pacientes.stream()
+                .sorted(Comparator.comparingInt(p -> ids.indexOf(p.getId())))
+                .toList();
     }
 
     @Override

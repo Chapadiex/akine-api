@@ -61,7 +61,7 @@ class DisponibilidadProfesionalServiceTest {
         when(profesionalConsultorioRepo.findByProfesionalIdAndConsultorioId(PROFESIONAL_ID, CONSULTORIO_ID))
                 .thenReturn(Optional.of(new ProfesionalConsultorio(UUID.randomUUID(), PROFESIONAL_ID, CONSULTORIO_ID, true, Instant.now())));
         when(horarioRepo.findByConsultorioIdAndDiaSemana(CONSULTORIO_ID, DayOfWeek.MONDAY))
-                .thenReturn(Optional.of(new ConsultorioHorario(UUID.randomUUID(), CONSULTORIO_ID, DayOfWeek.MONDAY,
+                .thenReturn(List.of(new ConsultorioHorario(UUID.randomUUID(), CONSULTORIO_ID, DayOfWeek.MONDAY,
                         LocalTime.of(8, 0), LocalTime.of(18, 0), true)));
 
         assertThatThrownBy(() -> service.create(new CreateDisponibilidadCommand(
@@ -79,7 +79,7 @@ class DisponibilidadProfesionalServiceTest {
         when(profesionalConsultorioRepo.findByProfesionalIdAndConsultorioId(PROFESIONAL_ID, CONSULTORIO_ID))
                 .thenReturn(Optional.of(new ProfesionalConsultorio(UUID.randomUUID(), PROFESIONAL_ID, CONSULTORIO_ID, true, Instant.now())));
         when(horarioRepo.findByConsultorioIdAndDiaSemana(CONSULTORIO_ID, DayOfWeek.MONDAY))
-                .thenReturn(Optional.of(new ConsultorioHorario(UUID.randomUUID(), CONSULTORIO_ID, DayOfWeek.MONDAY,
+                .thenReturn(List.of(new ConsultorioHorario(UUID.randomUUID(), CONSULTORIO_ID, DayOfWeek.MONDAY,
                         LocalTime.of(8, 0), LocalTime.of(18, 0), true)));
         when(disponibilidadRepo.findByProfesionalIdAndConsultorioIdAndDiaSemana(PROFESIONAL_ID, CONSULTORIO_ID, DayOfWeek.MONDAY))
                 .thenReturn(List.of(new DisponibilidadProfesional(UUID.randomUUID(), PROFESIONAL_ID, CONSULTORIO_ID, DayOfWeek.MONDAY,

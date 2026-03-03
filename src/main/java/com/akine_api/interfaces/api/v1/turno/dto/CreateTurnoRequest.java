@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record CreateTurnoRequest(
-        @NotNull(message = "El profesional es obligatorio")
         UUID profesionalId,
         UUID boxId,
         UUID pacienteId,
@@ -20,5 +19,8 @@ public record CreateTurnoRequest(
         @Size(max = 500, message = "El motivo no puede superar 500 caracteres")
         String motivoConsulta,
         @Size(max = 1000, message = "Las notas no pueden superar 1000 caracteres")
-        String notas
+        String notas,
+        String tipoConsulta,
+        @Size(max = 50, message = "El teléfono no puede superar 50 caracteres")
+        String telefonoContacto
 ) {}

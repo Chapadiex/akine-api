@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,12 +55,46 @@ public class HorarioConsultorioController {
         return ResponseEntity.ok(toResponse(service.set(cmd, principal.getUsername(), roles(principal))));
     }
 
+    @PostMapping
+    public ResponseEntity<HorarioResponse> add(
+            @PathVariable UUID consultorioId,
+            @Valid @RequestBody HorarioRequest req,
+            @AuthenticationPrincipal UserDetails principal) {
+        SetHorarioConsultorioCommand cmd = new SetHorarioConsultorioCommand(
+                consultorioId, req.diaSemana(), req.horaApertura(), req.horaCierre());
+        return ResponseEntity.ok(toResponse(service.add(cmd, principal.getUsername(), roles(principal))));
+    }
+
+    @PostMapping("/batch")
+    public ResponseEntity<List<HorarioResponse>> addBatch(
+            @PathVariable UUID consultorioId,
+            @RequestBody List<@Valid HorarioRequest> requests,
+            @AuthenticationPrincipal UserDetails principal) {
+        List<SetHorarioConsultorioCommand> commands = requests.stream()
+                .map(req -> new SetHorarioConsultorioCommand(
+                        consultorioId, req.diaSemana(), req.horaApertura(), req.horaCierre()))
+                .toList();
+
+        List<HorarioResponse> result = service.addBatch(consultorioId, commands, principal.getUsername(), roles(principal))
+                .stream().map(this::toResponse).toList();
+        return ResponseEntity.ok(result);
+    }
+
     @DeleteMapping("/{dia}")
     public ResponseEntity<Void> delete(
             @PathVariable UUID consultorioId,
             @PathVariable DayOfWeek dia,
             @AuthenticationPrincipal UserDetails principal) {
         service.delete(new DeleteHorarioConsultorioCommand(consultorioId, dia), principal.getUsername(), roles(principal));
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/tramos/{horarioId}")
+    public ResponseEntity<Void> deleteById(
+            @PathVariable UUID consultorioId,
+            @PathVariable UUID horarioId,
+            @AuthenticationPrincipal UserDetails principal) {
+        service.deleteById(consultorioId, horarioId, principal.getUsername(), roles(principal));
         return ResponseEntity.noContent().build();
     }
 

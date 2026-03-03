@@ -119,13 +119,17 @@ public class DisponibilidadProfesionalService {
     }
 
     private void validateDentroHorarioConsultorio(UUID consultorioId, CreateDisponibilidadCommand cmd) {
-        ConsultorioHorario horario = horarioRepo
+        List<ConsultorioHorario> horarios = horarioRepo
                 .findByConsultorioIdAndDiaSemana(consultorioId, cmd.diaSemana())
-                .orElseThrow(() -> new ConsultorioHorarioNotFoundException("No existe horario para el dia " + cmd.diaSemana()));
+                .stream().filter(ConsultorioHorario::isActivo).toList();
+        if (horarios.isEmpty()) {
+            throw new ConsultorioHorarioNotFoundException("No existe horario para el dia " + cmd.diaSemana());
+        }
 
-        boolean startsInside = !cmd.horaInicio().isBefore(horario.getHoraApertura());
-        boolean endsInside = !cmd.horaFin().isAfter(horario.getHoraCierre());
-        if (!startsInside || !endsInside) {
+        boolean insideAny = horarios.stream().anyMatch(h ->
+                !cmd.horaInicio().isBefore(h.getHoraApertura()) &&
+                        !cmd.horaFin().isAfter(h.getHoraCierre()));
+        if (!insideAny) {
             throw new DisponibilidadFueraDeHorarioException("La disponibilidad esta fuera del horario del consultorio");
         }
     }

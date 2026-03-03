@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -46,10 +47,10 @@ class ConsultorioHorarioServiceTest {
     void set_asAdmin_ok() {
         when(consultorioRepo.findById(CONSULTORIO_ID))
                 .thenReturn(Optional.of(new Consultorio(CONSULTORIO_ID, "C", null, null, null, null, "ACTIVE", Instant.now())));
-        when(horarioRepo.findByConsultorioIdAndDiaSemana(CONSULTORIO_ID, DayOfWeek.MONDAY)).thenReturn(Optional.empty());
+        when(horarioRepo.findByConsultorioIdAndDiaSemana(CONSULTORIO_ID, DayOfWeek.MONDAY)).thenReturn(List.of());
         when(horarioRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        var result = service.set(new SetHorarioConsultorioCommand(
+        var result = service.add(new SetHorarioConsultorioCommand(
                 CONSULTORIO_ID, DayOfWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(18, 0)
         ), USER_EMAIL, Set.of("ROLE_ADMIN"));
 

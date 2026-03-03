@@ -11,5 +11,6 @@ public interface PacienteRepositoryPort {
     Optional<Paciente> findById(UUID id);
     Optional<Paciente> findByDni(String dni);
     Optional<Paciente> findByUserId(UUID userId);
+    List<Paciente> findByIds(List<UUID> ids);
     List<Paciente> searchByNombreApellido(String query, int limit);
 }
