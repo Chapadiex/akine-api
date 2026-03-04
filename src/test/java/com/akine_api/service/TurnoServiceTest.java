@@ -68,7 +68,11 @@ class TurnoServiceTest {
 
     private void stubProfesionalExists() {
         when(profesionalRepo.findById(PROFESIONAL_ID))
-                .thenReturn(Optional.of(new Profesional(PROFESIONAL_ID, CONSULTORIO_ID, "Juan", "Perez", "M123", null, "jp@test.com", null, true, Instant.now())));
+                .thenReturn(Optional.of(new Profesional(
+                        PROFESIONAL_ID, CONSULTORIO_ID, "Juan", "Perez", null, "M123",
+                        "Kinesiologia", "Kinesiologia", "jp@test.com", null,
+                        null, null, LocalDate.now(), null, null,
+                        true, Instant.now())));
     }
 
     private void stubProfesionalAssigned() {
@@ -341,8 +345,16 @@ class TurnoServiceTest {
 
         when(turnoRepo.findByConsultorioIdAndRange(any(), any(), any())).thenReturn(List.of(t1, t2));
         when(profesionalRepo.findByConsultorioId(CONSULTORIO_ID)).thenReturn(List.of(
-                new Profesional(PROFESIONAL_ID, CONSULTORIO_ID, "Juan", "Perez", "M1", null, null, null, true, Instant.now()),
-                new Profesional(otherProfId, CONSULTORIO_ID, "Ana", "Lopez", "M2", null, null, null, true, Instant.now())));
+                new Profesional(
+                        PROFESIONAL_ID, CONSULTORIO_ID, "Juan", "Perez", null, "M1",
+                        "Kinesiologia", "Kinesiologia", null, null,
+                        null, null, LocalDate.now(), null, null,
+                        true, Instant.now()),
+                new Profesional(
+                        otherProfId, CONSULTORIO_ID, "Ana", "Lopez", null, "M2",
+                        "Traumatologia", "Traumatologia", null, null,
+                        null, null, LocalDate.now(), null, null,
+                        true, Instant.now())));
         when(boxRepo.findByConsultorioId(CONSULTORIO_ID)).thenReturn(List.of());
 
         LocalDateTime from = NEXT_MONDAY_10.toLocalDate().atStartOfDay();

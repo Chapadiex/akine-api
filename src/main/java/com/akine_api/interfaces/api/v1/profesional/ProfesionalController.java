@@ -4,6 +4,7 @@ import com.akine_api.application.dto.command.CreateProfesionalCommand;
 import com.akine_api.application.dto.command.UpdateProfesionalCommand;
 import com.akine_api.application.dto.result.ProfesionalResult;
 import com.akine_api.application.service.ProfesionalService;
+import com.akine_api.interfaces.api.v1.profesional.dto.ProfesionalEstadoRequest;
 import com.akine_api.interfaces.api.v1.profesional.dto.ProfesionalRequest;
 import com.akine_api.interfaces.api.v1.profesional.dto.ProfesionalResponse;
 import jakarta.validation.Valid;
@@ -31,9 +32,14 @@ public class ProfesionalController {
     @GetMapping
     public ResponseEntity<List<ProfesionalResponse>> list(
             @PathVariable UUID consultorioId,
+            @RequestParam(required = false) String dni,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String matricula,
+            @RequestParam(required = false) List<String> especialidades,
+            @RequestParam(required = false) Boolean activo,
             @AuthenticationPrincipal UserDetails principal) {
         List<ProfesionalResponse> result = service
-                .list(consultorioId, principal.getUsername(), roles(principal))
+                .list(consultorioId, principal.getUsername(), roles(principal), dni, q, matricula, especialidades, activo)
                 .stream().map(this::toResponse).toList();
         return ResponseEntity.ok(result);
     }
@@ -44,8 +50,18 @@ public class ProfesionalController {
             @Valid @RequestBody ProfesionalRequest req,
             @AuthenticationPrincipal UserDetails principal) {
         CreateProfesionalCommand cmd = new CreateProfesionalCommand(
-                consultorioId, req.nombre(), req.apellido(), req.matricula(),
-                req.especialidad(), req.email(), req.telefono());
+                consultorioId,
+                req.nombre(),
+                req.apellido(),
+                req.nroDocumento(),
+                req.matricula(),
+                req.especialidad(),
+                req.especialidades(),
+                req.email(),
+                req.telefono(),
+                req.domicilio(),
+                req.fotoPerfilUrl()
+        );
         ProfesionalResponse response = toResponse(
                 service.create(cmd, principal.getUsername(), roles(principal)));
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -67,10 +83,39 @@ public class ProfesionalController {
             @Valid @RequestBody ProfesionalRequest req,
             @AuthenticationPrincipal UserDetails principal) {
         UpdateProfesionalCommand cmd = new UpdateProfesionalCommand(
-                id, consultorioId, req.nombre(), req.apellido(), req.matricula(),
-                req.especialidad(), req.email(), req.telefono());
+                id,
+                consultorioId,
+                req.nombre(),
+                req.apellido(),
+                req.nroDocumento(),
+                req.matricula(),
+                req.especialidad(),
+                req.especialidades(),
+                req.email(),
+                req.telefono(),
+                req.domicilio(),
+                req.fotoPerfilUrl()
+        );
         return ResponseEntity.ok(toResponse(
                 service.update(cmd, principal.getUsername(), roles(principal))));
+    }
+
+    @PatchMapping("/{id}/estado")
+    public ResponseEntity<ProfesionalResponse> changeEstado(
+            @PathVariable UUID consultorioId,
+            @PathVariable UUID id,
+            @Valid @RequestBody ProfesionalEstadoRequest req,
+            @AuthenticationPrincipal UserDetails principal) {
+        ProfesionalResult updated = service.changeEstado(
+                consultorioId,
+                id,
+                req.activo(),
+                req.fechaDeBaja(),
+                req.motivoDeBaja(),
+                principal.getUsername(),
+                roles(principal)
+        );
+        return ResponseEntity.ok(toResponse(updated));
     }
 
     @DeleteMapping("/{id}")
@@ -83,9 +128,34 @@ public class ProfesionalController {
     }
 
     private ProfesionalResponse toResponse(ProfesionalResult r) {
-        return new ProfesionalResponse(r.id(), r.consultorioId(), r.nombre(), r.apellido(),
-                r.matricula(), r.especialidad(), r.email(), r.telefono(),
-                r.activo(), r.createdAt(), r.updatedAt());
+        List<String> especialidades = r.especialidades() == null || r.especialidades().isBlank()
+                ? List.of()
+                : java.util.Arrays.stream(r.especialidades().split("\\|"))
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .toList();
+
+        return new ProfesionalResponse(
+                r.id(),
+                r.consultorioId(),
+                r.nombre(),
+                r.apellido(),
+                r.nroDocumento(),
+                r.matricula(),
+                r.especialidad(),
+                especialidades,
+                r.email(),
+                r.telefono(),
+                r.domicilio(),
+                r.fotoPerfilUrl(),
+                r.fechaAlta(),
+                r.fechaBaja(),
+                r.motivoBaja(),
+                r.consultoriosAsociados(),
+                r.activo(),
+                r.createdAt(),
+                r.updatedAt()
+        );
     }
 
     private Set<String> roles(UserDetails principal) {

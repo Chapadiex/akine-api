@@ -119,8 +119,11 @@ public class TurnoService {
 
         UUID profesionalId = cmd.profesionalId();
         if (profesionalId != null) {
-            profesionalRepo.findById(profesionalId)
+            Profesional profesional = profesionalRepo.findById(profesionalId)
                     .orElseThrow(() -> new ProfesionalNotFoundException("Profesional no encontrado: " + profesionalId));
+            if (!profesional.isActivo()) {
+                throw new IllegalArgumentException("El profesional esta de baja y no puede recibir turnos nuevos.");
+            }
             if (!profesionalConsultorioRepo.existsByProfesionalIdAndConsultorioId(profesionalId, cmd.consultorioId())) {
                 throw new ProfesionalConsultorioNotFoundException(
                         "El profesional no esta asignado a este consultorio");
@@ -306,50 +309,48 @@ public class TurnoService {
             return List.of();
         }
 
-        // Obtener disponibilidad del profesional para ese dia
-        List<DisponibilidadProfesional> disponibilidades = disponibilidadRepo
-                .findByProfesionalIdAndConsultorioIdAndDiaSemana(profesionalId, consultorioId, dayOfWeek)
-                .stream().filter(DisponibilidadProfesional::isActivo).toList();
-
-        if (disponibilidades.isEmpty()) {
-            return List.of();
-        }
-
-        // Obtener turnos existentes del profesional para ese dia (no cancelados)
         LocalDateTime dayStart = date.atStartOfDay();
         LocalDateTime dayEnd = date.plusDays(1).atStartOfDay();
-        List<Turno> turnosExistentes = turnoRepo.findByProfesionalIdAndRange(profesionalId, dayStart, dayEnd)
-                .stream()
-                .filter(t -> t.getEstado() != TurnoEstado.CANCELADO && t.getEstado() != TurnoEstado.AUSENTE)
-                .toList();
+
+        // Obtener turnos existentes para conflictos (no cancelados/ausentes)
+        List<Turno> turnosExistentes;
+        if (profesionalId != null) {
+            turnosExistentes = turnoRepo.findByProfesionalIdAndRange(profesionalId, dayStart, dayEnd)
+                    .stream()
+                    .filter(t -> t.getEstado() != TurnoEstado.CANCELADO && t.getEstado() != TurnoEstado.AUSENTE)
+                    .toList();
+        } else {
+            turnosExistentes = turnoRepo.findByConsultorioIdAndRange(consultorioId, dayStart, dayEnd)
+                    .stream()
+                    .filter(t -> t.getEstado() != TurnoEstado.CANCELADO && t.getEstado() != TurnoEstado.AUSENTE)
+                    .toList();
+        }
 
         List<SlotDisponibleResult> slots = new ArrayList<>();
-
         Set<String> generatedKeys = new HashSet<>();
-        for (DisponibilidadProfesional disp : disponibilidades) {
-            for (ConsultorioHorario horario : horarios) {
-                LocalTime rangeStart = max(disp.getHoraInicio(), horario.getHoraApertura());
-                LocalTime rangeEnd = min(disp.getHoraFin(), horario.getHoraCierre());
 
-                if (!rangeStart.isBefore(rangeEnd)) continue;
+        if (profesionalId != null) {
+            // Con profesional: interseccion horario consultorio x disponibilidad profesional
+            List<DisponibilidadProfesional> disponibilidades = disponibilidadRepo
+                    .findByProfesionalIdAndConsultorioIdAndDiaSemana(profesionalId, consultorioId, dayOfWeek)
+                    .stream().filter(DisponibilidadProfesional::isActivo).toList();
 
-                LocalTime cursor = rangeStart;
-                while (cursor.plusMinutes(duracionMinutos).compareTo(rangeEnd) <= 0) {
-                    LocalDateTime slotStart = date.atTime(cursor);
-                    LocalDateTime slotEnd = slotStart.plusMinutes(duracionMinutos);
+            if (disponibilidades.isEmpty()) {
+                return List.of();
+            }
 
-                    boolean conflict = turnosExistentes.stream().anyMatch(t ->
-                            t.getFechaHoraInicio().isBefore(slotEnd) && t.getFechaHoraFin().isAfter(slotStart));
-
-                    if (!conflict) {
-                        String key = slotStart + "|" + slotEnd;
-                        if (generatedKeys.add(key)) {
-                            slots.add(new SlotDisponibleResult(slotStart, slotEnd));
-                        }
-                    }
-
-                    cursor = cursor.plusMinutes(duracionMinutos);
+            for (DisponibilidadProfesional disp : disponibilidades) {
+                for (ConsultorioHorario horario : horarios) {
+                    LocalTime rangeStart = max(disp.getHoraInicio(), horario.getHoraApertura());
+                    LocalTime rangeEnd = min(disp.getHoraFin(), horario.getHoraCierre());
+                    generateSlots(date, rangeStart, rangeEnd, duracionMinutos, turnosExistentes, generatedKeys, slots);
                 }
+            }
+        } else {
+            // Sin profesional: solo horarios del consultorio
+            for (ConsultorioHorario horario : horarios) {
+                generateSlots(date, horario.getHoraApertura(), horario.getHoraCierre(),
+                        duracionMinutos, turnosExistentes, generatedKeys, slots);
             }
         }
 
@@ -548,6 +549,30 @@ public class TurnoService {
                 t.getMotivoCancelacion(),
                 t.getCreatedAt(), t.getUpdatedAt()
         );
+    }
+
+    private void generateSlots(LocalDate date, LocalTime rangeStart, LocalTime rangeEnd,
+                                int duracionMinutos, List<Turno> turnosExistentes,
+                                Set<String> generatedKeys, List<SlotDisponibleResult> slots) {
+        if (!rangeStart.isBefore(rangeEnd)) return;
+
+        LocalTime cursor = rangeStart;
+        while (cursor.plusMinutes(duracionMinutos).compareTo(rangeEnd) <= 0) {
+            LocalDateTime slotStart = date.atTime(cursor);
+            LocalDateTime slotEnd = slotStart.plusMinutes(duracionMinutos);
+
+            boolean conflict = turnosExistentes.stream().anyMatch(t ->
+                    t.getFechaHoraInicio().isBefore(slotEnd) && t.getFechaHoraFin().isAfter(slotStart));
+
+            if (!conflict) {
+                String key = slotStart + "|" + slotEnd;
+                if (generatedKeys.add(key)) {
+                    slots.add(new SlotDisponibleResult(slotStart, slotEnd));
+                }
+            }
+
+            cursor = cursor.plusMinutes(duracionMinutos);
+        }
     }
 
     private LocalTime max(LocalTime a, LocalTime b) {

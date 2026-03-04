@@ -42,6 +42,11 @@ public class ProfesionalRepositoryAdapter implements ProfesionalRepositoryPort {
     }
 
     @Override
+    public List<Profesional> findAll() {
+        return repo.findAll().stream().map(mapper::toDomain).toList();
+    }
+
+    @Override
     public boolean existsByMatriculaAndConsultorioId(String matricula, UUID consultorioId) {
         return repo.existsByMatriculaAndConsultorioId(matricula, consultorioId);
     }
@@ -49,5 +54,15 @@ public class ProfesionalRepositoryAdapter implements ProfesionalRepositoryPort {
     @Override
     public boolean existsByMatriculaAndConsultorioIdAndIdNot(String matricula, UUID consultorioId, UUID excludeId) {
         return repo.existsByMatriculaAndConsultorioIdAndIdNot(matricula, consultorioId, excludeId);
+    }
+
+    @Override
+    public boolean existsByNroDocumento(String nroDocumento) {
+        return repo.existsByNroDocumento(nroDocumento);
+    }
+
+    @Override
+    public boolean existsByNroDocumentoAndIdNot(String nroDocumento, UUID excludeId) {
+        return repo.existsByNroDocumentoAndIdNot(nroDocumento, excludeId);
     }
 }

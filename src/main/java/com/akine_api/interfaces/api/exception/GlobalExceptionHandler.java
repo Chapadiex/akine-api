@@ -72,7 +72,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             ProfesionalConsultorioNotFoundException.class,
             ConsultorioHorarioNotFoundException.class,
             DisponibilidadProfesionalNotFoundException.class,
-            TurnoNotFoundException.class
+            TurnoNotFoundException.class,
+            ObraSocialNotFoundException.class
     })
     public ProblemDetail handleEntityNotFound(DomainException ex) {
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
@@ -166,6 +167,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
         pd.setType(URI.create("urn:akine:error:conflict"));
         pd.setTitle("Conflicto de datos");
+        return pd;
+    }
+
+    @ExceptionHandler(ObraSocialConflictException.class)
+    public ProblemDetail handleObraSocialConflict(ObraSocialConflictException ex) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        pd.setType(URI.create("urn:akine:error:obra-social-conflict"));
+        pd.setTitle("Conflicto de obra social");
+        return pd;
+    }
+
+    @ExceptionHandler(ObraSocialValidationException.class)
+    public ProblemDetail handleObraSocialValidation(ObraSocialValidationException ex) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
+        pd.setType(URI.create("urn:akine:error:obra-social-validation"));
+        pd.setTitle("Validacion de obra social");
         return pd;
     }
 

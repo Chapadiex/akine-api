@@ -12,4 +12,6 @@ public interface ProfesionalJpaRepository extends JpaRepository<ProfesionalEntit
     Optional<ProfesionalEntity> findByEmail(String email);
     boolean existsByMatriculaAndConsultorioId(String matricula, UUID consultorioId);
     boolean existsByMatriculaAndConsultorioIdAndIdNot(String matricula, UUID consultorioId, UUID id);
+    boolean existsByNroDocumento(String nroDocumento);
+    boolean existsByNroDocumentoAndIdNot(String nroDocumento, UUID id);
 }

@@ -3,6 +3,7 @@ package com.akine_api.service;
 import com.akine_api.application.dto.command.CreateProfesionalCommand;
 import com.akine_api.application.dto.result.ProfesionalResult;
 import com.akine_api.application.port.output.ConsultorioRepositoryPort;
+import com.akine_api.application.port.output.ProfesionalConsultorioRepositoryPort;
 import com.akine_api.application.port.output.ProfesionalRepositoryPort;
 import com.akine_api.application.port.output.UserRepositoryPort;
 import com.akine_api.application.service.ProfesionalService;
@@ -18,21 +19,28 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ProfesionalServiceTest {
 
-    @Mock ProfesionalRepositoryPort profesionalRepo;
-    @Mock ConsultorioRepositoryPort consultorioRepo;
-    @Mock UserRepositoryPort userRepo;
+    @Mock
+    ProfesionalRepositoryPort profesionalRepo;
+    @Mock
+    ProfesionalConsultorioRepositoryPort profesionalConsultorioRepo;
+    @Mock
+    ConsultorioRepositoryPort consultorioRepo;
+    @Mock
+    UserRepositoryPort userRepo;
 
     ProfesionalService service;
 
@@ -44,7 +52,7 @@ class ProfesionalServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new ProfesionalService(profesionalRepo, consultorioRepo, userRepo);
+        service = new ProfesionalService(profesionalRepo, profesionalConsultorioRepo, consultorioRepo, userRepo);
     }
 
     private Consultorio consultorio() {
@@ -52,18 +60,36 @@ class ProfesionalServiceTest {
     }
 
     private Profesional profesional() {
-        return new Profesional(PROF_ID, CONSULTORIO_ID, "Juan", "Pérez",
-                "MP-1234", "Kinesiología", "juan@mail.com", "1155550000", true, Instant.now());
+        return new Profesional(
+                PROF_ID,
+                CONSULTORIO_ID,
+                "Juan",
+                "Perez",
+                "12345678",
+                "MP-1234",
+                "Kinesiologia",
+                "Kinesiologia|Traumatologia",
+                "juan@mail.com",
+                "1155550000",
+                null,
+                null,
+                LocalDate.now(),
+                null,
+                null,
+                true,
+                Instant.now()
+        );
     }
-
-    // ─── list ─────────────────────────────────────────────────────────────────
 
     @Test
     void list_asAdmin_returnsAll() {
         when(consultorioRepo.findById(CONSULTORIO_ID)).thenReturn(Optional.of(consultorio()));
         when(profesionalRepo.findByConsultorioId(CONSULTORIO_ID)).thenReturn(List.of(profesional()));
+        when(profesionalConsultorioRepo.findByProfesionalId(any())).thenReturn(List.of());
 
-        List<ProfesionalResult> result = service.list(CONSULTORIO_ID, USER_EMAIL, ADMIN_ROLES);
+        List<ProfesionalResult> result = service.list(
+                CONSULTORIO_ID, USER_EMAIL, ADMIN_ROLES, null, null, null, null, null
+        );
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).matricula()).isEqualTo("MP-1234");
@@ -73,21 +99,24 @@ class ProfesionalServiceTest {
     void list_consultorioNotFound_throws() {
         when(consultorioRepo.findById(any())).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> service.list(CONSULTORIO_ID, USER_EMAIL, ADMIN_ROLES))
-                .isInstanceOf(ConsultorioNotFoundException.class);
+        assertThatThrownBy(() -> service.list(
+                CONSULTORIO_ID, USER_EMAIL, ADMIN_ROLES, null, null, null, null, null
+        )).isInstanceOf(ConsultorioNotFoundException.class);
     }
-
-    // ─── create ───────────────────────────────────────────────────────────────
 
     @Test
     void create_asAdmin_succeeds() {
         when(consultorioRepo.findById(CONSULTORIO_ID)).thenReturn(Optional.of(consultorio()));
         when(profesionalRepo.existsByMatriculaAndConsultorioId("MP-9999", CONSULTORIO_ID)).thenReturn(false);
+        when(profesionalRepo.existsByNroDocumento("32123123")).thenReturn(false);
         when(profesionalRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(profesionalConsultorioRepo.findByProfesionalId(any())).thenReturn(List.of());
 
         CreateProfesionalCommand cmd = new CreateProfesionalCommand(
-                CONSULTORIO_ID, "Ana", "García", "MP-9999",
-                "Nutrición", "ana@mail.com", "1155559999");
+                CONSULTORIO_ID, "Ana", "Garcia", "32123123", "MP-9999",
+                "Nutricion", "Nutricion|Kinesiologia", "ana@mail.com", "1155559999",
+                null, null
+        );
         ProfesionalResult result = service.create(cmd, USER_EMAIL, ADMIN_ROLES);
 
         assertThat(result.nombre()).isEqualTo("Ana");
@@ -101,11 +130,13 @@ class ProfesionalServiceTest {
         when(profesionalRepo.existsByMatriculaAndConsultorioId("MP-1234", CONSULTORIO_ID)).thenReturn(true);
 
         CreateProfesionalCommand cmd = new CreateProfesionalCommand(
-                CONSULTORIO_ID, "Otro", "Prof", "MP-1234", null, null, null);
+                CONSULTORIO_ID, "Otro", "Prof", "30111222", "MP-1234",
+                null, "Kinesiologia", null, null, null, null
+        );
 
         assertThatThrownBy(() -> service.create(cmd, USER_EMAIL, ADMIN_ROLES))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("MP-1234");
+                .hasMessageContaining("matricula");
     }
 
     @Test
@@ -113,23 +144,25 @@ class ProfesionalServiceTest {
         when(consultorioRepo.findById(CONSULTORIO_ID)).thenReturn(Optional.of(consultorio()));
 
         CreateProfesionalCommand cmd = new CreateProfesionalCommand(
-                CONSULTORIO_ID, "Test", "Prof", "MP-0001", null, null, null);
+                CONSULTORIO_ID, "Test", "Prof", "30112233", "MP-0001",
+                null, "Kinesiologia", null, null, null, null
+        );
 
         assertThatThrownBy(() -> service.create(cmd, USER_EMAIL, PROFESIONAL_ROLES))
                 .isInstanceOf(AccessDeniedException.class);
     }
-
-    // ─── inactivate ───────────────────────────────────────────────────────────
 
     @Test
     void inactivate_asAdmin_setsInactive() {
         Profesional p = profesional();
         when(profesionalRepo.findById(PROF_ID)).thenReturn(Optional.of(p));
         when(profesionalRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(profesionalConsultorioRepo.findByProfesionalId(any())).thenReturn(List.of());
 
         service.inactivate(CONSULTORIO_ID, PROF_ID, USER_EMAIL, ADMIN_ROLES);
 
         assertThat(p.isActivo()).isFalse();
+        assertThat(p.getFechaBaja()).isNotNull();
     }
 
     @Test

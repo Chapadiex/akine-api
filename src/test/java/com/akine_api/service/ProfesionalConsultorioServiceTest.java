@@ -45,7 +45,11 @@ class ProfesionalConsultorioServiceTest {
         when(consultorioRepo.findById(CONSULTORIO_ID))
                 .thenReturn(Optional.of(new Consultorio(CONSULTORIO_ID, "C", null, null, null, null, "ACTIVE", Instant.now())));
         when(profesionalRepo.findById(PROFESIONAL_ID))
-                .thenReturn(Optional.of(new Profesional(PROFESIONAL_ID, CONSULTORIO_ID, "N", "A", "M", null, null, null, true, Instant.now())));
+                .thenReturn(Optional.of(new Profesional(
+                        PROFESIONAL_ID, CONSULTORIO_ID, "N", "A", null, "M",
+                        "Kinesiologia", "Kinesiologia", null, null,
+                        null, null, java.time.LocalDate.now(), null, null,
+                        true, Instant.now())));
         when(profesionalConsultorioRepo.findByProfesionalIdAndConsultorioId(PROFESIONAL_ID, CONSULTORIO_ID))
                 .thenReturn(Optional.of(new com.akine_api.domain.model.ProfesionalConsultorio(
                         UUID.randomUUID(), PROFESIONAL_ID, CONSULTORIO_ID, true, Instant.now())));

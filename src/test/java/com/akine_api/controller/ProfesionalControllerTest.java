@@ -8,44 +8,65 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
-
-import org.springframework.security.access.AccessDeniedException;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("dev")
 class ProfesionalControllerTest {
 
-    @Autowired MockMvc mvc;
-    @MockBean ProfesionalService profesionalService;
+    @Autowired
+    MockMvc mvc;
+    @MockBean
+    ProfesionalService profesionalService;
 
     private static final UUID CONSULTORIO_ID = UUID.randomUUID();
     private static final UUID PROF_ID = UUID.randomUUID();
 
     private ProfesionalResult sampleResult() {
-        return new ProfesionalResult(PROF_ID, CONSULTORIO_ID, "Juan", "Pérez",
-                "MP-1234", "Kinesiología", "juan@mail.com", "1155550000",
-                true, Instant.now(), Instant.now());
+        return new ProfesionalResult(
+                PROF_ID,
+                CONSULTORIO_ID,
+                "Juan",
+                "Perez",
+                "12345678",
+                "MP-1234",
+                "Kinesiologia",
+                "Kinesiologia|Traumatologia",
+                "juan@mail.com",
+                "1155550000",
+                "Calle 123",
+                null,
+                LocalDate.now(),
+                null,
+                null,
+                1,
+                true,
+                Instant.now(),
+                Instant.now()
+        );
     }
 
     private String baseUrl() {
         return "/api/v1/consultorios/" + CONSULTORIO_ID + "/profesionales";
     }
-
-    // ─── GET ─────────────────────────────────────────────────────────────────
 
     @Test
     void list_withoutAuth_returns401() throws Exception {
@@ -56,7 +77,8 @@ class ProfesionalControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void list_asAdmin_returns200() throws Exception {
-        when(profesionalService.list(any(), any(), any())).thenReturn(List.of(sampleResult()));
+        when(profesionalService.list(any(), any(), any(), any(), any(), any(), any(), any()))
+                .thenReturn(List.of(sampleResult()));
 
         mvc.perform(get(baseUrl()))
                 .andExpect(status().isOk())
@@ -64,13 +86,11 @@ class ProfesionalControllerTest {
                 .andExpect(jsonPath("$[0].nombre").value("Juan"));
     }
 
-    // ─── POST ─────────────────────────────────────────────────────────────────
-
     @Test
     void create_withoutAuth_returns401() throws Exception {
         mvc.perform(post(baseUrl())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"nombre\":\"Ana\",\"apellido\":\"García\",\"matricula\":\"MP-9999\"}"))
+                        .content("{\"nombre\":\"Ana\",\"apellido\":\"Garcia\",\"matricula\":\"MP-9999\",\"especialidades\":\"Kinesiologia\"}"))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -81,7 +101,7 @@ class ProfesionalControllerTest {
 
         mvc.perform(post(baseUrl())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"nombre\":\"Juan\",\"apellido\":\"Pérez\",\"matricula\":\"MP-1234\"}"))
+                        .content("{\"nombre\":\"Juan\",\"apellido\":\"Perez\",\"matricula\":\"MP-1234\",\"especialidades\":\"Kinesiologia\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.matricula").value("MP-1234"));
     }
@@ -94,11 +114,9 @@ class ProfesionalControllerTest {
 
         mvc.perform(post(baseUrl())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"nombre\":\"X\",\"apellido\":\"Y\",\"matricula\":\"MP-0001\"}"))
+                        .content("{\"nombre\":\"X\",\"apellido\":\"Y\",\"matricula\":\"MP-0001\",\"especialidades\":\"Kinesiologia\"}"))
                 .andExpect(status().isForbidden());
     }
-
-    // ─── DELETE ───────────────────────────────────────────────────────────────
 
     @Test
     void inactivate_withoutAuth_returns401() throws Exception {

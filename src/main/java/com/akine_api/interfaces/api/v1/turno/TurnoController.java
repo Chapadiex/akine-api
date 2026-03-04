@@ -117,7 +117,7 @@ public class TurnoController {
     public ResponseEntity<List<SlotDisponibleResponse>> disponibilidad(
             @PathVariable UUID consultorioId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @RequestParam UUID profesionalId,
+            @RequestParam(required = false) UUID profesionalId,
             @RequestParam int duracion,
             @AuthenticationPrincipal UserDetails principal) {
 
