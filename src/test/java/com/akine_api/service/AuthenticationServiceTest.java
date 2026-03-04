@@ -4,8 +4,10 @@ import com.akine_api.application.dto.command.LoginCommand;
 import com.akine_api.application.dto.result.AuthResult;
 import com.akine_api.application.port.output.*;
 import com.akine_api.application.service.AuthenticationService;
+import com.akine_api.application.service.SuscripcionService;
 import com.akine_api.domain.exception.InvalidCredentialsException;
 import com.akine_api.domain.exception.InvalidTokenException;
+import com.akine_api.domain.exception.SubscriptionNotActiveException;
 import com.akine_api.domain.exception.UserNotActiveException;
 import com.akine_api.domain.model.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,13 +35,14 @@ class AuthenticationServiceTest {
     @Mock ProfesionalRepositoryPort profesionalRepo;
     @Mock PasswordEncoderPort passwordEncoder;
     @Mock TokenGeneratorPort tokenGenerator;
+    @Mock SuscripcionService suscripcionService;
 
     AuthenticationService service;
 
     @BeforeEach
     void setUp() {
         service = new AuthenticationService(userRepo, refreshTokenRepo, consultorioRepo,
-                profesionalRepo, passwordEncoder, tokenGenerator);
+                profesionalRepo, passwordEncoder, tokenGenerator, suscripcionService);
         ReflectionTestUtils.setField(service, "accessTokenExpirationMs", 900000L);
         ReflectionTestUtils.setField(service, "refreshTokenExpirationDays", 30L);
     }
@@ -77,6 +80,21 @@ class AuthenticationServiceTest {
 
         assertThatThrownBy(() -> service.login(new LoginCommand("u@test.com", "wrong")))
                 .isInstanceOf(InvalidCredentialsException.class);
+    }
+
+    @Test
+    void login_profesionalAdminWithoutVigentConsultorios_throwsSubscriptionNotActive() {
+        User user = new User(UUID.randomUUID(), "owner@test.com", "hashed",
+                "Owner", "One", null, UserStatus.PENDING, Instant.now());
+        user.activate();
+        user.addRole(new Role(UUID.randomUUID(), RoleName.PROFESIONAL_ADMIN, "Profesional admin"));
+
+        when(userRepo.findByEmail("owner@test.com")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("Pass1234!", user.getPasswordHash())).thenReturn(true);
+        when(consultorioRepo.findConsultorioIdsByUserId(user.getId())).thenReturn(List.of());
+
+        assertThatThrownBy(() -> service.login(new LoginCommand("owner@test.com", "Pass1234!")))
+                .isInstanceOf(SubscriptionNotActiveException.class);
     }
 
     @Test

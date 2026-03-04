@@ -7,12 +7,16 @@ import com.akine_api.infrastructure.persistence.repository.ConsultorioJpaReposit
 import com.akine_api.infrastructure.persistence.repository.MembershipJpaRepository;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Component
 public class ConsultorioRepositoryAdapter implements ConsultorioRepositoryPort {
+
+    private static final ZoneId OPERATIVE_ZONE = ZoneId.of("America/Argentina/Buenos_Aires");
 
     private final ConsultorioJpaRepository consultorioRepo;
     private final MembershipJpaRepository membershipRepo;
@@ -49,6 +53,6 @@ public class ConsultorioRepositoryAdapter implements ConsultorioRepositoryPort {
 
     @Override
     public List<UUID> findConsultorioIdsByUserId(UUID userId) {
-        return membershipRepo.findConsultorioIdsByUserId(userId);
+        return membershipRepo.findConsultorioIdsByUserId(userId, LocalDate.now(OPERATIVE_ZONE));
     }
 }

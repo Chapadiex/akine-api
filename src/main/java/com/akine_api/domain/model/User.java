@@ -13,6 +13,7 @@ public class User {
     private String firstName;
     private String lastName;
     private String phone;
+    private String documentoFiscal;
     private UserStatus status;
     private final Set<Role> roles;
     private final Instant createdAt;
@@ -21,12 +22,19 @@ public class User {
     public User(UUID id, String email, String passwordHash,
                 String firstName, String lastName, String phone,
                 UserStatus status, Instant createdAt) {
+        this(id, email, passwordHash, firstName, lastName, phone, status, null, createdAt);
+    }
+
+    public User(UUID id, String email, String passwordHash,
+                String firstName, String lastName, String phone,
+                UserStatus status, String documentoFiscal, Instant createdAt) {
         this.id = id;
         this.email = email;
         this.passwordHash = passwordHash;
         this.firstName = firstName;
         this.lastName = lastName;
         this.phone = phone;
+        this.documentoFiscal = documentoFiscal;
         this.status = status;
         this.roles = new HashSet<>();
         this.createdAt = createdAt;
@@ -60,6 +68,11 @@ public class User {
         this.updatedAt = Instant.now();
     }
 
+    public void updateDocumentoFiscal(String documentoFiscal) {
+        this.documentoFiscal = documentoFiscal;
+        this.updatedAt = Instant.now();
+    }
+
     public boolean isActive() {
         return UserStatus.ACTIVE.equals(this.status);
     }
@@ -75,6 +88,7 @@ public class User {
     public String getFirstName() { return firstName; }
     public String getLastName() { return lastName; }
     public String getPhone() { return phone; }
+    public String getDocumentoFiscal() { return documentoFiscal; }
     public UserStatus getStatus() { return status; }
     public Set<Role> getRoles() { return Set.copyOf(roles); }
     public Instant getCreatedAt() { return createdAt; }

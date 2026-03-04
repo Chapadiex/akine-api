@@ -25,6 +25,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return pd;
     }
 
+    @ExceptionHandler(CompanyAlreadyExistsException.class)
+    public ProblemDetail handleCompanyAlreadyExists(CompanyAlreadyExistsException ex) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        pd.setType(URI.create("urn:akine:error:company-already-exists"));
+        pd.setTitle("Empresa ya existe");
+        return pd;
+    }
+
     @ExceptionHandler(InvalidCredentialsException.class)
     public ProblemDetail handleInvalidCredentials(InvalidCredentialsException ex) {
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, ex.getMessage());
@@ -38,6 +46,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, ex.getMessage());
         pd.setType(URI.create("urn:akine:error:user-not-active"));
         pd.setTitle("Cuenta inactiva");
+        return pd;
+    }
+
+    @ExceptionHandler(SubscriptionNotActiveException.class)
+    public ProblemDetail handleSubscriptionNotActive(SubscriptionNotActiveException ex) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, ex.getMessage());
+        pd.setType(URI.create("urn:akine:error:subscription-not-active"));
+        pd.setTitle("Suscripción no vigente");
         return pd;
     }
 
@@ -75,12 +91,21 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             ConsultorioHorarioNotFoundException.class,
             DisponibilidadProfesionalNotFoundException.class,
             TurnoNotFoundException.class,
-            ObraSocialNotFoundException.class
+            ObraSocialNotFoundException.class,
+            SubscriptionNotFoundException.class
     })
     public ProblemDetail handleEntityNotFound(DomainException ex) {
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
         pd.setType(URI.create("urn:akine:error:not-found"));
         pd.setTitle("No encontrado");
+        return pd;
+    }
+
+    @ExceptionHandler(SubscriptionStateException.class)
+    public ProblemDetail handleSubscriptionState(SubscriptionStateException ex) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        pd.setType(URI.create("urn:akine:error:subscription-state"));
+        pd.setTitle("Estado de suscripción inválido");
         return pd;
     }
 

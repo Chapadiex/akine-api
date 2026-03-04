@@ -6,6 +6,8 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+
 @Service
 @Profile("prod")
 public class SmtpEmailService implements EmailPort {
@@ -20,9 +22,9 @@ public class SmtpEmailService implements EmailPort {
     public void sendActivationEmail(String to, String firstName, String activationToken) {
         SimpleMailMessage msg = new SimpleMailMessage();
         msg.setTo(to);
-        msg.setSubject("Activá tu cuenta AKINE");
-        msg.setText("Hola " + firstName + ",\n\nTu token de activación es: " + activationToken
-                + "\n\nVálido por 24 horas.");
+        msg.setSubject("Activate your AKINE account");
+        msg.setText("Hello " + firstName + ",\n\nYour activation token is: " + activationToken
+                + "\n\nIt is valid for 24 hours.");
         mailSender.send(msg);
     }
 
@@ -30,8 +32,62 @@ public class SmtpEmailService implements EmailPort {
     public void sendPasswordChangedNotification(String to, String firstName) {
         SimpleMailMessage msg = new SimpleMailMessage();
         msg.setTo(to);
-        msg.setSubject("Contraseña actualizada - AKINE");
-        msg.setText("Hola " + firstName + ",\n\nTu contraseña fue cambiada exitosamente.");
+        msg.setSubject("Password updated - AKINE");
+        msg.setText("Hello " + firstName + ",\n\nYour password was changed successfully.");
+        mailSender.send(msg);
+    }
+
+    @Override
+    public void sendSubscriptionReceived(String to, String firstName, String subscriptionId) {
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setTo(to);
+        msg.setSubject("AKINE subscription request received");
+        msg.setText("Hello " + firstName + ",\n\nWe received your request. Subscription ID: " + subscriptionId
+                + "\n\nYour request is pending admin review.");
+        mailSender.send(msg);
+    }
+
+    @Override
+    public void sendSubscriptionApproved(String to, String firstName, LocalDate startDate, LocalDate endDate) {
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setTo(to);
+        msg.setSubject("AKINE subscription approved");
+        msg.setText("Hello " + firstName + ",\n\nYour subscription was approved."
+                + "\nStart date: " + startDate
+                + "\nEnd date: " + endDate
+                + "\n\nYou can now log in.");
+        mailSender.send(msg);
+    }
+
+    @Override
+    public void sendSubscriptionRejected(String to, String firstName, String reason) {
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setTo(to);
+        msg.setSubject("AKINE subscription rejected");
+        String detail = reason == null || reason.isBlank() ? "No additional reason provided." : reason;
+        msg.setText("Hello " + firstName + ",\n\nYour subscription request was rejected."
+                + "\nReason: " + detail);
+        mailSender.send(msg);
+    }
+
+    @Override
+    public void sendSubscriptionSuspended(String to, String firstName, String reason) {
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setTo(to);
+        msg.setSubject("AKINE subscription suspended");
+        String detail = reason == null || reason.isBlank() ? "No additional reason provided." : reason;
+        msg.setText("Hello " + firstName + ",\n\nYour subscription was suspended."
+                + "\nReason: " + detail);
+        mailSender.send(msg);
+    }
+
+    @Override
+    public void sendSubscriptionReactivated(String to, String firstName, LocalDate endDate) {
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setTo(to);
+        msg.setSubject("AKINE subscription reactivated");
+        msg.setText("Hello " + firstName + ",\n\nYour subscription was reactivated."
+                + "\nCurrent end date: " + endDate);
         mailSender.send(msg);
     }
 }

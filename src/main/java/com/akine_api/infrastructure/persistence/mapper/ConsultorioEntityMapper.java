@@ -17,6 +17,7 @@ public interface ConsultorioEntityMapper {
                 entity.getPhone(),
                 entity.getEmail(),
                 entity.getStatus(),
+                entity.getEmpresaId(),
                 entity.getCreatedAt()
         );
     }
@@ -30,6 +31,7 @@ public interface ConsultorioEntityMapper {
         e.setAddress(domain.getAddress());
         e.setPhone(domain.getPhone());
         e.setEmail(domain.getEmail());
+        e.setEmpresaId(domain.getEmpresaId());
         e.setStatus(domain.getStatus());
         e.setCreatedAt(domain.getCreatedAt());
         e.setUpdatedAt(domain.getUpdatedAt());

@@ -33,6 +33,9 @@ public class UserEntity {
     @Column(length = 30)
     private String phone;
 
+    @Column(name = "documento_fiscal", length = 30)
+    private String documentoFiscal;
+
     @Column(nullable = false, length = 20)
     private String status;
 

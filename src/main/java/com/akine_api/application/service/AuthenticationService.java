@@ -6,10 +6,12 @@ import com.akine_api.application.dto.result.TokenPairResult;
 import com.akine_api.application.port.output.*;
 import com.akine_api.domain.exception.InvalidCredentialsException;
 import com.akine_api.domain.exception.InvalidTokenException;
+import com.akine_api.domain.exception.SubscriptionNotActiveException;
 import com.akine_api.domain.exception.UserNotFoundException;
 import com.akine_api.domain.exception.UserNotActiveException;
 import com.akine_api.domain.model.Profesional;
 import com.akine_api.domain.model.RefreshToken;
+import com.akine_api.domain.model.RoleName;
 import com.akine_api.domain.model.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,7 @@ public class AuthenticationService {
     private final ProfesionalRepositoryPort profesionalRepo;
     private final PasswordEncoderPort passwordEncoder;
     private final TokenGeneratorPort tokenGenerator;
+    private final SuscripcionService suscripcionService;
 
     @Value("${app.jwt.access-token-expiration-ms}")
     private long accessTokenExpirationMs;
@@ -43,13 +46,15 @@ public class AuthenticationService {
                                  ConsultorioRepositoryPort consultorioRepo,
                                  ProfesionalRepositoryPort profesionalRepo,
                                  PasswordEncoderPort passwordEncoder,
-                                 TokenGeneratorPort tokenGenerator) {
+                                 TokenGeneratorPort tokenGenerator,
+                                 SuscripcionService suscripcionService) {
         this.userRepo = userRepo;
         this.refreshTokenRepo = refreshTokenRepo;
         this.consultorioRepo = consultorioRepo;
         this.profesionalRepo = profesionalRepo;
         this.passwordEncoder = passwordEncoder;
         this.tokenGenerator = tokenGenerator;
+        this.suscripcionService = suscripcionService;
     }
 
     public AuthResult login(LoginCommand cmd) {
@@ -86,7 +91,7 @@ public class AuthenticationService {
         stored.revoke();
         refreshTokenRepo.save(stored);
 
-        List<UUID> consultorioIds = consultorioRepo.findConsultorioIdsByUserId(user.getId());
+        List<UUID> consultorioIds = resolveScopedConsultorioIds(user);
         String newAccessToken = tokenGenerator.generateAccessToken(user, consultorioIds);
         String newRawRefresh = tokenGenerator.generateRefreshToken();
         saveRefreshToken(user.getId(), newRawRefresh);
@@ -103,7 +108,7 @@ public class AuthenticationService {
     }
 
     private AuthResult buildAuthResult(User user) {
-        List<UUID> consultorioIds = consultorioRepo.findConsultorioIdsByUserId(user.getId());
+        List<UUID> consultorioIds = resolveScopedConsultorioIds(user);
         String accessToken = tokenGenerator.generateAccessToken(user, consultorioIds);
         String rawRefresh = tokenGenerator.generateRefreshToken();
         saveRefreshToken(user.getId(), rawRefresh);
@@ -129,6 +134,23 @@ public class AuthenticationService {
                 consultorioIds,
                 profesionalId
         );
+    }
+
+    private List<UUID> resolveScopedConsultorioIds(User user) {
+        suscripcionService.expireDueSubscriptions();
+        List<UUID> consultorioIds = consultorioRepo.findConsultorioIdsByUserId(user.getId());
+        boolean isPlatformAdmin = user.getRoles().stream().anyMatch(r -> r.getName() == RoleName.ADMIN);
+        if (!isPlatformAdmin) {
+            boolean consultorioScopedRole = user.getRoles().stream().anyMatch(r ->
+                    r.getName() == RoleName.PROFESIONAL_ADMIN
+                            || r.getName() == RoleName.PROFESIONAL
+                            || r.getName() == RoleName.ADMINISTRATIVO
+            );
+            if (consultorioScopedRole && consultorioIds.isEmpty()) {
+                throw new SubscriptionNotActiveException();
+            }
+        }
+        return consultorioIds;
     }
 
     private void saveRefreshToken(UUID userId, String rawToken) {

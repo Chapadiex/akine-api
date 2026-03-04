@@ -22,6 +22,7 @@ public interface UserEntityMapper {
                 entity.getLastName(),
                 entity.getPhone(),
                 UserStatus.valueOf(entity.getStatus()),
+                entity.getDocumentoFiscal(),
                 entity.getCreatedAt()
         );
         if (entity.getRoles() != null) {
@@ -37,6 +38,7 @@ public interface UserEntityMapper {
     }
 
     @Mapping(target = "status", expression = "java(domain.getStatus().name())")
+    @Mapping(target = "documentoFiscal", source = "documentoFiscal")
     @Mapping(target = "roles", ignore = true)
     UserEntity toEntity(User domain);
 }

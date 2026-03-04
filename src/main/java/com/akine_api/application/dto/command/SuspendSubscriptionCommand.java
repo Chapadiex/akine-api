@@ -1,0 +1,9 @@
+package com.akine_api.application.dto.command;
+
+import java.util.UUID;
+
+public record SuspendSubscriptionCommand(
+        UUID subscriptionId,
+        UUID actorUserId,
+        String reason
+) {}

@@ -23,6 +23,14 @@ public class Membership {
         this.createdAt = createdAt;
     }
 
+    public void activate() {
+        this.status = MembershipStatus.ACTIVE;
+    }
+
+    public void inactivate() {
+        this.status = MembershipStatus.INACTIVE;
+    }
+
     public UUID getId() { return id; }
     public UUID getUserId() { return userId; }
     public UUID getConsultorioId() { return consultorioId; }

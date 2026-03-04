@@ -1,0 +1,332 @@
+package com.akine_api.application.service;
+
+import com.akine_api.application.dto.command.*;
+import com.akine_api.application.dto.result.PagedResult;
+import com.akine_api.application.dto.result.SubscriptionSummaryResult;
+import com.akine_api.application.port.output.*;
+import com.akine_api.domain.exception.*;
+import com.akine_api.domain.model.*;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.*;
+
+@Service
+@Transactional
+public class SuscripcionService {
+
+    private static final ZoneId OPERATIVE_ZONE = ZoneId.of("America/Argentina/Buenos_Aires");
+
+    private final UserRepositoryPort userRepo;
+    private final RoleRepositoryPort roleRepo;
+    private final PasswordEncoderPort passwordEncoder;
+    private final EmpresaRepositoryPort empresaRepo;
+    private final ConsultorioRepositoryPort consultorioRepo;
+    private final MembershipRepositoryPort membershipRepo;
+    private final SuscripcionRepositoryPort suscripcionRepo;
+    private final SuscripcionAuditoriaRepositoryPort auditoriaRepo;
+    private final EmailPort emailPort;
+
+    public SuscripcionService(UserRepositoryPort userRepo,
+                              RoleRepositoryPort roleRepo,
+                              PasswordEncoderPort passwordEncoder,
+                              EmpresaRepositoryPort empresaRepo,
+                              ConsultorioRepositoryPort consultorioRepo,
+                              MembershipRepositoryPort membershipRepo,
+                              SuscripcionRepositoryPort suscripcionRepo,
+                              SuscripcionAuditoriaRepositoryPort auditoriaRepo,
+                              EmailPort emailPort) {
+        this.userRepo = userRepo;
+        this.roleRepo = roleRepo;
+        this.passwordEncoder = passwordEncoder;
+        this.empresaRepo = empresaRepo;
+        this.consultorioRepo = consultorioRepo;
+        this.membershipRepo = membershipRepo;
+        this.suscripcionRepo = suscripcionRepo;
+        this.auditoriaRepo = auditoriaRepo;
+        this.emailPort = emailPort;
+    }
+
+    public SubscriptionSummaryResult createSubscription(CreateSubscriptionCommand cmd) {
+        if (userRepo.existsByEmail(normalize(cmd.ownerEmail()))) {
+            throw new UserAlreadyExistsException(cmd.ownerEmail());
+        }
+        if (empresaRepo.existsByCuit(normalize(cmd.companyCuit()))) {
+            throw new CompanyAlreadyExistsException(cmd.companyCuit());
+        }
+
+        Role role = roleRepo.findByName(RoleName.PROFESIONAL_ADMIN)
+                .orElseThrow(() -> new RoleNotFoundException(RoleName.PROFESIONAL_ADMIN.name()));
+
+        User owner = new User(
+                UUID.randomUUID(),
+                normalize(cmd.ownerEmail()),
+                passwordEncoder.encode(cmd.ownerPassword()),
+                normalize(cmd.ownerFirstName()),
+                normalize(cmd.ownerLastName()),
+                normalize(cmd.ownerPhone()),
+                UserStatus.PENDING,
+                normalize(cmd.ownerDocumentoFiscal()),
+                Instant.now()
+        );
+        owner.addRole(role);
+        User savedOwner = userRepo.save(owner);
+
+        Empresa empresa = new Empresa(
+                UUID.randomUUID(),
+                normalize(cmd.companyName()),
+                normalize(cmd.companyCuit()),
+                normalize(cmd.companyAddress()),
+                normalize(cmd.companyCity()),
+                normalize(cmd.companyProvince()),
+                Instant.now()
+        );
+        Empresa savedEmpresa = empresaRepo.save(empresa);
+
+        Consultorio consultorio = new Consultorio(
+                UUID.randomUUID(),
+                normalize(cmd.consultorioName()),
+                null,
+                normalize(cmd.consultorioAddress()),
+                normalize(cmd.consultorioPhone()),
+                normalize(cmd.consultorioEmail()),
+                "INACTIVE",
+                savedEmpresa.getId(),
+                Instant.now()
+        );
+        Consultorio savedConsultorio = consultorioRepo.save(consultorio);
+
+        Membership membership = new Membership(
+                UUID.randomUUID(),
+                savedOwner.getId(),
+                savedConsultorio.getId(),
+                MembershipRole.PROFESIONAL_ADMIN,
+                MembershipStatus.INACTIVE,
+                Instant.now()
+        );
+        membershipRepo.save(membership);
+
+        Suscripcion suscripcion = new Suscripcion(
+                UUID.randomUUID(),
+                savedOwner.getId(),
+                savedEmpresa.getId(),
+                savedConsultorio.getId(),
+                SuscripcionStatus.PENDING,
+                Instant.now(),
+                null,
+                null,
+                null,
+                null,
+                null,
+                Instant.now(),
+                Instant.now()
+        );
+        Suscripcion savedSubscription = suscripcionRepo.save(suscripcion);
+
+        saveAudit(savedSubscription, "SUBSCRIPTION_CREATED", null, savedSubscription.getStatus().name(), null, null);
+        emailPort.sendSubscriptionReceived(
+                savedOwner.getEmail(),
+                savedOwner.getFirstName(),
+                savedSubscription.getId().toString()
+        );
+
+        return buildSummary(savedSubscription);
+    }
+
+    @Transactional(readOnly = true)
+    public PagedResult<SubscriptionSummaryResult> listSubscriptions(String status, int page, int size) {
+        SuscripcionStatus parsedStatus = parseStatus(status);
+        List<Suscripcion> subscriptions = parsedStatus == null
+                ? suscripcionRepo.findAll(page, size)
+                : suscripcionRepo.findByStatus(parsedStatus, page, size);
+        long total = parsedStatus == null
+                ? suscripcionRepo.countAll()
+                : suscripcionRepo.countByStatus(parsedStatus);
+
+        List<SubscriptionSummaryResult> content = subscriptions.stream().map(this::buildSummary).toList();
+        return new PagedResult<>(content, page, size, total);
+    }
+
+    public SubscriptionSummaryResult approve(ApproveSubscriptionCommand cmd) {
+        if (cmd.startDate() == null || cmd.endDate() == null) {
+            throw new SubscriptionStateException("Debe informar fecha de inicio y vencimiento.");
+        }
+        if (cmd.startDate().isAfter(cmd.endDate())) {
+            throw new SubscriptionStateException("La fecha de inicio no puede ser posterior a la fecha de vencimiento.");
+        }
+
+        expireDueSubscriptions();
+        Suscripcion suscripcion = findSubscription(cmd.subscriptionId());
+        if (suscripcion.getStatus() != SuscripcionStatus.PENDING) {
+            throw new SubscriptionStateException("Solo se pueden aprobar suscripciones en estado PENDING.");
+        }
+
+        String previousStatus = suscripcion.getStatus().name();
+        suscripcion.approve(cmd.startDate(), cmd.endDate(), cmd.actorUserId());
+        Suscripcion saved = suscripcionRepo.save(suscripcion);
+
+        User owner = userRepo.findById(saved.getOwnerUserId())
+                .orElseThrow(() -> new UserNotFoundException(saved.getOwnerUserId().toString()));
+        owner.activate();
+        userRepo.save(owner);
+
+        Consultorio consultorio = ConsultorioStateGuardService.requireExists(consultorioRepo, saved.getConsultorioBaseId());
+        if (!consultorio.isActive()) {
+            consultorio.activate();
+            consultorioRepo.save(consultorio);
+        }
+
+        Membership membership = membershipRepo.findByUserIdAndConsultorioId(saved.getOwnerUserId(), saved.getConsultorioBaseId())
+                .orElseThrow(() -> new SubscriptionStateException("No se encontrÃ³ la membresÃ­a base del dueÃ±o."));
+        membership.activate();
+        membershipRepo.save(membership);
+
+        saveAudit(saved, "SUBSCRIPTION_APPROVED", previousStatus, saved.getStatus().name(), cmd.actorUserId(), null);
+        emailPort.sendSubscriptionApproved(owner.getEmail(), owner.getFirstName(), saved.getStartDate(), saved.getEndDate());
+        return buildSummary(saved);
+    }
+
+    public SubscriptionSummaryResult reject(RejectSubscriptionCommand cmd) {
+        Suscripcion suscripcion = findSubscription(cmd.subscriptionId());
+        if (suscripcion.getStatus() != SuscripcionStatus.PENDING) {
+            throw new SubscriptionStateException("Solo se pueden rechazar suscripciones en estado PENDING.");
+        }
+
+        String previousStatus = suscripcion.getStatus().name();
+        suscripcion.reject(normalize(cmd.reason()), cmd.actorUserId());
+        Suscripcion saved = suscripcionRepo.save(suscripcion);
+
+        User owner = userRepo.findById(saved.getOwnerUserId())
+                .orElseThrow(() -> new UserNotFoundException(saved.getOwnerUserId().toString()));
+        owner.rejectActivation();
+        userRepo.save(owner);
+
+        membershipRepo.findByUserIdAndConsultorioId(saved.getOwnerUserId(), saved.getConsultorioBaseId())
+                .ifPresent(m -> {
+                    m.inactivate();
+                    membershipRepo.save(m);
+                });
+
+        saveAudit(saved, "SUBSCRIPTION_REJECTED", previousStatus, saved.getStatus().name(), cmd.actorUserId(), normalize(cmd.reason()));
+        emailPort.sendSubscriptionRejected(owner.getEmail(), owner.getFirstName(), normalize(cmd.reason()));
+        return buildSummary(saved);
+    }
+
+    public SubscriptionSummaryResult suspend(SuspendSubscriptionCommand cmd) {
+        expireDueSubscriptions();
+        Suscripcion suscripcion = findSubscription(cmd.subscriptionId());
+        if (suscripcion.getStatus() != SuscripcionStatus.ACTIVE) {
+            throw new SubscriptionStateException("Solo se pueden suspender suscripciones en estado ACTIVE.");
+        }
+
+        String previousStatus = suscripcion.getStatus().name();
+        suscripcion.suspend(normalize(cmd.reason()), cmd.actorUserId());
+        Suscripcion saved = suscripcionRepo.save(suscripcion);
+
+        User owner = userRepo.findById(saved.getOwnerUserId())
+                .orElseThrow(() -> new UserNotFoundException(saved.getOwnerUserId().toString()));
+        saveAudit(saved, "SUBSCRIPTION_SUSPENDED", previousStatus, saved.getStatus().name(), cmd.actorUserId(), normalize(cmd.reason()));
+        emailPort.sendSubscriptionSuspended(owner.getEmail(), owner.getFirstName(), normalize(cmd.reason()));
+        return buildSummary(saved);
+    }
+
+    public SubscriptionSummaryResult reactivate(ReactivateSubscriptionCommand cmd) {
+        expireDueSubscriptions();
+        Suscripcion suscripcion = findSubscription(cmd.subscriptionId());
+        if (suscripcion.getStatus() != SuscripcionStatus.SUSPENDED) {
+            throw new SubscriptionStateException("Solo se pueden reactivar suscripciones en estado SUSPENDED.");
+        }
+        if (suscripcion.getEndDate() != null && suscripcion.getEndDate().isBefore(LocalDate.now(OPERATIVE_ZONE))) {
+            throw new SubscriptionStateException("No se puede reactivar una suscripciÃ³n vencida.");
+        }
+
+        String previousStatus = suscripcion.getStatus().name();
+        suscripcion.reactivate(cmd.actorUserId());
+        Suscripcion saved = suscripcionRepo.save(suscripcion);
+
+        User owner = userRepo.findById(saved.getOwnerUserId())
+                .orElseThrow(() -> new UserNotFoundException(saved.getOwnerUserId().toString()));
+        saveAudit(saved, "SUBSCRIPTION_REACTIVATED", previousStatus, saved.getStatus().name(), cmd.actorUserId(), null);
+        emailPort.sendSubscriptionReactivated(owner.getEmail(), owner.getFirstName(), saved.getEndDate());
+        return buildSummary(saved);
+    }
+
+    public void expireDueSubscriptions() {
+        suscripcionRepo.expireActiveDue(LocalDate.now(OPERATIVE_ZONE));
+    }
+
+    private Suscripcion findSubscription(UUID id) {
+        return suscripcionRepo.findById(id)
+                .orElseThrow(() -> new SubscriptionNotFoundException(id.toString()));
+    }
+
+    private void saveAudit(Suscripcion suscripcion,
+                           String action,
+                           String fromStatus,
+                           String toStatus,
+                           UUID actorUserId,
+                           String reason) {
+        auditoriaRepo.save(new SuscripcionAuditoria(
+                UUID.randomUUID(),
+                suscripcion.getId(),
+                action,
+                fromStatus,
+                toStatus,
+                actorUserId,
+                reason,
+                Instant.now()
+        ));
+    }
+
+    private SubscriptionSummaryResult buildSummary(Suscripcion subscription) {
+        User owner = userRepo.findById(subscription.getOwnerUserId())
+                .orElseThrow(() -> new UserNotFoundException(subscription.getOwnerUserId().toString()));
+        Empresa empresa = empresaRepo.findById(subscription.getEmpresaId())
+                .orElseThrow(() -> new SubscriptionStateException("Empresa de suscripciÃ³n no encontrada."));
+        Consultorio consultorio = consultorioRepo.findById(subscription.getConsultorioBaseId())
+                .orElseThrow(() -> new SubscriptionStateException("Consultorio base de suscripciÃ³n no encontrado."));
+
+        return new SubscriptionSummaryResult(
+                subscription.getId(),
+                subscription.getStatus().name(),
+                subscription.getRequestedAt(),
+                subscription.getStartDate(),
+                subscription.getEndDate(),
+                subscription.getReviewedAt(),
+                subscription.getReviewedByUserId(),
+                subscription.getRejectionReason(),
+                owner.getId(),
+                owner.getFirstName(),
+                owner.getLastName(),
+                owner.getEmail(),
+                empresa.getId(),
+                empresa.getName(),
+                empresa.getCuit(),
+                empresa.getCity(),
+                empresa.getProvince(),
+                consultorio.getId(),
+                consultorio.getName(),
+                consultorio.getAddress()
+        );
+    }
+
+    private SuscripcionStatus parseStatus(String status) {
+        String normalized = normalize(status);
+        if (normalized == null) return null;
+        try {
+            return SuscripcionStatus.valueOf(normalized.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException ex) {
+            throw new SubscriptionStateException("Estado de suscripciÃ³n invÃ¡lido: " + status);
+        }
+    }
+
+    private String normalize(String value) {
+        if (value == null) return null;
+        String trimmed = value.trim();
+        return trimmed.isBlank() ? null : trimmed;
+    }
+}
+

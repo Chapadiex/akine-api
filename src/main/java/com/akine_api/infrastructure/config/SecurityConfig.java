@@ -38,8 +38,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Auth endpoints públicos
                 .requestMatchers(HttpMethod.POST,
-                        "/api/v1/auth/register/patient",
-                        "/api/v1/auth/register/professional",
+                        "/api/v1/subscriptions",
                         "/api/v1/auth/activate",
                         "/api/v1/auth/resend-activation",
                         "/api/v1/auth/login",
