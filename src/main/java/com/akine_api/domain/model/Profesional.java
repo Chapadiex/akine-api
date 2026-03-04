@@ -8,6 +8,7 @@ public class Profesional {
 
     private final UUID id;
     private final UUID consultorioId;
+    private UUID userId;
     private String nombre;
     private String apellido;
     private String nroDocumento;
@@ -31,8 +32,20 @@ public class Profesional {
                        String domicilio, String fotoPerfilUrl,
                        LocalDate fechaAlta, LocalDate fechaBaja, String motivoBaja,
                        boolean activo, Instant createdAt) {
+        this(id, consultorioId, null, nombre, apellido, nroDocumento, matricula, especialidad,
+                especialidades, email, telefono, domicilio, fotoPerfilUrl, fechaAlta, fechaBaja,
+                motivoBaja, activo, createdAt);
+    }
+
+    public Profesional(UUID id, UUID consultorioId, UUID userId, String nombre, String apellido,
+                       String nroDocumento, String matricula, String especialidad,
+                       String especialidades, String email, String telefono,
+                       String domicilio, String fotoPerfilUrl,
+                       LocalDate fechaAlta, LocalDate fechaBaja, String motivoBaja,
+                       boolean activo, Instant createdAt) {
         this.id = id;
         this.consultorioId = consultorioId;
+        this.userId = userId;
         this.nombre = nombre;
         this.apellido = apellido;
         this.nroDocumento = nroDocumento;
@@ -81,8 +94,14 @@ public class Profesional {
         this.updatedAt = Instant.now();
     }
 
+    public void linkUser(UUID userId) {
+        this.userId = userId;
+        this.updatedAt = Instant.now();
+    }
+
     public UUID getId() { return id; }
     public UUID getConsultorioId() { return consultorioId; }
+    public UUID getUserId() { return userId; }
     public String getNombre() { return nombre; }
     public String getApellido() { return apellido; }
     public String getNroDocumento() { return nroDocumento; }

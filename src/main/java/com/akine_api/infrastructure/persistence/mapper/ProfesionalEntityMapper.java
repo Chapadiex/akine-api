@@ -12,6 +12,7 @@ public interface ProfesionalEntityMapper {
         return new Profesional(
                 entity.getId(),
                 entity.getConsultorioId(),
+                entity.getUserId(),
                 entity.getNombre(),
                 entity.getApellido(),
                 entity.getNroDocumento(),
@@ -35,6 +36,7 @@ public interface ProfesionalEntityMapper {
         ProfesionalEntity e = new ProfesionalEntity();
         e.setId(domain.getId());
         e.setConsultorioId(domain.getConsultorioId());
+        e.setUserId(domain.getUserId());
         e.setNombre(domain.getNombre());
         e.setApellido(domain.getApellido());
         e.setNroDocumento(domain.getNroDocumento());

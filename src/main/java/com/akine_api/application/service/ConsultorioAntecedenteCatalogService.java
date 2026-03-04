@@ -3,7 +3,6 @@ package com.akine_api.application.service;
 import com.akine_api.application.dto.result.AntecedenteCatalogResult;
 import com.akine_api.application.port.output.ConsultorioRepositoryPort;
 import com.akine_api.application.port.output.UserRepositoryPort;
-import com.akine_api.domain.exception.ConsultorioNotFoundException;
 import com.akine_api.domain.model.User;
 import com.akine_api.infrastructure.persistence.entity.ConsultorioAntecedenteCatalogEntity;
 import com.akine_api.infrastructure.persistence.repository.ConsultorioAntecedenteCatalogJpaRepository;
@@ -462,11 +461,11 @@ public class ConsultorioAntecedenteCatalogService {
     }
 
     private void assertConsultorioExists(UUID consultorioId) {
-        consultorioRepo.findById(consultorioId)
-                .orElseThrow(() -> new ConsultorioNotFoundException("Consultorio no encontrado: " + consultorioId));
+        ConsultorioStateGuardService.requireActive(consultorioRepo, consultorioId);
     }
 
     private void assertCanRead(UUID consultorioId, String userEmail, Set<String> roles) {
+        ConsultorioStateGuardService.requireActive(consultorioRepo, consultorioId);
         if (roles.contains("ROLE_ADMIN")) return;
         UUID userId = resolveUserId(userEmail);
         List<UUID> ids = consultorioRepo.findConsultorioIdsByUserId(userId);
@@ -476,6 +475,7 @@ public class ConsultorioAntecedenteCatalogService {
     }
 
     private void assertCanWrite(UUID consultorioId, String userEmail, Set<String> roles) {
+        ConsultorioStateGuardService.requireActive(consultorioRepo, consultorioId);
         if (roles.contains("ROLE_ADMIN")) return;
         if (!roles.contains("ROLE_PROFESIONAL_ADMIN")) {
             throw new AccessDeniedException("Permiso denegado");

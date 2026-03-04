@@ -11,7 +11,6 @@ import com.akine_api.application.port.output.ProfesionalConsultorioRepositoryPor
 import com.akine_api.application.port.output.ProfesionalRepositoryPort;
 import com.akine_api.application.port.output.UserRepositoryPort;
 import com.akine_api.domain.exception.ConsultorioHorarioNotFoundException;
-import com.akine_api.domain.exception.ConsultorioNotFoundException;
 import com.akine_api.domain.exception.DisponibilidadFueraDeHorarioException;
 import com.akine_api.domain.exception.DisponibilidadProfesionalNotFoundException;
 import com.akine_api.domain.exception.DisponibilidadSolapamientoException;
@@ -154,11 +153,11 @@ public class DisponibilidadProfesionalService {
     }
 
     private void assertConsultorioExists(UUID consultorioId) {
-        consultorioRepo.findById(consultorioId)
-                .orElseThrow(() -> new ConsultorioNotFoundException("Consultorio no encontrado: " + consultorioId));
+        ConsultorioStateGuardService.requireActive(consultorioRepo, consultorioId);
     }
 
     private void assertCanManage(UUID profesionalId, UUID consultorioId, String userEmail, Set<String> roles) {
+        ConsultorioStateGuardService.requireActive(consultorioRepo, consultorioId);
         if (roles.contains("ROLE_ADMIN")) return;
         if (roles.contains("ROLE_PROFESIONAL_ADMIN")) {
             UUID userId = resolveUserId(userEmail);

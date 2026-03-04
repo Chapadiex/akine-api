@@ -9,6 +9,7 @@ import java.util.UUID;
 public interface ProfesionalRepositoryPort {
     Profesional save(Profesional profesional);
     Optional<Profesional> findById(UUID id);
+    Optional<Profesional> findByUserId(UUID userId);
     Optional<Profesional> findByEmail(String email);
     List<Profesional> findByConsultorioId(UUID consultorioId);
     List<Profesional> findAll();

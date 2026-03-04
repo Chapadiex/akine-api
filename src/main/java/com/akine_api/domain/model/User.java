@@ -38,6 +38,16 @@ public class User {
         this.updatedAt = Instant.now();
     }
 
+    public void markPending() {
+        this.status = UserStatus.PENDING;
+        this.updatedAt = Instant.now();
+    }
+
+    public void rejectActivation() {
+        this.status = UserStatus.REJECTED;
+        this.updatedAt = Instant.now();
+    }
+
     public void updateProfile(String firstName, String lastName, String phone) {
         this.firstName = firstName;
         this.lastName = lastName;

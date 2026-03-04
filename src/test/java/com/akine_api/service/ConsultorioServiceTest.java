@@ -5,7 +5,10 @@ import com.akine_api.application.dto.command.UpdateConsultorioCommand;
 import com.akine_api.application.dto.result.ConsultorioResult;
 import com.akine_api.application.port.output.ConsultorioRepositoryPort;
 import com.akine_api.application.port.output.UserRepositoryPort;
+import com.akine_api.application.service.ConsultorioAntecedenteBootstrapService;
+import com.akine_api.application.service.ConsultorioEspecialidadBootstrapService;
 import com.akine_api.application.service.ConsultorioService;
+import com.akine_api.domain.exception.ConsultorioInactiveException;
 import com.akine_api.domain.exception.ConsultorioNotFoundException;
 import com.akine_api.domain.model.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +33,8 @@ class ConsultorioServiceTest {
 
     @Mock ConsultorioRepositoryPort consultorioRepo;
     @Mock UserRepositoryPort userRepo;
+    @Mock ConsultorioEspecialidadBootstrapService especialidadBootstrapService;
+    @Mock ConsultorioAntecedenteBootstrapService antecedenteBootstrapService;
 
     ConsultorioService service;
 
@@ -42,12 +47,22 @@ class ConsultorioServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new ConsultorioService(consultorioRepo, userRepo);
+        service = new ConsultorioService(
+                consultorioRepo,
+                userRepo,
+                especialidadBootstrapService,
+                antecedenteBootstrapService
+        );
     }
 
     private Consultorio activeConsultorio() {
         return new Consultorio(CONSULTORIO_ID, "Consultorio Test", "20123456789",
                 "Av. Siempreviva 123", "1155551234", "test@mail.com", "ACTIVE", Instant.now());
+    }
+
+    private Consultorio inactiveConsultorio() {
+        return new Consultorio(CONSULTORIO_ID, "Consultorio Test", "20123456789",
+                "Av. Siempreviva 123", "1155551234", "test@mail.com", "INACTIVE", Instant.now());
     }
 
     private User activeUser() {
@@ -78,6 +93,17 @@ class ConsultorioServiceTest {
         List<ConsultorioResult> result = service.list(ADMIN_EMAIL, PROF_ADMIN_ROLES);
 
         assertThat(result).hasSize(1);
+    }
+
+    @Test
+    void list_asProfAdmin_excludesInactive() {
+        when(userRepo.findByEmail(ADMIN_EMAIL)).thenReturn(Optional.of(activeUser()));
+        when(consultorioRepo.findConsultorioIdsByUserId(USER_ID)).thenReturn(List.of(CONSULTORIO_ID));
+        when(consultorioRepo.findByIds(List.of(CONSULTORIO_ID))).thenReturn(List.of(inactiveConsultorio()));
+
+        List<ConsultorioResult> result = service.list(ADMIN_EMAIL, PROF_ADMIN_ROLES);
+
+        assertThat(result).isEmpty();
     }
 
     // ─── getById ──────────────────────────────────────────────────────────────
@@ -121,6 +147,23 @@ class ConsultorioServiceTest {
 
         assertThat(result.name()).isEqualTo("Nuevo");
         assertThat(result.status()).isEqualTo("ACTIVE");
+        verify(especialidadBootstrapService).enableDefaultsForConsultorio(result.id());
+        verify(antecedenteBootstrapService).ensureDefaults(result.id(), "system");
+    }
+
+    @Test
+    void create_whenAntecedenteBootstrapFails_throwsAndStopsFlow() {
+        when(consultorioRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        doThrow(new IllegalStateException("bootstrap fail"))
+                .when(antecedenteBootstrapService)
+                .ensureDefaults(any(), any());
+
+        CreateConsultorioCommand cmd = new CreateConsultorioCommand(
+                "Nuevo", null, "Av. 123", "1155550000", "nuevo@mail.com");
+
+        assertThatThrownBy(() -> service.create(cmd, ADMIN_ROLES))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("bootstrap fail");
     }
 
     @Test
@@ -147,6 +190,17 @@ class ConsultorioServiceTest {
         assertThat(result.name()).isEqualTo("Actualizado");
     }
 
+    @Test
+    void update_inactive_throwsConsultorioInactiveException() {
+        when(consultorioRepo.findById(CONSULTORIO_ID)).thenReturn(Optional.of(inactiveConsultorio()));
+
+        UpdateConsultorioCommand cmd = new UpdateConsultorioCommand(
+                CONSULTORIO_ID, "Actualizado", null, "Nueva Dir", "1155559999", null);
+
+        assertThatThrownBy(() -> service.update(cmd, ADMIN_EMAIL, ADMIN_ROLES))
+                .isInstanceOf(ConsultorioInactiveException.class);
+    }
+
     // ─── inactivate ───────────────────────────────────────────────────────────
 
     @Test
@@ -158,5 +212,32 @@ class ConsultorioServiceTest {
         service.inactivate(CONSULTORIO_ID, ADMIN_EMAIL, ADMIN_ROLES);
 
         assertThat(c.getStatus()).isEqualTo("INACTIVE");
+    }
+
+    @Test
+    void inactivate_asProfAdmin_throwsAccessDenied() {
+        when(consultorioRepo.findById(CONSULTORIO_ID)).thenReturn(Optional.of(activeConsultorio()));
+
+        assertThatThrownBy(() -> service.inactivate(CONSULTORIO_ID, ADMIN_EMAIL, PROF_ADMIN_ROLES))
+                .isInstanceOf(AccessDeniedException.class);
+    }
+
+    @Test
+    void activate_asAdmin_setsActive() {
+        Consultorio c = inactiveConsultorio();
+        when(consultorioRepo.findById(CONSULTORIO_ID)).thenReturn(Optional.of(c));
+        when(consultorioRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        ConsultorioResult result = service.activate(CONSULTORIO_ID, ADMIN_ROLES);
+
+        assertThat(result.status()).isEqualTo("ACTIVE");
+    }
+
+    @Test
+    void activate_asProfAdmin_throwsAccessDenied() {
+        when(consultorioRepo.findById(CONSULTORIO_ID)).thenReturn(Optional.of(inactiveConsultorio()));
+
+        assertThatThrownBy(() -> service.activate(CONSULTORIO_ID, PROF_ADMIN_ROLES))
+                .isInstanceOf(AccessDeniedException.class);
     }
 }

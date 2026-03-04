@@ -122,22 +122,31 @@ public class UserRegistrationService {
     }
 
     public void activateAccount(String rawToken) {
-        String tokenHash = hashToken(rawToken);
-        ActivationToken token = activationTokenRepo.findByTokenHash(tokenHash)
-                .orElseThrow(InvalidTokenException::new);
-
-        if (!token.isValid()) {
-            throw new InvalidTokenException();
-        }
-
-        User user = userRepo.findById(token.getUserId())
-                .orElseThrow(() -> new UserNotFoundException(token.getUserId().toString()));
-
+        ActivationContext ctx = resolveActivationContext(rawToken);
+        User user = ctx.user();
         user.activate();
         userRepo.save(user);
+        ctx.token().markUsed();
+        activationTokenRepo.save(ctx.token());
+    }
 
-        token.markUsed();
-        activationTokenRepo.save(token);
+    public void activateAccountWithPassword(String rawToken, String newPassword) {
+        ActivationContext ctx = resolveActivationContext(rawToken);
+        User user = ctx.user();
+        user.changePassword(passwordEncoder.encode(newPassword));
+        user.activate();
+        userRepo.save(user);
+        ctx.token().markUsed();
+        activationTokenRepo.save(ctx.token());
+    }
+
+    public void rejectActivation(String rawToken) {
+        ActivationContext ctx = resolveActivationContext(rawToken);
+        User user = ctx.user();
+        user.rejectActivation();
+        userRepo.save(user);
+        ctx.token().markUsed();
+        activationTokenRepo.save(ctx.token());
     }
 
     public void resendActivation(String email) {
@@ -169,6 +178,19 @@ public class UserRegistrationService {
         emailPort.sendActivationEmail(user.getEmail(), user.getFirstName(), rawToken);
     }
 
+    private ActivationContext resolveActivationContext(String rawToken) {
+        String tokenHash = hashToken(rawToken);
+        ActivationToken token = activationTokenRepo.findByTokenHash(tokenHash)
+                .orElseThrow(InvalidTokenException::new);
+
+        if (!token.isValid()) {
+            throw new InvalidTokenException();
+        }
+        User user = userRepo.findById(token.getUserId())
+                .orElseThrow(() -> new UserNotFoundException(token.getUserId().toString()));
+        return new ActivationContext(token, user);
+    }
+
     private String hashToken(String raw) {
         try {
             var digest = java.security.MessageDigest.getInstance("SHA-256");
@@ -182,4 +204,6 @@ public class UserRegistrationService {
             throw new RuntimeException("SHA-256 not available", e);
         }
     }
+
+    private record ActivationContext(ActivationToken token, User user) {}
 }

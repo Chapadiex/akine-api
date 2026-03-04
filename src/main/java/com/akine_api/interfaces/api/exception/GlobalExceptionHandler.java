@@ -69,6 +69,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             ConsultorioNotFoundException.class,
             BoxNotFoundException.class,
             ProfesionalNotFoundException.class,
+            EspecialidadNotFoundException.class,
+            EmpleadoNotFoundException.class,
             ProfesionalConsultorioNotFoundException.class,
             ConsultorioHorarioNotFoundException.class,
             DisponibilidadProfesionalNotFoundException.class,
@@ -167,6 +169,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
         pd.setType(URI.create("urn:akine:error:conflict"));
         pd.setTitle("Conflicto de datos");
+        return pd;
+    }
+
+    @ExceptionHandler(ConsultorioInactiveException.class)
+    public ProblemDetail handleConsultorioInactive(ConsultorioInactiveException ex) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        pd.setType(URI.create("urn:akine:error:consultorio-inactive"));
+        pd.setTitle("Consultorio inactivo");
         return pd;
     }
 

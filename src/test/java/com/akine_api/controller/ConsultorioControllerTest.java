@@ -127,4 +127,30 @@ class ConsultorioControllerTest {
         mvc.perform(delete("/api/v1/consultorios/{id}", ID))
                 .andExpect(status().isNoContent());
     }
+
+    @Test
+    void activate_withoutAuth_returns401() throws Exception {
+        mvc.perform(patch("/api/v1/consultorios/{id}/activar", ID))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void activate_asAdmin_returns200() throws Exception {
+        when(consultorioService.activate(any(), any())).thenReturn(sampleResult());
+
+        mvc.perform(patch("/api/v1/consultorios/{id}/activar", ID))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(ID.toString()));
+    }
+
+    @Test
+    @WithMockUser(roles = "PROFESIONAL_ADMIN")
+    void activate_asProfAdmin_returns403() throws Exception {
+        when(consultorioService.activate(any(), any()))
+                .thenThrow(new AccessDeniedException("forbidden"));
+
+        mvc.perform(patch("/api/v1/consultorios/{id}/activar", ID))
+                .andExpect(status().isForbidden());
+    }
 }

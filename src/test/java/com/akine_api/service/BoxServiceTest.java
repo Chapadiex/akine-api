@@ -135,6 +135,7 @@ class BoxServiceTest {
     @Test
     void inactivate_asAdmin_setsInactive() {
         Box b = box();
+        when(consultorioRepo.findById(CONSULTORIO_ID)).thenReturn(Optional.of(consultorio()));
         when(boxRepo.findById(BOX_ID)).thenReturn(Optional.of(b));
         when(boxRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
@@ -145,6 +146,7 @@ class BoxServiceTest {
 
     @Test
     void inactivate_boxNotFound_throws() {
+        when(consultorioRepo.findById(CONSULTORIO_ID)).thenReturn(Optional.of(consultorio()));
         when(boxRepo.findById(any())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.inactivate(CONSULTORIO_ID, BOX_ID, USER_EMAIL, ADMIN_ROLES))

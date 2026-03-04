@@ -253,8 +253,7 @@ public class PacienteService {
     }
 
     private void assertCanManageConsultorio(UUID consultorioId, String userEmail, Set<String> roles) {
-        consultorioRepo.findById(consultorioId)
-                .orElseThrow(() -> new ConsultorioNotFoundException("Consultorio no encontrado: " + consultorioId));
+        ConsultorioStateGuardService.requireActive(consultorioRepo, consultorioId);
 
         if (roles.contains("ROLE_ADMIN")) {
             return;

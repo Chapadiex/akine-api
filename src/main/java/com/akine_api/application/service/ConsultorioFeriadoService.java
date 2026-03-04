@@ -5,7 +5,6 @@ import com.akine_api.application.dto.result.ConsultorioFeriadoResult;
 import com.akine_api.application.port.output.ConsultorioFeriadoRepositoryPort;
 import com.akine_api.application.port.output.ConsultorioRepositoryPort;
 import com.akine_api.application.port.output.UserRepositoryPort;
-import com.akine_api.domain.exception.ConsultorioNotFoundException;
 import com.akine_api.domain.model.ConsultorioFeriado;
 import com.akine_api.domain.model.User;
 import org.springframework.security.access.AccessDeniedException;
@@ -83,11 +82,11 @@ public class ConsultorioFeriadoService {
     }
 
     private void assertConsultorioExists(UUID consultorioId) {
-        consultorioRepo.findById(consultorioId)
-                .orElseThrow(() -> new ConsultorioNotFoundException("Consultorio no encontrado: " + consultorioId));
+        ConsultorioStateGuardService.requireActive(consultorioRepo, consultorioId);
     }
 
     private void assertCanAccess(UUID consultorioId, String userEmail, Set<String> roles) {
+        ConsultorioStateGuardService.requireActive(consultorioRepo, consultorioId);
         if (roles.contains("ROLE_ADMIN")) return;
         UUID userId = resolveUserId(userEmail);
         List<UUID> ids = consultorioRepo.findConsultorioIdsByUserId(userId);
@@ -97,6 +96,7 @@ public class ConsultorioFeriadoService {
     }
 
     private void assertCanManage(UUID consultorioId, String userEmail, Set<String> roles) {
+        ConsultorioStateGuardService.requireActive(consultorioRepo, consultorioId);
         if (roles.contains("ROLE_ADMIN")) return;
         if (roles.contains("ROLE_PROFESIONAL_ADMIN")) {
             UUID userId = resolveUserId(userEmail);

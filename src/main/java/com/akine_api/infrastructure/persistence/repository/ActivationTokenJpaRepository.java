@@ -11,6 +11,7 @@ import java.util.UUID;
 
 public interface ActivationTokenJpaRepository extends JpaRepository<ActivationTokenEntity, UUID> {
     Optional<ActivationTokenEntity> findByTokenHash(String tokenHash);
+    Optional<ActivationTokenEntity> findFirstByUserIdOrderByCreatedAtDesc(UUID userId);
 
     @Modifying
     @Query("DELETE FROM ActivationTokenEntity t WHERE t.userId = :userId")

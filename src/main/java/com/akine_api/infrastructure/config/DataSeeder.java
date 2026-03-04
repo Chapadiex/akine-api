@@ -1,8 +1,11 @@
 package com.akine_api.infrastructure.config;
 
 import com.akine_api.application.port.output.PasswordEncoderPort;
+import com.akine_api.application.service.ConsultorioAntecedenteBootstrapService;
+import com.akine_api.application.service.ConsultorioEspecialidadBootstrapService;
 import com.akine_api.infrastructure.persistence.entity.RoleEntity;
 import com.akine_api.infrastructure.persistence.entity.UserEntity;
+import com.akine_api.infrastructure.persistence.repository.ConsultorioJpaRepository;
 import com.akine_api.infrastructure.persistence.repository.RoleJpaRepository;
 import com.akine_api.infrastructure.persistence.repository.UserJpaRepository;
 import org.slf4j.Logger;
@@ -27,6 +30,9 @@ public class DataSeeder implements ApplicationRunner {
 
     private final UserJpaRepository userRepo;
     private final RoleJpaRepository roleRepo;
+    private final ConsultorioJpaRepository consultorioRepo;
+    private final ConsultorioEspecialidadBootstrapService consultorioEspecialidadBootstrapService;
+    private final ConsultorioAntecedenteBootstrapService consultorioAntecedenteBootstrapService;
     private final PasswordEncoderPort passwordEncoder;
     private final boolean devMode;
 
@@ -38,10 +44,16 @@ public class DataSeeder implements ApplicationRunner {
 
     public DataSeeder(UserJpaRepository userRepo,
                       RoleJpaRepository roleRepo,
+                      ConsultorioJpaRepository consultorioRepo,
+                      ConsultorioEspecialidadBootstrapService consultorioEspecialidadBootstrapService,
+                      ConsultorioAntecedenteBootstrapService consultorioAntecedenteBootstrapService,
                       PasswordEncoderPort passwordEncoder,
                       @Value("${app.seed.dev-users:false}") boolean devMode) {
         this.userRepo = userRepo;
         this.roleRepo = roleRepo;
+        this.consultorioRepo = consultorioRepo;
+        this.consultorioEspecialidadBootstrapService = consultorioEspecialidadBootstrapService;
+        this.consultorioAntecedenteBootstrapService = consultorioAntecedenteBootstrapService;
         this.passwordEncoder = passwordEncoder;
         this.devMode = devMode;
     }
@@ -50,6 +62,7 @@ public class DataSeeder implements ApplicationRunner {
     @Transactional
     public void run(ApplicationArguments args) {
         seedAdminUser();
+        seedDefaultsForExistingConsultorios();
         if (devMode) {
             seedDevUsers();
         }
@@ -104,5 +117,16 @@ public class DataSeeder implements ApplicationRunner {
         u.setUpdatedAt(Instant.now());
         u.setRoles(Set.of(role));
         return u;
+    }
+
+    private void seedDefaultsForExistingConsultorios() {
+        consultorioRepo.findAll().forEach(c -> {
+            try {
+                consultorioEspecialidadBootstrapService.enableDefaultsForConsultorio(c.getId());
+                consultorioAntecedenteBootstrapService.ensureDefaults(c.getId(), "system");
+            } catch (Exception ex) {
+                log.error("No se pudieron sembrar defaults para consultorio {}", c.getId(), ex);
+            }
+        });
     }
 }

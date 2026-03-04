@@ -112,7 +112,8 @@ public class AuthenticationService {
                 .map(r -> r.getName().name())
                 .collect(Collectors.toList());
 
-        UUID profesionalId = profesionalRepo.findByEmail(user.getEmail())
+        UUID profesionalId = profesionalRepo.findByUserId(user.getId())
+                .or(() -> profesionalRepo.findByEmail(user.getEmail()))
                 .map(Profesional::getId)
                 .orElse(null);
 

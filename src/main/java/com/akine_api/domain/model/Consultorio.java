@@ -42,6 +42,11 @@ public class Consultorio {
         this.updatedAt = Instant.now();
     }
 
+    public void activate() {
+        this.status = "ACTIVE";
+        this.updatedAt = Instant.now();
+    }
+
     public boolean isActive() { return "ACTIVE".equals(this.status); }
 
     public UUID getId() { return id; }

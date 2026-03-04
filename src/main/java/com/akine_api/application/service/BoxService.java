@@ -8,7 +8,6 @@ import com.akine_api.application.port.output.BoxRepositoryPort;
 import com.akine_api.application.port.output.ConsultorioRepositoryPort;
 import com.akine_api.application.port.output.UserRepositoryPort;
 import com.akine_api.domain.exception.BoxNotFoundException;
-import com.akine_api.domain.exception.ConsultorioNotFoundException;
 import com.akine_api.domain.model.Box;
 import com.akine_api.domain.model.BoxCapacidadTipo;
 import com.akine_api.domain.model.User;
@@ -99,11 +98,11 @@ public class BoxService {
     // ─── Helpers ──────────────────────────────────────────────────────────────
 
     private void assertConsultorioExists(UUID consultorioId) {
-        consultorioRepo.findById(consultorioId)
-                .orElseThrow(() -> new ConsultorioNotFoundException("Consultorio no encontrado: " + consultorioId));
+        ConsultorioStateGuardService.requireActive(consultorioRepo, consultorioId);
     }
 
     private void assertCanRead(UUID consultorioId, String userEmail, Set<String> roles) {
+        ConsultorioStateGuardService.requireActive(consultorioRepo, consultorioId);
         if (roles.contains("ROLE_ADMIN")) return;
         UUID userId = resolveUserId(userEmail);
         List<UUID> ids = consultorioRepo.findConsultorioIdsByUserId(userId);
@@ -113,6 +112,7 @@ public class BoxService {
     }
 
     private void assertCanWrite(UUID consultorioId, String userEmail, Set<String> roles) {
+        ConsultorioStateGuardService.requireActive(consultorioRepo, consultorioId);
         if (roles.contains("ROLE_ADMIN")) return;
         if (!roles.contains("ROLE_PROFESIONAL_ADMIN")) {
             throw new AccessDeniedException("Permiso denegado");

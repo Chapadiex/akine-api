@@ -6,7 +6,6 @@ import com.akine_api.application.dto.result.ConsultorioDuracionTurnoResult;
 import com.akine_api.application.port.output.ConsultorioDuracionTurnoRepositoryPort;
 import com.akine_api.application.port.output.ConsultorioRepositoryPort;
 import com.akine_api.application.port.output.UserRepositoryPort;
-import com.akine_api.domain.exception.ConsultorioNotFoundException;
 import com.akine_api.domain.model.ConsultorioDuracionTurno;
 import com.akine_api.domain.model.User;
 import org.springframework.security.access.AccessDeniedException;
@@ -59,11 +58,11 @@ public class ConsultorioDuracionTurnoService {
     }
 
     private void assertConsultorioExists(UUID consultorioId) {
-        consultorioRepo.findById(consultorioId)
-                .orElseThrow(() -> new ConsultorioNotFoundException("Consultorio no encontrado: " + consultorioId));
+        ConsultorioStateGuardService.requireActive(consultorioRepo, consultorioId);
     }
 
     private void assertCanRead(UUID consultorioId, String userEmail, Set<String> roles) {
+        ConsultorioStateGuardService.requireActive(consultorioRepo, consultorioId);
         if (roles.contains("ROLE_ADMIN")) return;
         UUID userId = resolveUserId(userEmail);
         List<UUID> ids = consultorioRepo.findConsultorioIdsByUserId(userId);
@@ -73,6 +72,7 @@ public class ConsultorioDuracionTurnoService {
     }
 
     private void assertCanWrite(UUID consultorioId, String userEmail, Set<String> roles) {
+        ConsultorioStateGuardService.requireActive(consultorioRepo, consultorioId);
         if (roles.contains("ROLE_ADMIN")) return;
         if (!roles.contains("ROLE_PROFESIONAL_ADMIN")) {
             throw new AccessDeniedException("Permiso denegado");

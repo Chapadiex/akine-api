@@ -74,6 +74,13 @@ public class ConsultorioController {
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/{id}/activar")
+    public ResponseEntity<ConsultorioResponse> activate(
+            @PathVariable UUID id,
+            @AuthenticationPrincipal UserDetails principal) {
+        return ResponseEntity.ok(toResponse(service.activate(id, roles(principal))));
+    }
+
     private ConsultorioResponse toResponse(ConsultorioResult r) {
         return new ConsultorioResponse(r.id(), r.name(), r.cuit(), r.address(),
                 r.phone(), r.email(), r.status(), r.createdAt(), r.updatedAt());

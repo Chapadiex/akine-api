@@ -47,6 +47,18 @@ public class AuthController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/activate-with-password")
+    public ResponseEntity<Void> activateWithPassword(@Valid @RequestBody ActivateWithPasswordRequest req) {
+        registrationService.activateAccountWithPassword(req.token(), req.newPassword());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/reject-activation")
+    public ResponseEntity<Void> rejectActivation(@Valid @RequestBody RejectActivationRequest req) {
+        registrationService.rejectActivation(req.token());
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/resend-activation")
     public ResponseEntity<Void> resendActivation(@Valid @RequestBody ResendActivationRequest req) {
         registrationService.resendActivation(req.email());

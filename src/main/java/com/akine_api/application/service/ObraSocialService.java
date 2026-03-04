@@ -7,7 +7,6 @@ import com.akine_api.application.dto.result.*;
 import com.akine_api.application.port.output.ConsultorioRepositoryPort;
 import com.akine_api.application.port.output.ObraSocialRepositoryPort;
 import com.akine_api.application.port.output.UserRepositoryPort;
-import com.akine_api.domain.exception.ConsultorioNotFoundException;
 import com.akine_api.domain.exception.ObraSocialConflictException;
 import com.akine_api.domain.exception.ObraSocialNotFoundException;
 import com.akine_api.domain.exception.ObraSocialValidationException;
@@ -308,11 +307,11 @@ public class ObraSocialService {
     }
 
     private void assertConsultorioExists(UUID consultorioId) {
-        consultorioRepo.findById(consultorioId)
-                .orElseThrow(() -> new ConsultorioNotFoundException("Consultorio no encontrado"));
+        ConsultorioStateGuardService.requireActive(consultorioRepo, consultorioId);
     }
 
     private void assertCanRead(UUID consultorioId, String userEmail, Set<String> roles) {
+        ConsultorioStateGuardService.requireActive(consultorioRepo, consultorioId);
         if (roles.contains("ROLE_ADMIN")) return;
         UUID userId = resolveUserId(userEmail);
         if (!consultorioRepo.findConsultorioIdsByUserId(userId).contains(consultorioId)) {
@@ -321,6 +320,7 @@ public class ObraSocialService {
     }
 
     private void assertCanWrite(UUID consultorioId, String userEmail, Set<String> roles) {
+        ConsultorioStateGuardService.requireActive(consultorioRepo, consultorioId);
         if (roles.contains("ROLE_ADMIN")) return;
         if (!roles.contains("ROLE_PROFESIONAL_ADMIN")) {
             throw new AccessDeniedException("Permiso denegado");

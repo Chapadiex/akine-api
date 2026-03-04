@@ -360,11 +360,11 @@ public class TurnoService {
     // -- Helpers de validacion --
 
     private void assertConsultorioExists(UUID consultorioId) {
-        consultorioRepo.findById(consultorioId)
-                .orElseThrow(() -> new ConsultorioNotFoundException("Consultorio no encontrado: " + consultorioId));
+        ConsultorioStateGuardService.requireActive(consultorioRepo, consultorioId);
     }
 
     private void assertCanAccess(UUID consultorioId, String userEmail, Set<String> roles) {
+        ConsultorioStateGuardService.requireActive(consultorioRepo, consultorioId);
         if (roles.contains("ROLE_ADMIN")) return;
         UUID userId = resolveUserId(userEmail);
         List<UUID> ids = consultorioRepo.findConsultorioIdsByUserId(userId);
@@ -374,6 +374,7 @@ public class TurnoService {
     }
 
     private void assertCanManage(UUID consultorioId, String userEmail, Set<String> roles) {
+        ConsultorioStateGuardService.requireActive(consultorioRepo, consultorioId);
         if (roles.contains("ROLE_ADMIN")) return;
         if (roles.contains("ROLE_PROFESIONAL_ADMIN") || roles.contains("ROLE_ADMINISTRATIVO")
                 || roles.contains("ROLE_PROFESIONAL")) {

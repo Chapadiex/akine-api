@@ -5,7 +5,7 @@ import com.akine_api.application.dto.command.UpdateConsultorioCommand;
 import com.akine_api.application.dto.result.ConsultorioResult;
 import com.akine_api.application.port.output.ConsultorioRepositoryPort;
 import com.akine_api.application.port.output.UserRepositoryPort;
-import com.akine_api.domain.exception.ConsultorioNotFoundException;
+import com.akine_api.domain.exception.ConsultorioInactiveException;
 import com.akine_api.domain.model.Consultorio;
 import com.akine_api.domain.model.User;
 import org.springframework.security.access.AccessDeniedException;
@@ -23,11 +23,17 @@ public class ConsultorioService {
 
     private final ConsultorioRepositoryPort consultorioRepo;
     private final UserRepositoryPort userRepo;
+    private final ConsultorioEspecialidadBootstrapService consultorioEspecialidadBootstrapService;
+    private final ConsultorioAntecedenteBootstrapService consultorioAntecedenteBootstrapService;
 
     public ConsultorioService(ConsultorioRepositoryPort consultorioRepo,
-                              UserRepositoryPort userRepo) {
+                              UserRepositoryPort userRepo,
+                              ConsultorioEspecialidadBootstrapService consultorioEspecialidadBootstrapService,
+                              ConsultorioAntecedenteBootstrapService consultorioAntecedenteBootstrapService) {
         this.consultorioRepo = consultorioRepo;
         this.userRepo = userRepo;
+        this.consultorioEspecialidadBootstrapService = consultorioEspecialidadBootstrapService;
+        this.consultorioAntecedenteBootstrapService = consultorioAntecedenteBootstrapService;
     }
 
     @Transactional(readOnly = true)
@@ -37,15 +43,20 @@ public class ConsultorioService {
         }
         UUID userId = resolveUserId(userEmail);
         List<UUID> ids = consultorioRepo.findConsultorioIdsByUserId(userId);
-        return consultorioRepo.findByIds(ids).stream().map(this::toResult).toList();
+        return consultorioRepo.findByIds(ids).stream()
+                .filter(Consultorio::isActive)
+                .map(this::toResult)
+                .toList();
     }
 
     @Transactional(readOnly = true)
     public ConsultorioResult getById(UUID id, String userEmail, Set<String> roles) {
         Consultorio c = findOrThrow(id);
-        if (!roles.contains("ROLE_ADMIN")) {
-            assertMember(id, resolveUserId(userEmail));
+        if (roles.contains("ROLE_ADMIN")) {
+            return toResult(c);
         }
+        assertMember(id, resolveUserId(userEmail));
+        assertActive(c);
         return toResult(c);
     }
 
@@ -58,7 +69,10 @@ public class ConsultorioService {
                 cmd.name(), cmd.cuit(), cmd.address(), cmd.phone(), cmd.email(),
                 "ACTIVE", Instant.now()
         );
-        return toResult(consultorioRepo.save(c));
+        Consultorio saved = consultorioRepo.save(c);
+        consultorioEspecialidadBootstrapService.enableDefaultsForConsultorio(saved.getId());
+        consultorioAntecedenteBootstrapService.ensureDefaults(saved.getId(), "system");
+        return toResult(saved);
     }
 
     public ConsultorioResult update(UpdateConsultorioCommand cmd, String userEmail, Set<String> roles) {
@@ -66,24 +80,44 @@ public class ConsultorioService {
         if (!roles.contains("ROLE_ADMIN")) {
             assertAdminMember(cmd.id(), resolveUserId(userEmail), roles);
         }
+        assertActive(c);
         c.update(cmd.name(), cmd.cuit(), cmd.address(), cmd.phone(), cmd.email());
         return toResult(consultorioRepo.save(c));
     }
 
     public void inactivate(UUID id, String userEmail, Set<String> roles) {
-        Consultorio c = findOrThrow(id);
         if (!roles.contains("ROLE_ADMIN")) {
-            assertAdminMember(id, resolveUserId(userEmail), roles);
+            throw new AccessDeniedException("Solo ADMIN puede dar de baja consultorios");
         }
-        c.inactivate();
-        consultorioRepo.save(c);
+        Consultorio c = findOrThrow(id);
+        if (c.isActive()) {
+            c.inactivate();
+            consultorioRepo.save(c);
+        }
+    }
+
+    public ConsultorioResult activate(UUID id, Set<String> roles) {
+        if (!roles.contains("ROLE_ADMIN")) {
+            throw new AccessDeniedException("Solo ADMIN puede reactivar consultorios");
+        }
+        Consultorio c = findOrThrow(id);
+        if (!c.isActive()) {
+            c.activate();
+            c = consultorioRepo.save(c);
+        }
+        return toResult(c);
     }
 
     // ─── Helpers ──────────────────────────────────────────────────────────────
 
     private Consultorio findOrThrow(UUID id) {
-        return consultorioRepo.findById(id)
-                .orElseThrow(() -> new ConsultorioNotFoundException("Consultorio no encontrado: " + id));
+        return ConsultorioStateGuardService.requireExists(consultorioRepo, id);
+    }
+
+    private void assertActive(Consultorio consultorio) {
+        if (!consultorio.isActive()) {
+            throw new ConsultorioInactiveException("Consultorio inactivo. Solo ADMIN puede reactivarlo.");
+        }
     }
 
     private UUID resolveUserId(String email) {

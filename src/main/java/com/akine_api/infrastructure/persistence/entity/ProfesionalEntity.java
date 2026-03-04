@@ -20,6 +20,9 @@ public class ProfesionalEntity {
     @Column(name = "consultorio_id")
     private UUID consultorioId;
 
+    @Column(name = "user_id")
+    private UUID userId;
+
     @Column(nullable = false, length = 100)
     private String nombre;
 

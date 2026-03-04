@@ -6,6 +6,7 @@ import com.akine_api.infrastructure.persistence.entity.ActivationTokenEntity;
 import com.akine_api.infrastructure.persistence.repository.ActivationTokenJpaRepository;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -37,6 +38,11 @@ public class ActivationTokenRepositoryAdapter implements ActivationTokenReposito
                 new ActivationToken(e.getId(), e.getUserId(), e.getTokenHash(),
                         e.getExpiresAt(), e.isUsed(), e.getCreatedAt())
         );
+    }
+
+    @Override
+    public Optional<Instant> findLastCreatedAtByUserId(UUID userId) {
+        return jpaRepo.findFirstByUserIdOrderByCreatedAtDesc(userId).map(ActivationTokenEntity::getCreatedAt);
     }
 
     @Override

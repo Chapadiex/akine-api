@@ -32,6 +32,11 @@ public class ProfesionalRepositoryAdapter implements ProfesionalRepositoryPort {
     }
 
     @Override
+    public Optional<Profesional> findByUserId(UUID userId) {
+        return repo.findByUserId(userId).map(mapper::toDomain);
+    }
+
+    @Override
     public Optional<Profesional> findByEmail(String email) {
         return repo.findByEmail(email).map(mapper::toDomain);
     }

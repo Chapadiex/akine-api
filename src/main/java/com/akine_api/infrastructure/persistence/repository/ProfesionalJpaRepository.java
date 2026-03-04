@@ -9,6 +9,7 @@ import java.util.UUID;
 
 public interface ProfesionalJpaRepository extends JpaRepository<ProfesionalEntity, UUID> {
     List<ProfesionalEntity> findByConsultorioId(UUID consultorioId);
+    Optional<ProfesionalEntity> findByUserId(UUID userId);
     Optional<ProfesionalEntity> findByEmail(String email);
     boolean existsByMatriculaAndConsultorioId(String matricula, UUID consultorioId);
     boolean existsByMatriculaAndConsultorioIdAndIdNot(String matricula, UUID consultorioId, UUID id);
