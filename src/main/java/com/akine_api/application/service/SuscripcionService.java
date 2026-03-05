@@ -50,12 +50,53 @@ public class SuscripcionService {
         this.emailPort = emailPort;
     }
 
+    /**
+     * Backward-compatible single-shot signup.
+     */
     public SubscriptionSummaryResult createSubscription(CreateSubscriptionCommand cmd) {
-        if (userRepo.existsByEmail(normalize(cmd.ownerEmail()))) {
-            throw new UserAlreadyExistsException(cmd.ownerEmail());
-        }
-        if (empresaRepo.existsByCuit(normalize(cmd.companyCuit()))) {
-            throw new CompanyAlreadyExistsException(cmd.companyCuit());
+        SubscriptionSummaryResult draft = createDraft(new CreateSubscriptionDraftCommand(
+                normalize(cmd.planCode()),
+                normalize(cmd.billingCycle()),
+                cmd.ownerEmail(),
+                cmd.ownerPassword()
+        ));
+
+        UUID id = draft.id();
+        updateOwner(new UpdateSubscriptionOwnerCommand(
+                id,
+                cmd.ownerFirstName(),
+                cmd.ownerLastName(),
+                cmd.ownerDocumentoFiscal(),
+                cmd.ownerEmail(),
+                cmd.ownerPhone(),
+                cmd.ownerPassword()
+        ));
+        updateCompany(new UpdateSubscriptionCompanyCommand(
+                id,
+                cmd.companyName(),
+                cmd.companyCuit(),
+                cmd.companyAddress(),
+                cmd.companyCity(),
+                cmd.companyProvince()
+        ));
+        updateClinic(new UpdateSubscriptionClinicCommand(
+                id,
+                cmd.consultorioName(),
+                cmd.consultorioAddress(),
+                cmd.consultorioPhone(),
+                cmd.consultorioEmail()
+        ));
+        simulatePayment(new SimulateSubscriptionPaymentCommand(
+                id,
+                "SIM-" + id.toString().substring(0, 8).toUpperCase(Locale.ROOT)
+        ));
+        return submitForApproval(new SubmitSubscriptionForApprovalCommand(id));
+    }
+
+    public SubscriptionSummaryResult createDraft(CreateSubscriptionDraftCommand cmd) {
+        String email = normalize(cmd.ownerEmail());
+        if (userRepo.existsByEmail(email)) {
+            throw new UserAlreadyExistsException(email);
         }
 
         Role role = roleRepo.findByName(RoleName.PROFESIONAL_ADMIN)
@@ -63,13 +104,12 @@ public class SuscripcionService {
 
         User owner = new User(
                 UUID.randomUUID(),
-                normalize(cmd.ownerEmail()),
-                passwordEncoder.encode(cmd.ownerPassword()),
-                normalize(cmd.ownerFirstName()),
-                normalize(cmd.ownerLastName()),
-                normalize(cmd.ownerPhone()),
+                email,
+                passwordEncoder.encode(normalize(cmd.ownerPassword())),
+                "Pendiente",
+                "Pendiente",
+                null,
                 UserStatus.PENDING,
-                normalize(cmd.ownerDocumentoFiscal()),
                 Instant.now()
         );
         owner.addRole(role);
@@ -77,22 +117,22 @@ public class SuscripcionService {
 
         Empresa empresa = new Empresa(
                 UUID.randomUUID(),
-                normalize(cmd.companyName()),
-                normalize(cmd.companyCuit()),
-                normalize(cmd.companyAddress()),
-                normalize(cmd.companyCity()),
-                normalize(cmd.companyProvince()),
+                "Empresa pendiente",
+                "PENDING-" + randomShortId(),
+                "Pendiente",
+                "Pendiente",
+                "Pendiente",
                 Instant.now()
         );
         Empresa savedEmpresa = empresaRepo.save(empresa);
 
         Consultorio consultorio = new Consultorio(
                 UUID.randomUUID(),
-                normalize(cmd.consultorioName()),
+                "Consultorio pendiente",
                 null,
-                normalize(cmd.consultorioAddress()),
-                normalize(cmd.consultorioPhone()),
-                normalize(cmd.consultorioEmail()),
+                "Pendiente",
+                "Pendiente",
+                email,
                 "INACTIVE",
                 savedEmpresa.getId(),
                 Instant.now()
@@ -114,8 +154,14 @@ public class SuscripcionService {
                 savedOwner.getId(),
                 savedEmpresa.getId(),
                 savedConsultorio.getId(),
-                SuscripcionStatus.PENDING,
+                normalizeOrDefault(cmd.planCode(), "STARTER"),
+                normalizeOrDefault(cmd.billingCycle(), "TRIAL"),
+                "DRAFT",
+                null,
+                UUID.randomUUID().toString(),
+                SuscripcionStatus.DRAFT,
                 Instant.now(),
+                null,
                 null,
                 null,
                 null,
@@ -124,16 +170,117 @@ public class SuscripcionService {
                 Instant.now(),
                 Instant.now()
         );
-        Suscripcion savedSubscription = suscripcionRepo.save(suscripcion);
+        Suscripcion saved = suscripcionRepo.save(suscripcion);
+        saveAudit(saved, "SUBSCRIPTION_DRAFT_CREATED", null, saved.getStatus().name(), null, null);
+        return buildSummary(saved);
+    }
 
-        saveAudit(savedSubscription, "SUBSCRIPTION_CREATED", null, savedSubscription.getStatus().name(), null, null);
-        emailPort.sendSubscriptionReceived(
-                savedOwner.getEmail(),
-                savedOwner.getFirstName(),
-                savedSubscription.getId().toString()
+    public SubscriptionSummaryResult updateOwner(UpdateSubscriptionOwnerCommand cmd) {
+        Suscripcion suscripcion = findSubscription(cmd.subscriptionId());
+        ensureStatus(suscripcion, SuscripcionStatus.DRAFT, SuscripcionStatus.EMAIL_PENDING);
+
+        User owner = userRepo.findById(suscripcion.getOwnerUserId())
+                .orElseThrow(() -> new UserNotFoundException(suscripcion.getOwnerUserId().toString()));
+        owner.updateProfile(normalize(cmd.firstName()), normalize(cmd.lastName()), normalize(cmd.phone()));
+        owner.updateDocumentoFiscal(normalize(cmd.documentoFiscal()));
+        owner.changePassword(passwordEncoder.encode(normalize(cmd.password())));
+        userRepo.save(owner);
+
+        String previousStatus = suscripcion.getStatus().name();
+        suscripcion.markEmailPending();
+        Suscripcion saved = suscripcionRepo.save(suscripcion);
+        saveAudit(saved, "SUBSCRIPTION_OWNER_UPDATED", previousStatus, saved.getStatus().name(), null, null);
+        return buildSummary(saved);
+    }
+
+    public SubscriptionSummaryResult updateCompany(UpdateSubscriptionCompanyCommand cmd) {
+        Suscripcion suscripcion = findSubscription(cmd.subscriptionId());
+        ensureStatus(suscripcion, SuscripcionStatus.EMAIL_PENDING, SuscripcionStatus.SETUP_PENDING, SuscripcionStatus.PAYMENT_PENDING);
+
+        Empresa empresa = empresaRepo.findById(suscripcion.getEmpresaId())
+                .orElseThrow(() -> new SubscriptionStateException("Empresa de suscripción no encontrada."));
+        empresa.update(
+                normalize(cmd.name()),
+                normalize(cmd.cuit()),
+                normalize(cmd.address()),
+                normalize(cmd.city()),
+                normalize(cmd.province())
         );
+        empresaRepo.save(empresa);
 
-        return buildSummary(savedSubscription);
+        saveAudit(suscripcion, "SUBSCRIPTION_COMPANY_UPDATED", suscripcion.getStatus().name(), suscripcion.getStatus().name(), null, null);
+        return buildSummary(suscripcion);
+    }
+
+    public SubscriptionSummaryResult updateClinic(UpdateSubscriptionClinicCommand cmd) {
+        Suscripcion suscripcion = findSubscription(cmd.subscriptionId());
+        ensureStatus(suscripcion, SuscripcionStatus.EMAIL_PENDING, SuscripcionStatus.PAYMENT_PENDING, SuscripcionStatus.SETUP_PENDING);
+
+        Consultorio consultorio = consultorioRepo.findById(suscripcion.getConsultorioBaseId())
+                .orElseThrow(() -> new SubscriptionStateException("Consultorio base de suscripción no encontrado."));
+        consultorio.update(
+                normalize(cmd.name()),
+                null,
+                normalize(cmd.address()),
+                normalize(cmd.phone()),
+                normalize(cmd.email())
+        );
+        consultorioRepo.save(consultorio);
+
+        String previousStatus = suscripcion.getStatus().name();
+        suscripcion.markSetupPending();
+        Suscripcion saved = suscripcionRepo.save(suscripcion);
+        saveAudit(saved, "SUBSCRIPTION_CLINIC_UPDATED", previousStatus, saved.getStatus().name(), null, null);
+        return buildSummary(saved);
+    }
+
+    public SubscriptionSummaryResult simulatePayment(SimulateSubscriptionPaymentCommand cmd) {
+        Suscripcion suscripcion = findSubscription(cmd.subscriptionId());
+        ensureStatus(suscripcion, SuscripcionStatus.EMAIL_PENDING, SuscripcionStatus.SETUP_PENDING, SuscripcionStatus.PAYMENT_PENDING);
+
+        String previousStatus = suscripcion.getStatus().name();
+        suscripcion.markPaymentPending(normalize(cmd.paymentReference()));
+        Suscripcion saved = suscripcionRepo.save(suscripcion);
+        saveAudit(saved, "SUBSCRIPTION_PAYMENT_SIMULATED", previousStatus, saved.getStatus().name(), null, normalize(cmd.paymentReference()));
+        return buildSummary(saved);
+    }
+
+    public SubscriptionSummaryResult submitForApproval(SubmitSubscriptionForApprovalCommand cmd) {
+        Suscripcion suscripcion = findSubscription(cmd.subscriptionId());
+        ensureStatus(suscripcion, SuscripcionStatus.PAYMENT_PENDING, SuscripcionStatus.SETUP_PENDING, SuscripcionStatus.EMAIL_PENDING);
+
+        String previousStatus = suscripcion.getStatus().name();
+        suscripcion.submitForApproval();
+        Suscripcion saved = suscripcionRepo.save(suscripcion);
+
+        User owner = userRepo.findById(saved.getOwnerUserId())
+                .orElseThrow(() -> new UserNotFoundException(saved.getOwnerUserId().toString()));
+        owner.markPending();
+        userRepo.save(owner);
+
+        saveAudit(saved, "SUBSCRIPTION_SUBMITTED_FOR_APPROVAL", previousStatus, saved.getStatus().name(), null, null);
+        emailPort.sendSubscriptionReceived(owner.getEmail(), owner.getFirstName(), saved.getId().toString());
+        return buildSummary(saved);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<SubscriptionSummaryResult> getByTrackingToken(String trackingToken) {
+        return suscripcionRepo.findByTrackingToken(normalize(trackingToken)).map(this::buildSummary);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<SubscriptionSummaryResult> findLatestByOwnerUserId(UUID ownerUserId) {
+        return suscripcionRepo.findTopByOwnerUserId(ownerUserId).map(this::buildSummary);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<SubscriptionSummaryResult> getById(UUID id) {
+        return suscripcionRepo.findById(id).map(this::buildSummary);
+    }
+
+    @Transactional(readOnly = true)
+    public List<SuscripcionAuditoria> getAuditTrail(UUID subscriptionId) {
+        return auditoriaRepo.findBySuscripcionId(subscriptionId);
     }
 
     @Transactional(readOnly = true)
@@ -160,8 +307,8 @@ public class SuscripcionService {
 
         expireDueSubscriptions();
         Suscripcion suscripcion = findSubscription(cmd.subscriptionId());
-        if (suscripcion.getStatus() != SuscripcionStatus.PENDING) {
-            throw new SubscriptionStateException("Solo se pueden aprobar suscripciones en estado PENDING.");
+        if (suscripcion.getStatus() != SuscripcionStatus.PENDING_APPROVAL) {
+            throw new SubscriptionStateException("Solo se pueden aprobar suscripciones en estado PENDING_APPROVAL.");
         }
 
         String previousStatus = suscripcion.getStatus().name();
@@ -180,7 +327,7 @@ public class SuscripcionService {
         }
 
         Membership membership = membershipRepo.findByUserIdAndConsultorioId(saved.getOwnerUserId(), saved.getConsultorioBaseId())
-                .orElseThrow(() -> new SubscriptionStateException("No se encontrÃ³ la membresÃ­a base del dueÃ±o."));
+                .orElseThrow(() -> new SubscriptionStateException("No se encontró la membresía base del dueño."));
         membership.activate();
         membershipRepo.save(membership);
 
@@ -191,8 +338,8 @@ public class SuscripcionService {
 
     public SubscriptionSummaryResult reject(RejectSubscriptionCommand cmd) {
         Suscripcion suscripcion = findSubscription(cmd.subscriptionId());
-        if (suscripcion.getStatus() != SuscripcionStatus.PENDING) {
-            throw new SubscriptionStateException("Solo se pueden rechazar suscripciones en estado PENDING.");
+        if (suscripcion.getStatus() != SuscripcionStatus.PENDING_APPROVAL) {
+            throw new SubscriptionStateException("Solo se pueden rechazar suscripciones en estado PENDING_APPROVAL.");
         }
 
         String previousStatus = suscripcion.getStatus().name();
@@ -212,6 +359,18 @@ public class SuscripcionService {
 
         saveAudit(saved, "SUBSCRIPTION_REJECTED", previousStatus, saved.getStatus().name(), cmd.actorUserId(), normalize(cmd.reason()));
         emailPort.sendSubscriptionRejected(owner.getEmail(), owner.getFirstName(), normalize(cmd.reason()));
+        return buildSummary(saved);
+    }
+
+    public SubscriptionSummaryResult requestInfo(RequestSubscriptionInfoCommand cmd) {
+        Suscripcion suscripcion = findSubscription(cmd.subscriptionId());
+        if (suscripcion.getStatus() != SuscripcionStatus.PENDING_APPROVAL) {
+            throw new SubscriptionStateException("Solo se puede pedir información adicional en estado PENDING_APPROVAL.");
+        }
+        String previousStatus = suscripcion.getStatus().name();
+        suscripcion.markSetupPending();
+        Suscripcion saved = suscripcionRepo.save(suscripcion);
+        saveAudit(saved, "SUBSCRIPTION_INFO_REQUESTED", previousStatus, saved.getStatus().name(), cmd.actorUserId(), normalize(cmd.reason()));
         return buildSummary(saved);
     }
 
@@ -240,7 +399,7 @@ public class SuscripcionService {
             throw new SubscriptionStateException("Solo se pueden reactivar suscripciones en estado SUSPENDED.");
         }
         if (suscripcion.getEndDate() != null && suscripcion.getEndDate().isBefore(LocalDate.now(OPERATIVE_ZONE))) {
-            throw new SubscriptionStateException("No se puede reactivar una suscripciÃ³n vencida.");
+            throw new SubscriptionStateException("No se puede reactivar una suscripción vencida.");
         }
 
         String previousStatus = suscripcion.getStatus().name();
@@ -261,6 +420,16 @@ public class SuscripcionService {
     private Suscripcion findSubscription(UUID id) {
         return suscripcionRepo.findById(id)
                 .orElseThrow(() -> new SubscriptionNotFoundException(id.toString()));
+    }
+
+    private void ensureStatus(Suscripcion suscripcion, SuscripcionStatus... expected) {
+        Set<SuscripcionStatus> allowed = EnumSet.noneOf(SuscripcionStatus.class);
+        allowed.addAll(Arrays.asList(expected));
+        if (!allowed.contains(suscripcion.getStatus())) {
+            throw new SubscriptionStateException(
+                    "Estado inválido para esta operación: " + suscripcion.getStatus().name()
+            );
+        }
     }
 
     private void saveAudit(Suscripcion suscripcion,
@@ -285,13 +454,18 @@ public class SuscripcionService {
         User owner = userRepo.findById(subscription.getOwnerUserId())
                 .orElseThrow(() -> new UserNotFoundException(subscription.getOwnerUserId().toString()));
         Empresa empresa = empresaRepo.findById(subscription.getEmpresaId())
-                .orElseThrow(() -> new SubscriptionStateException("Empresa de suscripciÃ³n no encontrada."));
+                .orElseThrow(() -> new SubscriptionStateException("Empresa de suscripción no encontrada."));
         Consultorio consultorio = consultorioRepo.findById(subscription.getConsultorioBaseId())
-                .orElseThrow(() -> new SubscriptionStateException("Consultorio base de suscripciÃ³n no encontrado."));
+                .orElseThrow(() -> new SubscriptionStateException("Consultorio base de suscripción no encontrado."));
 
         return new SubscriptionSummaryResult(
                 subscription.getId(),
                 subscription.getStatus().name(),
+                subscription.getPlanCode(),
+                subscription.getBillingCycle(),
+                subscription.getOnboardingStep(),
+                subscription.getTrackingToken(),
+                subscription.getSubmittedForApprovalAt(),
                 subscription.getRequestedAt(),
                 subscription.getStartDate(),
                 subscription.getEndDate(),
@@ -319,7 +493,7 @@ public class SuscripcionService {
         try {
             return SuscripcionStatus.valueOf(normalized.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException ex) {
-            throw new SubscriptionStateException("Estado de suscripciÃ³n invÃ¡lido: " + status);
+            throw new SubscriptionStateException("Estado de suscripción inválido: " + status);
         }
     }
 
@@ -328,5 +502,13 @@ public class SuscripcionService {
         String trimmed = value.trim();
         return trimmed.isBlank() ? null : trimmed;
     }
-}
 
+    private String normalizeOrDefault(String value, String defaultValue) {
+        String normalized = normalize(value);
+        return normalized == null ? defaultValue : normalized.toUpperCase(Locale.ROOT);
+    }
+
+    private String randomShortId() {
+        return UUID.randomUUID().toString().substring(0, 8).toUpperCase(Locale.ROOT);
+    }
+}

@@ -12,6 +12,8 @@ public interface SuscripcionRepositoryPort {
     Suscripcion save(Suscripcion suscripcion);
     Optional<Suscripcion> findById(UUID id);
     Optional<Suscripcion> findByConsultorioBaseId(UUID consultorioBaseId);
+    Optional<Suscripcion> findTopByOwnerUserId(UUID ownerUserId);
+    Optional<Suscripcion> findByTrackingToken(String trackingToken);
     List<Suscripcion> findAll(int page, int size);
     long countAll();
     List<Suscripcion> findByStatus(SuscripcionStatus status, int page, int size);

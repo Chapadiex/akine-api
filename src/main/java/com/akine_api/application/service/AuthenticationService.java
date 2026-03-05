@@ -6,12 +6,12 @@ import com.akine_api.application.dto.result.TokenPairResult;
 import com.akine_api.application.port.output.*;
 import com.akine_api.domain.exception.InvalidCredentialsException;
 import com.akine_api.domain.exception.InvalidTokenException;
-import com.akine_api.domain.exception.SubscriptionNotActiveException;
 import com.akine_api.domain.exception.UserNotFoundException;
 import com.akine_api.domain.exception.UserNotActiveException;
 import com.akine_api.domain.model.Profesional;
 import com.akine_api.domain.model.RefreshToken;
 import com.akine_api.domain.model.RoleName;
+import com.akine_api.domain.model.SuscripcionStatus;
 import com.akine_api.domain.model.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -109,13 +108,15 @@ public class AuthenticationService {
 
     private AuthResult buildAuthResult(User user) {
         List<UUID> consultorioIds = resolveScopedConsultorioIds(user);
+        String accountState = resolveAccountState(user, consultorioIds);
+        List<String> roles = user.getRoles().stream()
+                .map(r -> r.getName().name())
+                .sorted()
+                .toList();
+        String defaultRole = roles.stream().findFirst().orElse("PACIENTE");
         String accessToken = tokenGenerator.generateAccessToken(user, consultorioIds);
         String rawRefresh = tokenGenerator.generateRefreshToken();
         saveRefreshToken(user.getId(), rawRefresh);
-
-        List<String> roles = user.getRoles().stream()
-                .map(r -> r.getName().name())
-                .collect(Collectors.toList());
 
         UUID profesionalId = profesionalRepo.findByUserId(user.getId())
                 .or(() -> profesionalRepo.findByEmail(user.getEmail()))
@@ -131,6 +132,9 @@ public class AuthenticationService {
                 user.getFirstName(),
                 user.getLastName(),
                 roles,
+                accountState,
+                defaultRole,
+                roles,
                 consultorioIds,
                 profesionalId
         );
@@ -140,17 +144,26 @@ public class AuthenticationService {
         suscripcionService.expireDueSubscriptions();
         List<UUID> consultorioIds = consultorioRepo.findConsultorioIdsByUserId(user.getId());
         boolean isPlatformAdmin = user.getRoles().stream().anyMatch(r -> r.getName() == RoleName.ADMIN);
-        if (!isPlatformAdmin) {
-            boolean consultorioScopedRole = user.getRoles().stream().anyMatch(r ->
-                    r.getName() == RoleName.PROFESIONAL_ADMIN
-                            || r.getName() == RoleName.PROFESIONAL
-                            || r.getName() == RoleName.ADMINISTRATIVO
-            );
-            if (consultorioScopedRole && consultorioIds.isEmpty()) {
-                throw new SubscriptionNotActiveException();
-            }
-        }
+        // Login is allowed for non-active subscription states so frontend can route to review/suspended screens.
+        // Access to consultorio-scoped business endpoints remains controlled by consultorio memberships/guards.
+        if (isPlatformAdmin) return consultorioIds;
         return consultorioIds;
+    }
+
+    private String resolveAccountState(User user, List<UUID> consultorioIds) {
+        if (user.getRoles().stream().anyMatch(r -> r.getName() == RoleName.ADMIN)) {
+            return "ACTIVE";
+        }
+        if (!consultorioIds.isEmpty()) {
+            return "ACTIVE";
+        }
+        return suscripcionService.findLatestByOwnerUserId(user.getId())
+                .map(s -> {
+                    String status = s.status();
+                    if ("PENDING".equals(status)) return "PENDING_APPROVAL";
+                    return status;
+                })
+                .orElse(SuscripcionStatus.REJECTED.name());
     }
 
     private void saveRefreshToken(UUID userId, String rawToken) {

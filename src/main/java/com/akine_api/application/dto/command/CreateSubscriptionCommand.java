@@ -1,6 +1,8 @@
 package com.akine_api.application.dto.command;
 
 public record CreateSubscriptionCommand(
+        String planCode,
+        String billingCycle,
         String ownerFirstName,
         String ownerLastName,
         String ownerDocumentoFiscal,

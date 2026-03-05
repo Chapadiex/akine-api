@@ -7,6 +7,11 @@ import java.util.UUID;
 public record SubscriptionSummaryResult(
         UUID id,
         String status,
+        String planCode,
+        String billingCycle,
+        String onboardingStep,
+        String trackingToken,
+        Instant submittedForApprovalAt,
         Instant requestedAt,
         LocalDate startDate,
         LocalDate endDate,

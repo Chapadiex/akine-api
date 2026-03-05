@@ -97,6 +97,8 @@ class SuscripcionServiceTest {
         when(consultorioRepo.findById(any())).thenAnswer(inv -> Optional.of(savedConsultorio.get()));
 
         SubscriptionSummaryResult result = service.createSubscription(new CreateSubscriptionCommand(
+                "STARTER",
+                "TRIAL",
                 "Juan",
                 "Perez",
                 "20333444556",
@@ -114,10 +116,10 @@ class SuscripcionServiceTest {
                 "contacto@empresa.com"
         ));
 
-        assertThat(result.status()).isEqualTo("PENDING");
+        assertThat(result.status()).isEqualTo("PENDING_APPROVAL");
         assertThat(savedUser.get().getStatus()).isEqualTo(UserStatus.PENDING);
         assertThat(savedConsultorio.get().getStatus()).isEqualTo("INACTIVE");
-        assertThat(savedSubscription.get().getStatus()).isEqualTo(SuscripcionStatus.PENDING);
+        assertThat(savedSubscription.get().getStatus()).isEqualTo(SuscripcionStatus.PENDING_APPROVAL);
         verify(emailPort).sendSubscriptionReceived(eq("owner@test.com"), eq("Juan"), anyString());
         verify(auditoriaRepo).save(any(SuscripcionAuditoria.class));
     }
@@ -127,6 +129,7 @@ class SuscripcionServiceTest {
         when(userRepo.existsByEmail("owner@test.com")).thenReturn(true);
 
         assertThatThrownBy(() -> service.createSubscription(new CreateSubscriptionCommand(
+                "STARTER", "TRIAL",
                 "Juan", "Perez", "20333444556", "owner@test.com", "1", "Pass12345",
                 "Empresa SA", "30711222334", "Dir", "Ciudad", "Prov",
                 "Consultorio", "Dir", "1", "email@test.com"
@@ -148,13 +151,19 @@ class SuscripcionServiceTest {
                 ownerId,
                 empresaId,
                 consultorioId,
-                SuscripcionStatus.PENDING,
+                "STARTER",
+                "TRIAL",
+                "REVIEW",
+                "SIM-123",
+                "tracking-token",
+                SuscripcionStatus.PENDING_APPROVAL,
                 Instant.now(),
                 null,
                 null,
                 null,
                 null,
                 null,
+                Instant.now(),
                 Instant.now(),
                 Instant.now()
         );

@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record CreateSubscriptionRequest(
+        @NotBlank @Size(max = 40) String planCode,
+        @NotBlank @Size(max = 20) String billingCycle,
         @NotNull @Valid OwnerData owner,
         @NotNull @Valid CompanyData company,
         @NotNull @Valid BaseConsultorioData baseConsultorio

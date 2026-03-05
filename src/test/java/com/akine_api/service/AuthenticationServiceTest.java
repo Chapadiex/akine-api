@@ -7,7 +7,6 @@ import com.akine_api.application.service.AuthenticationService;
 import com.akine_api.application.service.SuscripcionService;
 import com.akine_api.domain.exception.InvalidCredentialsException;
 import com.akine_api.domain.exception.InvalidTokenException;
-import com.akine_api.domain.exception.SubscriptionNotActiveException;
 import com.akine_api.domain.exception.UserNotActiveException;
 import com.akine_api.domain.model.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -83,7 +82,7 @@ class AuthenticationServiceTest {
     }
 
     @Test
-    void login_profesionalAdminWithoutVigentConsultorios_throwsSubscriptionNotActive() {
+    void login_profesionalAdminWithoutVigentConsultorios_returnsPendingAccountState() {
         User user = new User(UUID.randomUUID(), "owner@test.com", "hashed",
                 "Owner", "One", null, UserStatus.PENDING, Instant.now());
         user.activate();
@@ -92,9 +91,13 @@ class AuthenticationServiceTest {
         when(userRepo.findByEmail("owner@test.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("Pass1234!", user.getPasswordHash())).thenReturn(true);
         when(consultorioRepo.findConsultorioIdsByUserId(user.getId())).thenReturn(List.of());
+        when(suscripcionService.findLatestByOwnerUserId(user.getId())).thenReturn(Optional.empty());
+        when(tokenGenerator.generateAccessToken(any(), any())).thenReturn("access-token");
+        when(tokenGenerator.generateRefreshToken()).thenReturn("refresh-token");
+        when(refreshTokenRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        assertThatThrownBy(() -> service.login(new LoginCommand("owner@test.com", "Pass1234!")))
-                .isInstanceOf(SubscriptionNotActiveException.class);
+        AuthResult result = service.login(new LoginCommand("owner@test.com", "Pass1234!"));
+        assertThat(result.accountState()).isEqualTo("REJECTED");
     }
 
     @Test

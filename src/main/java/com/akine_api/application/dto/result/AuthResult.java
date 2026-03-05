@@ -12,6 +12,9 @@ public record AuthResult(
         String firstName,
         String lastName,
         List<String> roles,
+        String accountState,
+        String defaultRole,
+        List<String> allowedRoles,
         List<UUID> consultorioIds,
         UUID profesionalId
 ) {}

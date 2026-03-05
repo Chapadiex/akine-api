@@ -16,6 +16,8 @@ import java.util.UUID;
 public interface SuscripcionJpaRepository extends JpaRepository<SuscripcionEntity, UUID> {
 
     Optional<SuscripcionEntity> findByConsultorioBaseId(UUID consultorioBaseId);
+    Optional<SuscripcionEntity> findTopByOwnerUserIdOrderByCreatedAtDesc(UUID ownerUserId);
+    Optional<SuscripcionEntity> findByTrackingToken(String trackingToken);
 
     Page<SuscripcionEntity> findByStatus(String status, Pageable pageable);
 

@@ -17,6 +17,11 @@ public interface SuscripcionEntityMapper {
                 entity.getOwnerUserId(),
                 entity.getEmpresaId(),
                 entity.getConsultorioBaseId(),
+                entity.getPlanCode(),
+                entity.getBillingCycle(),
+                entity.getOnboardingStep(),
+                entity.getPaymentReference(),
+                entity.getTrackingToken(),
                 SuscripcionStatus.valueOf(entity.getStatus()),
                 entity.getRequestedAt(),
                 entity.getStartDate(),
@@ -24,6 +29,7 @@ public interface SuscripcionEntityMapper {
                 entity.getReviewedAt(),
                 entity.getReviewedByUserId(),
                 entity.getRejectionReason(),
+                entity.getSubmittedForApprovalAt(),
                 entity.getCreatedAt(),
                 entity.getUpdatedAt()
         );
@@ -36,6 +42,11 @@ public interface SuscripcionEntityMapper {
         entity.setOwnerUserId(domain.getOwnerUserId());
         entity.setEmpresaId(domain.getEmpresaId());
         entity.setConsultorioBaseId(domain.getConsultorioBaseId());
+        entity.setPlanCode(domain.getPlanCode());
+        entity.setBillingCycle(domain.getBillingCycle());
+        entity.setOnboardingStep(domain.getOnboardingStep());
+        entity.setPaymentReference(domain.getPaymentReference());
+        entity.setTrackingToken(domain.getTrackingToken());
         entity.setStatus(domain.getStatus().name());
         entity.setRequestedAt(domain.getRequestedAt());
         entity.setStartDate(domain.getStartDate());
@@ -43,6 +54,7 @@ public interface SuscripcionEntityMapper {
         entity.setReviewedAt(domain.getReviewedAt());
         entity.setReviewedByUserId(domain.getReviewedByUserId());
         entity.setRejectionReason(domain.getRejectionReason());
+        entity.setSubmittedForApprovalAt(domain.getSubmittedForApprovalAt());
         entity.setCreatedAt(domain.getCreatedAt());
         entity.setUpdatedAt(domain.getUpdatedAt() == null ? Instant.now() : domain.getUpdatedAt());
         return entity;

@@ -39,11 +39,20 @@ public class SecurityConfig {
                 // Auth endpoints públicos
                 .requestMatchers(HttpMethod.POST,
                         "/api/v1/subscriptions",
+                        "/api/v1/subscriptions/draft",
+                        "/api/v1/subscriptions/*/submit-approval",
                         "/api/v1/auth/activate",
                         "/api/v1/auth/resend-activation",
                         "/api/v1/auth/login",
                         "/api/v1/auth/refresh"
                 ).permitAll()
+                .requestMatchers(HttpMethod.PATCH,
+                        "/api/v1/subscriptions/*/owner",
+                        "/api/v1/subscriptions/*/company",
+                        "/api/v1/subscriptions/*/clinic",
+                        "/api/v1/subscriptions/*/payment-simulate"
+                ).permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/subscriptions/status/*").permitAll()
                 // OpenAPI / Swagger (solo interno — source of truth del contrato)
                 .requestMatchers(
                         "/swagger-ui/**",

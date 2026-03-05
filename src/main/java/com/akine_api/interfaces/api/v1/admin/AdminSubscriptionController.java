@@ -4,6 +4,7 @@ import com.akine_api.application.dto.command.*;
 import com.akine_api.application.dto.result.PagedResult;
 import com.akine_api.application.dto.result.SubscriptionSummaryResult;
 import com.akine_api.application.service.SuscripcionService;
+import com.akine_api.domain.model.SuscripcionAuditoria;
 import com.akine_api.interfaces.api.v1.admin.dto.*;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -45,6 +46,14 @@ public class AdminSubscriptionController {
         ));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<SubscriptionDetailResponse> detail(@PathVariable UUID id) {
+        SubscriptionSummaryResult summary = suscripcionService.getById(id)
+                .orElseThrow(() -> new com.akine_api.domain.exception.SubscriptionNotFoundException(id.toString()));
+        var auditTrail = suscripcionService.getAuditTrail(id).stream().map(this::toAuditResponse).toList();
+        return ResponseEntity.ok(new SubscriptionDetailResponse(toResponse(summary), auditTrail));
+    }
+
     @PatchMapping("/{id}/approve")
     public ResponseEntity<SubscriptionSummaryResponse> approve(
             @PathVariable UUID id,
@@ -65,6 +74,19 @@ public class AdminSubscriptionController {
             @Valid @RequestBody RejectSubscriptionRequest req,
             @AuthenticationPrincipal UserDetails principal) {
         SubscriptionSummaryResult result = suscripcionService.reject(new RejectSubscriptionCommand(
+                id,
+                resolveActorUserId(principal),
+                req.reason()
+        ));
+        return ResponseEntity.ok(toResponse(result));
+    }
+
+    @PatchMapping("/{id}/request-info")
+    public ResponseEntity<SubscriptionSummaryResponse> requestInfo(
+            @PathVariable UUID id,
+            @Valid @RequestBody RequestSubscriptionInfoRequest req,
+            @AuthenticationPrincipal UserDetails principal) {
+        SubscriptionSummaryResult result = suscripcionService.requestInfo(new RequestSubscriptionInfoCommand(
                 id,
                 resolveActorUserId(principal),
                 req.reason()
@@ -106,6 +128,11 @@ public class AdminSubscriptionController {
         return new SubscriptionSummaryResponse(
                 r.id(),
                 r.status(),
+                r.planCode(),
+                r.billingCycle(),
+                r.onboardingStep(),
+                r.trackingToken(),
+                r.submittedForApprovalAt(),
                 r.requestedAt(),
                 r.startDate(),
                 r.endDate(),
@@ -130,6 +157,18 @@ public class AdminSubscriptionController {
                         r.consultorioBaseName(),
                         r.consultorioBaseAddress()
                 )
+        );
+    }
+
+    private SubscriptionAuditItemResponse toAuditResponse(SuscripcionAuditoria a) {
+        return new SubscriptionAuditItemResponse(
+                a.id(),
+                a.action(),
+                a.fromStatus(),
+                a.toStatus(),
+                a.actorUserId(),
+                a.reason(),
+                a.createdAt()
         );
     }
 }

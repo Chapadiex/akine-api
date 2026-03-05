@@ -31,6 +31,21 @@ public class SuscripcionEntity {
     @Column(name = "consultorio_base_id", nullable = false)
     private UUID consultorioBaseId;
 
+    @Column(name = "plan_code", length = 40)
+    private String planCode;
+
+    @Column(name = "billing_cycle", length = 20)
+    private String billingCycle;
+
+    @Column(name = "onboarding_step", length = 40)
+    private String onboardingStep;
+
+    @Column(name = "payment_reference", length = 120)
+    private String paymentReference;
+
+    @Column(name = "tracking_token", length = 120)
+    private String trackingToken;
+
     @Column(nullable = false, length = 20)
     private String status;
 
@@ -51,6 +66,9 @@ public class SuscripcionEntity {
 
     @Column(name = "rejection_reason", length = 500)
     private String rejectionReason;
+
+    @Column(name = "submitted_for_approval_at")
+    private Instant submittedForApprovalAt;
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;

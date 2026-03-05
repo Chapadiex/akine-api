@@ -6,6 +6,9 @@ import com.akine_api.infrastructure.persistence.entity.SuscripcionAuditoriaEntit
 import com.akine_api.infrastructure.persistence.repository.SuscripcionAuditoriaJpaRepository;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.UUID;
+
 @Component
 public class SuscripcionAuditoriaRepositoryAdapter implements SuscripcionAuditoriaRepositoryPort {
 
@@ -28,5 +31,21 @@ public class SuscripcionAuditoriaRepositoryAdapter implements SuscripcionAuditor
         entity.setCreatedAt(auditoria.createdAt());
         repo.save(entity);
         return auditoria;
+    }
+
+    @Override
+    public List<SuscripcionAuditoria> findBySuscripcionId(UUID suscripcionId) {
+        return repo.findBySuscripcionIdOrderByCreatedAtDesc(suscripcionId).stream()
+                .map(entity -> new SuscripcionAuditoria(
+                        entity.getId(),
+                        entity.getSuscripcionId(),
+                        entity.getAction(),
+                        entity.getFromStatus(),
+                        entity.getToStatus(),
+                        entity.getActorUserId(),
+                        entity.getReason(),
+                        entity.getCreatedAt()
+                ))
+                .toList();
     }
 }

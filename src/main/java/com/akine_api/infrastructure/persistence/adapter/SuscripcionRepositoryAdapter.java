@@ -41,6 +41,16 @@ public class SuscripcionRepositoryAdapter implements SuscripcionRepositoryPort {
     }
 
     @Override
+    public Optional<Suscripcion> findTopByOwnerUserId(UUID ownerUserId) {
+        return repo.findTopByOwnerUserIdOrderByCreatedAtDesc(ownerUserId).map(mapper::toDomain);
+    }
+
+    @Override
+    public Optional<Suscripcion> findByTrackingToken(String trackingToken) {
+        return repo.findByTrackingToken(trackingToken).map(mapper::toDomain);
+    }
+
+    @Override
     public List<Suscripcion> findAll(int page, int size) {
         return repo.findAll(PageRequest.of(page, size)).getContent().stream().map(mapper::toDomain).toList();
     }
