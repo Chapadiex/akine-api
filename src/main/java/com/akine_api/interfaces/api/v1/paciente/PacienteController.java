@@ -2,6 +2,7 @@ package com.akine_api.interfaces.api.v1.paciente;
 
 import com.akine_api.application.dto.command.CreateMyPacienteCommand;
 import com.akine_api.application.dto.command.CreatePacienteAdminCommand;
+import com.akine_api.application.dto.command.UpdatePacienteAdminCommand;
 import com.akine_api.application.dto.result.PacienteResult;
 import com.akine_api.application.dto.result.PacienteSearchResult;
 import com.akine_api.application.service.PacienteService;
@@ -92,6 +93,26 @@ public class PacienteController {
                                                     @RequestParam UUID consultorioId,
                                                     @AuthenticationPrincipal UserDetails principal) {
         PacienteResult result = service.getById(id, consultorioId, principal.getUsername(), roles(principal));
+        return ResponseEntity.ok(toResponse(result));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<PacienteResponse> updateAdmin(@PathVariable UUID id,
+                                                        @RequestParam UUID consultorioId,
+                                                        @Valid @RequestBody PacienteAdminUpdateRequest req,
+                                                        @AuthenticationPrincipal UserDetails principal) {
+        PacienteResult result = service.updateAdmin(
+                id,
+                consultorioId,
+                new UpdatePacienteAdminCommand(
+                        req.nombre(), req.apellido(), req.telefono(), req.email(),
+                        req.fechaNacimiento(), req.sexo(), req.domicilio(), req.nacionalidad(),
+                        req.estadoCivil(), req.profesion(), req.obraSocialNombre(),
+                        req.obraSocialPlan(), req.obraSocialNroAfiliado()
+                ),
+                principal.getUsername(),
+                roles(principal)
+        );
         return ResponseEntity.ok(toResponse(result));
     }
 

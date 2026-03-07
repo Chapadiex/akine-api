@@ -8,22 +8,27 @@ import com.akine_api.application.dto.result.Paciente360ObraSocialResult;
 import com.akine_api.application.dto.result.Paciente360PagosResult;
 import com.akine_api.application.dto.result.Paciente360SummaryResult;
 import com.akine_api.application.dto.result.Paciente360TurnosResult;
+import com.akine_api.application.port.output.DiagnosticoClinicoRepositoryPort;
 import com.akine_api.application.port.output.BoxRepositoryPort;
 import com.akine_api.application.port.output.ConsultorioRepositoryPort;
 import com.akine_api.application.port.output.ObraSocialRepositoryPort;
 import com.akine_api.application.port.output.PacienteConsultorioRepositoryPort;
 import com.akine_api.application.port.output.PacienteRepositoryPort;
 import com.akine_api.application.port.output.ProfesionalRepositoryPort;
+import com.akine_api.application.port.output.SesionClinicaRepositoryPort;
 import com.akine_api.application.port.output.TurnoRepositoryPort;
 import com.akine_api.application.port.output.UserRepositoryPort;
 import com.akine_api.domain.exception.PacienteNotFoundException;
 import com.akine_api.domain.model.Box;
 import com.akine_api.domain.model.Consultorio;
+import com.akine_api.domain.model.DiagnosticoClinico;
+import com.akine_api.domain.model.DiagnosticoClinicoEstado;
 import com.akine_api.domain.model.ObraSocial;
 import com.akine_api.domain.model.ObraSocialEstado;
 import com.akine_api.domain.model.ObraSocialPlan;
 import com.akine_api.domain.model.Paciente;
 import com.akine_api.domain.model.Profesional;
+import com.akine_api.domain.model.SesionClinica;
 import com.akine_api.domain.model.TipoConsulta;
 import com.akine_api.domain.model.Turno;
 import com.akine_api.domain.model.TurnoEstado;
@@ -64,6 +69,8 @@ public class Paciente360Service {
     private final ProfesionalRepositoryPort profesionalRepo;
     private final BoxRepositoryPort boxRepo;
     private final ObraSocialRepositoryPort obraSocialRepo;
+    private final SesionClinicaRepositoryPort sesionClinicaRepo;
+    private final DiagnosticoClinicoRepositoryPort diagnosticoClinicoRepo;
 
     public Paciente360Service(PacienteRepositoryPort pacienteRepo,
                               PacienteConsultorioRepositoryPort pacienteConsultorioRepo,
@@ -72,7 +79,9 @@ public class Paciente360Service {
                               TurnoRepositoryPort turnoRepo,
                               ProfesionalRepositoryPort profesionalRepo,
                               BoxRepositoryPort boxRepo,
-                              ObraSocialRepositoryPort obraSocialRepo) {
+                              ObraSocialRepositoryPort obraSocialRepo,
+                              SesionClinicaRepositoryPort sesionClinicaRepo,
+                              DiagnosticoClinicoRepositoryPort diagnosticoClinicoRepo) {
         this.pacienteRepo = pacienteRepo;
         this.pacienteConsultorioRepo = pacienteConsultorioRepo;
         this.consultorioRepo = consultorioRepo;
@@ -81,6 +90,8 @@ public class Paciente360Service {
         this.profesionalRepo = profesionalRepo;
         this.boxRepo = boxRepo;
         this.obraSocialRepo = obraSocialRepo;
+        this.sesionClinicaRepo = sesionClinicaRepo;
+        this.diagnosticoClinicoRepo = diagnosticoClinicoRepo;
     }
 
     public Paciente360HeaderResult getHeader(UUID consultorioId,
@@ -125,6 +136,8 @@ public class Paciente360Service {
                                                Set<String> roles) {
         Paciente paciente = loadPacienteWithAccess(consultorioId, pacienteId, userEmail, roles, TabScope.GENERAL);
         List<Turno> turnos = findAllTurnosPaciente(consultorioId, pacienteId);
+        List<SesionClinica> sesionesClinicas = findAllSesionesPaciente(consultorioId, pacienteId);
+        List<DiagnosticoClinico> diagnosticos = findAllDiagnosticosPaciente(consultorioId, pacienteId);
         Map<UUID, Profesional> profesionales = buildProfesionalMap(consultorioId);
         CoverageInsight coverage = resolveCoverageInsight(consultorioId, paciente, turnos);
 
@@ -136,19 +149,27 @@ public class Paciente360Service {
                 .filter(this::isSessionTurno)
                 .max(Comparator.comparing(Turno::getFechaHoraInicio))
                 .orElse(null);
+        SesionClinica lastClinicalSession = sesionesClinicas.stream()
+                .max(Comparator.comparing(SesionClinica::getFechaAtencion))
+                .orElse(null);
+        LocalDateTime lastAttentionAt = lastClinicalSession != null
+                ? lastClinicalSession.getFechaAtencion()
+                : lastSession != null ? lastSession.getFechaHoraInicio() : null;
 
         LocalDateTime monthStart = LocalDate.now().withDayOfMonth(1).atStartOfDay();
         LocalDateTime monthEnd = LocalDate.now()
                 .with(TemporalAdjusters.lastDayOfMonth())
                 .plusDays(1)
                 .atStartOfDay();
-        long sesionesMes = turnos.stream()
-                .filter(this::isSessionTurno)
-                .filter(t -> !t.getFechaHoraInicio().isBefore(monthStart) && t.getFechaHoraInicio().isBefore(monthEnd))
+        long sesionesMes = sesionesClinicas.stream()
+                .filter(t -> !t.getFechaAtencion().isBefore(monthStart) && t.getFechaAtencion().isBefore(monthEnd))
                 .count();
+        int diagnosticosActivos = Math.toIntExact(diagnosticos.stream()
+                .filter(d -> d.getEstado() == DiagnosticoClinicoEstado.ACTIVO)
+                .count());
 
-        List<Paciente360SummaryResult.AlertItem> alertas = buildSummaryAlerts(paciente, nextTurno, lastSession, coverage);
-        List<Paciente360SummaryResult.ActionItem> acciones = buildSummaryActions(nextTurno, lastSession, coverage);
+        List<Paciente360SummaryResult.AlertItem> alertas = buildSummaryAlerts(paciente, nextTurno, lastAttentionAt, coverage);
+        List<Paciente360SummaryResult.ActionItem> acciones = buildSummaryActions(nextTurno, lastAttentionAt != null, coverage);
         List<Paciente360SummaryResult.ActivityItem> actividad = turnos.stream()
                 .sorted(Comparator.comparing(Turno::getFechaHoraInicio).reversed())
                 .limit(5)
@@ -167,10 +188,12 @@ public class Paciente360Service {
                         nextTurno != null ? nextTurno.getFechaHoraInicio() : null,
                         fullName(profesionales.get(nextTurno != null ? nextTurno.getProfesionalId() : null)),
                         nextTurno != null ? turnoLabel(nextTurno.getEstado()) : null,
-                        lastSession != null ? lastSession.getFechaHoraInicio() : null,
-                        fullName(profesionales.get(lastSession != null ? lastSession.getProfesionalId() : null)),
-                        lastSession != null ? fallbackText(lastSession.getNotas(), lastSession.getMotivoConsulta(), "Sesion registrada") : null,
-                        0,
+                        lastClinicalSession != null ? lastClinicalSession.getFechaAtencion() : null,
+                        fullName(profesionales.get(lastClinicalSession != null ? lastClinicalSession.getProfesionalId() : null)),
+                        lastClinicalSession != null
+                                ? fallbackText(lastClinicalSession.getResumenClinico(), lastClinicalSession.getMotivoConsulta(), "Sesion registrada")
+                                : null,
+                        diagnosticosActivos,
                         sesionesMes,
                         coverage.resumen(),
                         BigDecimal.ZERO
@@ -192,26 +215,24 @@ public class Paciente360Service {
                                                                String userEmail,
                                                                Set<String> roles) {
         loadPacienteWithAccess(consultorioId, pacienteId, userEmail, roles, TabScope.CLINICAL);
-        List<Turno> turnos = findAllTurnosPaciente(consultorioId, pacienteId).stream()
-                .filter(this::isSessionTurno)
-                .toList();
+        List<SesionClinica> sesiones = findAllSesionesPaciente(consultorioId, pacienteId);
         Map<UUID, Profesional> profesionales = buildProfesionalMap(consultorioId);
 
-        List<Paciente360HistoriaClinicaResult.Item> items = turnos.stream()
+        List<Paciente360HistoriaClinicaResult.Item> items = sesiones.stream()
                 .filter(t -> tipo == null || tipo.isBlank() || "SESION".equalsIgnoreCase(tipo))
                 .filter(t -> profesionalId == null || profesionalId.equals(t.getProfesionalId()))
-                .filter(t -> from == null || !t.getFechaHoraInicio().toLocalDate().isBefore(from))
-                .filter(t -> to == null || !t.getFechaHoraInicio().toLocalDate().isAfter(to))
-                .sorted(Comparator.comparing(Turno::getFechaHoraInicio).reversed())
+                .filter(t -> from == null || !t.getFechaAtencion().toLocalDate().isBefore(from))
+                .filter(t -> to == null || !t.getFechaAtencion().toLocalDate().isAfter(to))
+                .sorted(Comparator.comparing(SesionClinica::getFechaAtencion).reversed())
                 .map(t -> new Paciente360HistoriaClinicaResult.Item(
                         t.getId().toString(),
-                        t.getFechaHoraInicio(),
+                        t.getFechaAtencion(),
                         t.getProfesionalId(),
                         fullName(profesionales.get(t.getProfesionalId())),
                         "SESION",
-                        fallbackText(t.getMotivoConsulta(), t.getNotas(), "Sesion clinica"),
-                        fallbackText(t.getNotas(), t.getMotivoConsulta(), "Sin detalle ampliado."),
-                        t.getId().toString(),
+                        fallbackText(t.getResumenClinico(), t.getMotivoConsulta(), "Sesion clinica"),
+                        fallbackText(t.getEvaluacion(), t.getSubjetivo(), fallbackText(t.getObjetivo(), t.getPlan(), "Sin detalle ampliado.")),
+                        t.getTurnoId() != null ? t.getTurnoId().toString() : null,
                         t.getUpdatedAt()
                 ))
                 .toList();
@@ -232,7 +253,40 @@ public class Paciente360Service {
                                                          String userEmail,
                                                          Set<String> roles) {
         loadPacienteWithAccess(consultorioId, pacienteId, userEmail, roles, TabScope.CLINICAL);
-        return new Paciente360DiagnosticosResult(0, null, List.of(), safePage(page), safeSize(size), 0);
+        Map<UUID, Profesional> profesionales = buildProfesionalMap(consultorioId);
+        Map<UUID, SesionClinica> sesiones = findAllSesionesPaciente(consultorioId, pacienteId).stream()
+                .collect(Collectors.toMap(SesionClinica::getId, s -> s, (left, right) -> left));
+        List<DiagnosticoClinico> diagnosticos = findAllDiagnosticosPaciente(consultorioId, pacienteId).stream()
+                .sorted(Comparator.comparing((DiagnosticoClinico d) -> d.getEstado() == DiagnosticoClinicoEstado.ACTIVO).reversed()
+                        .thenComparing(DiagnosticoClinico::getFechaInicio, Comparator.reverseOrder()))
+                .toList();
+
+        List<Paciente360DiagnosticosResult.Item> items = diagnosticos.stream()
+                .map(d -> new Paciente360DiagnosticosResult.Item(
+                        d.getId(),
+                        d.getDescripcion(),
+                        d.getEstado().name(),
+                        d.getFechaInicio(),
+                        d.getFechaFin(),
+                        d.getProfesionalId(),
+                        fullName(profesionales.get(d.getProfesionalId())),
+                        d.getNotas(),
+                        d.getSesionId() != null && sesiones.containsKey(d.getSesionId())
+                                ? fallbackText(sesiones.get(d.getSesionId()).getResumenClinico(),
+                                sesiones.get(d.getSesionId()).getMotivoConsulta(),
+                                "Sin resumen de atencion")
+                                : null
+                ))
+                .toList();
+
+        return new Paciente360DiagnosticosResult(
+                diagnosticos.stream().filter(d -> d.getEstado() == DiagnosticoClinicoEstado.ACTIVO).count(),
+                diagnosticos.stream().map(DiagnosticoClinico::getFechaInicio).max(LocalDate::compareTo).orElse(null),
+                paginate(items, page, size),
+                safePage(page),
+                safeSize(size),
+                items.size()
+        );
     }
 
     public Paciente360AtencionesResult getAtenciones(UUID consultorioId,
@@ -245,29 +299,28 @@ public class Paciente360Service {
                                                      String userEmail,
                                                      Set<String> roles) {
         loadPacienteWithAccess(consultorioId, pacienteId, userEmail, roles, TabScope.CLINICAL);
-        List<Turno> turnos = findAllTurnosPaciente(consultorioId, pacienteId).stream()
-                .filter(this::isSessionTurno)
+        List<SesionClinica> sesiones = findAllSesionesPaciente(consultorioId, pacienteId).stream()
                 .filter(t -> profesionalId == null || profesionalId.equals(t.getProfesionalId()))
-                .filter(t -> from == null || !t.getFechaHoraInicio().toLocalDate().isBefore(from))
-                .filter(t -> to == null || !t.getFechaHoraInicio().toLocalDate().isAfter(to))
-                .sorted(Comparator.comparing(Turno::getFechaHoraInicio).reversed())
+                .filter(t -> from == null || !t.getFechaAtencion().toLocalDate().isBefore(from))
+                .filter(t -> to == null || !t.getFechaAtencion().toLocalDate().isAfter(to))
+                .sorted(Comparator.comparing(SesionClinica::getFechaAtencion).reversed())
                 .toList();
         Map<UUID, Profesional> profesionales = buildProfesionalMap(consultorioId);
         Map<UUID, Box> boxes = buildBoxMap(consultorioId);
         Consultorio consultorio = consultorioRepo.findById(consultorioId)
                 .orElseThrow(() -> new PacienteNotFoundException("Consultorio no encontrado"));
 
-        List<Paciente360AtencionesResult.Item> items = turnos.stream()
+        List<Paciente360AtencionesResult.Item> items = sesiones.stream()
                 .map(t -> new Paciente360AtencionesResult.Item(
                         t.getId(),
-                        t.getFechaHoraInicio(),
+                        t.getFechaAtencion(),
                         t.getProfesionalId(),
                         fullName(profesionales.get(t.getProfesionalId())),
                         consultorio.getName(),
                         boxes.containsKey(t.getBoxId()) ? boxes.get(t.getBoxId()).getNombre() : null,
-                        "REALIZADA",
-                        fallbackText(t.getNotas(), t.getMotivoConsulta(), "Atencion registrada"),
-                        t.getId()
+                        sessionStatusLabel(t.getEstado()),
+                        fallbackText(t.getResumenClinico(), t.getMotivoConsulta(), "Atencion registrada"),
+                        t.getTurnoId()
                 ))
                 .toList();
 
@@ -403,7 +456,7 @@ public class Paciente360Service {
 
     private List<Paciente360SummaryResult.AlertItem> buildSummaryAlerts(Paciente paciente,
                                                                         Turno nextTurno,
-                                                                        Turno lastSession,
+                                                                        LocalDateTime lastAttentionAt,
                                                                         CoverageInsight coverage) {
         List<Paciente360SummaryResult.AlertItem> alertas = new ArrayList<>();
         if (paciente.getObraSocialNombre() == null || paciente.getObraSocialNombre().isBlank()) {
@@ -414,7 +467,7 @@ public class Paciente360Service {
         if (nextTurno == null) {
             alertas.add(new Paciente360SummaryResult.AlertItem("info", "No hay turnos proximos programados.", "../turnos"));
         }
-        if (lastSession != null && lastSession.getFechaHoraInicio().isBefore(LocalDateTime.now().minusDays(60))) {
+        if (lastAttentionAt != null && lastAttentionAt.isBefore(LocalDateTime.now().minusDays(60))) {
             alertas.add(new Paciente360SummaryResult.AlertItem("warning", "Pasaron mas de 60 dias desde la ultima atencion registrada.", "../atenciones"));
         }
         if (coverage.autorizacionRequerida()) {
@@ -427,7 +480,7 @@ public class Paciente360Service {
     }
 
     private List<Paciente360SummaryResult.ActionItem> buildSummaryActions(Turno nextTurno,
-                                                                          Turno lastSession,
+                                                                          boolean hasClinicalHistory,
                                                                           CoverageInsight coverage) {
         List<Paciente360SummaryResult.ActionItem> acciones = new ArrayList<>();
         if (nextTurno != null) {
@@ -448,7 +501,7 @@ public class Paciente360Service {
                     null
             ));
         }
-        if (lastSession == null) {
+        if (!hasClinicalHistory) {
             acciones.add(new Paciente360SummaryResult.ActionItem(
                     "historia",
                     "Registrar primera atencion",
@@ -514,6 +567,16 @@ public class Paciente360Service {
                 .filter(t -> consultorioId.equals(t.getConsultorioId()))
                 .sorted(Comparator.comparing(Turno::getFechaHoraInicio))
                 .toList();
+    }
+
+    private List<SesionClinica> findAllSesionesPaciente(UUID consultorioId, UUID pacienteId) {
+        return sesionClinicaRepo.findByPacienteIdAndConsultorioId(pacienteId, consultorioId).stream()
+                .sorted(Comparator.comparing(SesionClinica::getFechaAtencion))
+                .toList();
+    }
+
+    private List<DiagnosticoClinico> findAllDiagnosticosPaciente(UUID consultorioId, UUID pacienteId) {
+        return diagnosticoClinicoRepo.findByPacienteIdAndConsultorioId(pacienteId, consultorioId);
     }
 
     private Map<UUID, Profesional> buildProfesionalMap(UUID consultorioId) {
@@ -668,6 +731,17 @@ public class Paciente360Service {
             case COMPLETADO -> "Completado";
             case CANCELADO -> "Cancelado";
             case AUSENTE -> "Ausente";
+        };
+    }
+
+    private String sessionStatusLabel(com.akine_api.domain.model.HistoriaClinicaSesionEstado estado) {
+        if (estado == null) {
+            return null;
+        }
+        return switch (estado) {
+            case BORRADOR -> "Borrador";
+            case CERRADA -> "Cerrada";
+            case ANULADA -> "Anulada";
         };
     }
 

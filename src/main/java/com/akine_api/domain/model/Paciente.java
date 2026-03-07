@@ -77,6 +77,35 @@ public class Paciente {
         this.updatedAt = Instant.now();
     }
 
+    public void updateProfile(String nombre,
+                              String apellido,
+                              String telefono,
+                              String email,
+                              LocalDate fechaNacimiento,
+                              String sexo,
+                              String domicilio,
+                              String nacionalidad,
+                              String estadoCivil,
+                              String profesion,
+                              String obraSocialNombre,
+                              String obraSocialPlan,
+                              String obraSocialNroAfiliado) {
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.telefono = telefono;
+        this.email = email;
+        this.fechaNacimiento = fechaNacimiento;
+        this.sexo = sexo;
+        this.domicilio = domicilio;
+        this.nacionalidad = nacionalidad;
+        this.estadoCivil = estadoCivil;
+        this.profesion = profesion;
+        this.obraSocialNombre = obraSocialNombre;
+        this.obraSocialPlan = obraSocialPlan;
+        this.obraSocialNroAfiliado = obraSocialNroAfiliado;
+        this.updatedAt = Instant.now();
+    }
+
     public UUID getId() { return id; }
     public String getDni() { return dni; }
     public String getNombre() { return nombre; }

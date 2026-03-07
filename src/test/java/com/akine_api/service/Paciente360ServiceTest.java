@@ -2,16 +2,22 @@ package com.akine_api.service;
 
 import com.akine_api.application.port.output.BoxRepositoryPort;
 import com.akine_api.application.port.output.ConsultorioRepositoryPort;
+import com.akine_api.application.port.output.DiagnosticoClinicoRepositoryPort;
 import com.akine_api.application.port.output.ObraSocialRepositoryPort;
 import com.akine_api.application.port.output.PacienteConsultorioRepositoryPort;
 import com.akine_api.application.port.output.PacienteRepositoryPort;
 import com.akine_api.application.port.output.ProfesionalRepositoryPort;
+import com.akine_api.application.port.output.SesionClinicaRepositoryPort;
 import com.akine_api.application.port.output.TurnoRepositoryPort;
 import com.akine_api.application.port.output.UserRepositoryPort;
 import com.akine_api.application.service.Paciente360Service;
 import com.akine_api.domain.exception.PacienteNotFoundException;
 import com.akine_api.domain.model.Consultorio;
+import com.akine_api.domain.model.HistoriaClinicaOrigenRegistro;
+import com.akine_api.domain.model.HistoriaClinicaSesionEstado;
+import com.akine_api.domain.model.HistoriaClinicaTipoAtencion;
 import com.akine_api.domain.model.Paciente;
+import com.akine_api.domain.model.SesionClinica;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,6 +46,8 @@ class Paciente360ServiceTest {
     @Mock ProfesionalRepositoryPort profesionalRepo;
     @Mock BoxRepositoryPort boxRepo;
     @Mock ObraSocialRepositoryPort obraSocialRepo;
+    @Mock SesionClinicaRepositoryPort sesionClinicaRepo;
+    @Mock DiagnosticoClinicoRepositoryPort diagnosticoClinicoRepo;
 
     Paciente360Service service;
 
@@ -56,7 +64,9 @@ class Paciente360ServiceTest {
                 turnoRepo,
                 profesionalRepo,
                 boxRepo,
-                obraSocialRepo
+                obraSocialRepo,
+                sesionClinicaRepo,
+                diagnosticoClinicoRepo
         );
     }
 
@@ -109,6 +119,35 @@ class Paciente360ServiceTest {
         assertThat(result.coberturaResumen()).isEqualTo("Sin cobertura registrada");
     }
 
+    @Test
+    void getHistoriaClinica_readsClinicalSessionsInsteadOfTurnos() {
+        when(consultorioRepo.findById(CONSULTORIO_ID)).thenReturn(Optional.of(activeConsultorio()));
+        when(pacienteRepo.findById(PACIENTE_ID)).thenReturn(Optional.of(samplePaciente()));
+        when(pacienteConsultorioRepo.existsByPacienteIdAndConsultorioId(PACIENTE_ID, CONSULTORIO_ID))
+                .thenReturn(true);
+        when(sesionClinicaRepo.findByPacienteIdAndConsultorioId(PACIENTE_ID, CONSULTORIO_ID))
+                .thenReturn(List.of(sampleSesionClinica()));
+
+        var result = service.getHistoriaClinica(
+                CONSULTORIO_ID,
+                PACIENTE_ID,
+                null,
+                null,
+                null,
+                null,
+                0,
+                20,
+                "admin@test.com",
+                Set.of("ROLE_ADMIN")
+        );
+
+        assertThat(result.total()).isEqualTo(1);
+        assertThat(result.items()).singleElement().satisfies(item -> {
+            assertThat(item.tipo()).isEqualTo("SESION");
+            assertThat(item.resumen()).isEqualTo("Resumen clinico");
+        });
+    }
+
     private Consultorio activeConsultorio() {
         return new Consultorio(CONSULTORIO_ID, "Consultorio", null, null, null, null, "ACTIVE", Instant.now());
     }
@@ -134,6 +173,34 @@ class Paciente360ServiceTest {
                 null,
                 true,
                 null,
+                now,
+                now
+        );
+    }
+
+    private SesionClinica sampleSesionClinica() {
+        Instant now = Instant.now();
+        return new SesionClinica(
+                UUID.randomUUID(),
+                CONSULTORIO_ID,
+                PACIENTE_ID,
+                UUID.randomUUID(),
+                null,
+                null,
+                java.time.LocalDateTime.now().minusDays(1),
+                HistoriaClinicaSesionEstado.CERRADA,
+                HistoriaClinicaTipoAtencion.SEGUIMIENTO,
+                "Motivo",
+                "Resumen clinico",
+                null,
+                null,
+                "Evaluacion",
+                "Plan",
+                HistoriaClinicaOrigenRegistro.MANUAL,
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                UUID.randomUUID(),
+                now,
                 now,
                 now
         );

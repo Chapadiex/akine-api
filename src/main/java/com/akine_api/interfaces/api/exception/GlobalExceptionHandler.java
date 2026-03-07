@@ -92,7 +92,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             DisponibilidadProfesionalNotFoundException.class,
             TurnoNotFoundException.class,
             ObraSocialNotFoundException.class,
-            SubscriptionNotFoundException.class
+            SubscriptionNotFoundException.class,
+            SesionClinicaNotFoundException.class,
+            DiagnosticoClinicoNotFoundException.class,
+            AdjuntoClinicoNotFoundException.class
     })
     public ProblemDetail handleEntityNotFound(DomainException ex) {
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
@@ -186,6 +189,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
         pd.setType(URI.create("urn:akine:error:turno-paciente-solapado"));
         pd.setTitle("Turno de paciente solapado");
+        return pd;
+    }
+
+    @ExceptionHandler(HistoriaClinicaConflictException.class)
+    public ProblemDetail handleHistoriaClinicaConflict(HistoriaClinicaConflictException ex) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        pd.setType(URI.create("urn:akine:error:historia-clinica-conflict"));
+        pd.setTitle("Conflicto de historia clinica");
+        return pd;
+    }
+
+    @ExceptionHandler(HistoriaClinicaValidationException.class)
+    public ProblemDetail handleHistoriaClinicaValidation(HistoriaClinicaValidationException ex) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
+        pd.setType(URI.create("urn:akine:error:historia-clinica-validation"));
+        pd.setTitle("Validacion de historia clinica");
         return pd;
     }
 

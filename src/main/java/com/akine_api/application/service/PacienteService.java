@@ -2,6 +2,7 @@ package com.akine_api.application.service;
 
 import com.akine_api.application.dto.command.CreateMyPacienteCommand;
 import com.akine_api.application.dto.command.CreatePacienteAdminCommand;
+import com.akine_api.application.dto.command.UpdatePacienteAdminCommand;
 import com.akine_api.application.dto.result.PacienteResult;
 import com.akine_api.application.dto.result.PacienteSearchResult;
 import com.akine_api.application.port.output.*;
@@ -143,6 +144,40 @@ public class PacienteService {
         ));
 
         return toResult(created);
+    }
+
+    public PacienteResult updateAdmin(UUID pacienteId,
+                                      UUID consultorioId,
+                                      UpdatePacienteAdminCommand cmd,
+                                      String userEmail,
+                                      Set<String> roles) {
+        assertBackofficeRole(roles);
+        assertCanManageConsultorio(consultorioId, userEmail, roles);
+
+        Paciente paciente = pacienteRepo.findById(pacienteId)
+                .orElseThrow(() -> new PacienteNotFoundException("Paciente no encontrado"));
+
+        if (!pacienteConsultorioRepo.existsByPacienteIdAndConsultorioId(pacienteId, consultorioId)) {
+            throw new PacienteNotFoundException("Paciente no encontrado en este consultorio");
+        }
+
+        paciente.updateProfile(
+                cmd.nombre(),
+                cmd.apellido(),
+                cmd.telefono(),
+                cmd.email(),
+                cmd.fechaNacimiento(),
+                cmd.sexo(),
+                cmd.domicilio(),
+                cmd.nacionalidad(),
+                cmd.estadoCivil(),
+                cmd.profesion(),
+                cmd.obraSocialNombre(),
+                cmd.obraSocialPlan(),
+                cmd.obraSocialNroAfiliado()
+        );
+
+        return toResult(pacienteRepo.save(paciente));
     }
 
     @Transactional(readOnly = true)
