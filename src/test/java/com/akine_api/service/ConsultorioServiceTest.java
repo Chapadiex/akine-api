@@ -5,6 +5,7 @@ import com.akine_api.application.dto.command.UpdateConsultorioCommand;
 import com.akine_api.application.dto.result.ConsultorioResult;
 import com.akine_api.application.port.output.ConsultorioRepositoryPort;
 import com.akine_api.application.port.output.UserRepositoryPort;
+import com.akine_api.application.service.CargoEmpleadoCatalogoBootstrapService;
 import com.akine_api.application.service.ConsultorioAntecedenteBootstrapService;
 import com.akine_api.application.service.ConsultorioEspecialidadBootstrapService;
 import com.akine_api.application.service.ConsultorioService;
@@ -18,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +37,7 @@ class ConsultorioServiceTest {
     @Mock UserRepositoryPort userRepo;
     @Mock ConsultorioEspecialidadBootstrapService especialidadBootstrapService;
     @Mock ConsultorioAntecedenteBootstrapService antecedenteBootstrapService;
+    @Mock CargoEmpleadoCatalogoBootstrapService cargoBootstrapService;
 
     ConsultorioService service;
 
@@ -51,7 +54,8 @@ class ConsultorioServiceTest {
                 consultorioRepo,
                 userRepo,
                 especialidadBootstrapService,
-                antecedenteBootstrapService
+                antecedenteBootstrapService,
+                cargoBootstrapService
         );
     }
 
@@ -142,13 +146,29 @@ class ConsultorioServiceTest {
         when(consultorioRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         CreateConsultorioCommand cmd = new CreateConsultorioCommand(
-                "Nuevo", null, "Av. 123", "1155550000", "nuevo@mail.com");
+                "Nuevo", null, "Av. 123", "1155550000", "nuevo@mail.com", null, null, null);
         ConsultorioResult result = service.create(cmd, ADMIN_ROLES);
 
         assertThat(result.name()).isEqualTo("Nuevo");
         assertThat(result.status()).isEqualTo("ACTIVE");
+        verify(cargoBootstrapService).ensureDefaults();
         verify(especialidadBootstrapService).enableDefaultsForConsultorio(result.id());
         verify(antecedenteBootstrapService).ensureDefaults(result.id(), "system");
+    }
+
+    @Test
+    void create_withMapData_persistsCoordinatesAndUrl() {
+        when(consultorioRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        CreateConsultorioCommand cmd = new CreateConsultorioCommand(
+                "Nuevo", null, "Av. 123", "1155550000", "nuevo@mail.com",
+                new BigDecimal("-34.603722"), new BigDecimal("-58.381592"),
+                "https://maps.google.com/?q=-34.603722,-58.381592");
+        ConsultorioResult result = service.create(cmd, ADMIN_ROLES);
+
+        assertThat(result.mapLatitude()).isEqualByComparingTo("-34.603722");
+        assertThat(result.mapLongitude()).isEqualByComparingTo("-58.381592");
+        assertThat(result.googleMapsUrl()).isEqualTo("https://maps.google.com/?q=-34.603722,-58.381592");
     }
 
     @Test
@@ -159,7 +179,7 @@ class ConsultorioServiceTest {
                 .ensureDefaults(any(), any());
 
         CreateConsultorioCommand cmd = new CreateConsultorioCommand(
-                "Nuevo", null, "Av. 123", "1155550000", "nuevo@mail.com");
+                "Nuevo", null, "Av. 123", "1155550000", "nuevo@mail.com", null, null, null);
 
         assertThatThrownBy(() -> service.create(cmd, ADMIN_ROLES))
                 .isInstanceOf(IllegalStateException.class)
@@ -169,7 +189,7 @@ class ConsultorioServiceTest {
     @Test
     void create_asProfAdmin_throwsAccessDenied() {
         CreateConsultorioCommand cmd = new CreateConsultorioCommand(
-                "Nuevo", null, null, null, null);
+                "Nuevo", null, null, null, null, null, null, null);
 
         assertThatThrownBy(() -> service.create(cmd, PROF_ADMIN_ROLES))
                 .isInstanceOf(AccessDeniedException.class);
@@ -184,10 +204,27 @@ class ConsultorioServiceTest {
         when(consultorioRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         UpdateConsultorioCommand cmd = new UpdateConsultorioCommand(
-                CONSULTORIO_ID, "Actualizado", null, "Nueva Dir", "1155559999", null);
+                CONSULTORIO_ID, "Actualizado", null, "Nueva Dir", "1155559999", null, null, null, null);
         ConsultorioResult result = service.update(cmd, ADMIN_EMAIL, ADMIN_ROLES);
 
         assertThat(result.name()).isEqualTo("Actualizado");
+    }
+
+    @Test
+    void update_withMapData_persistsCoordinatesAndUrl() {
+        Consultorio c = activeConsultorio();
+        when(consultorioRepo.findById(CONSULTORIO_ID)).thenReturn(Optional.of(c));
+        when(consultorioRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        UpdateConsultorioCommand cmd = new UpdateConsultorioCommand(
+                CONSULTORIO_ID, "Actualizado", null, "Nueva Dir", "1155559999", null,
+                new BigDecimal("-34.603722"), new BigDecimal("-58.381592"),
+                "https://maps.google.com/?q=-34.603722,-58.381592");
+        ConsultorioResult result = service.update(cmd, ADMIN_EMAIL, ADMIN_ROLES);
+
+        assertThat(result.mapLatitude()).isEqualByComparingTo("-34.603722");
+        assertThat(result.mapLongitude()).isEqualByComparingTo("-58.381592");
+        assertThat(result.googleMapsUrl()).isEqualTo("https://maps.google.com/?q=-34.603722,-58.381592");
     }
 
     @Test
@@ -195,7 +232,7 @@ class ConsultorioServiceTest {
         when(consultorioRepo.findById(CONSULTORIO_ID)).thenReturn(Optional.of(inactiveConsultorio()));
 
         UpdateConsultorioCommand cmd = new UpdateConsultorioCommand(
-                CONSULTORIO_ID, "Actualizado", null, "Nueva Dir", "1155559999", null);
+                CONSULTORIO_ID, "Actualizado", null, "Nueva Dir", "1155559999", null, null, null, null);
 
         assertThatThrownBy(() -> service.update(cmd, ADMIN_EMAIL, ADMIN_ROLES))
                 .isInstanceOf(ConsultorioInactiveException.class);

@@ -65,7 +65,8 @@ public class BoxController {
             @PathVariable UUID id,
             @Valid @RequestBody BoxRequest req,
             @AuthenticationPrincipal UserDetails principal) {
-        UpdateBoxCommand cmd = new UpdateBoxCommand(id, consultorioId, req.nombre(), req.codigo(), req.tipo());
+        UpdateBoxCommand cmd = new UpdateBoxCommand(
+                id, consultorioId, req.nombre(), req.codigo(), req.tipo(), req.activo());
         return ResponseEntity.ok(toResponse(
                 service.update(cmd, principal.getUsername(), roles(principal))));
     }
@@ -89,6 +90,15 @@ public class BoxController {
             @AuthenticationPrincipal UserDetails principal) {
         service.inactivate(consultorioId, id, principal.getUsername(), roles(principal));
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/activar")
+    public ResponseEntity<BoxResponse> activate(
+            @PathVariable UUID consultorioId,
+            @PathVariable UUID id,
+            @AuthenticationPrincipal UserDetails principal) {
+        return ResponseEntity.ok(toResponse(
+                service.activate(consultorioId, id, principal.getUsername(), roles(principal))));
     }
 
     private BoxResponse toResponse(BoxResult r) {

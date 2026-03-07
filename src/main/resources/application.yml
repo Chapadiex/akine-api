@@ -17,3 +17,6 @@ app:
   admin:
     email: ${ADMIN_EMAIL:admin@akine.com}
     password: ${ADMIN_PASSWORD:Admin1234!}
+  feriados:
+    argentina-datos:
+      base-url: ${ARGENTINA_DATOS_BASE_URL:https://api.argentinadatos.com}

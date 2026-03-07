@@ -12,6 +12,8 @@ public interface EmpleadoRepositoryPort {
     Optional<Empleado> findByUserId(UUID userId);
     List<Empleado> findByConsultorioId(UUID consultorioId);
     boolean existsByConsultorioIdAndEmail(UUID consultorioId, String email);
+    boolean existsByConsultorioIdAndDni(UUID consultorioId, String dni);
     boolean existsByConsultorioIdAndEmailAndIdNot(UUID consultorioId, String email, UUID id);
     boolean existsByConsultorioIdAndDniAndIdNot(UUID consultorioId, String dni, UUID id);
+    int updateCargoNombre(String cargoAnterior, String cargoNuevo);
 }

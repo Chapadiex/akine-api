@@ -29,6 +29,15 @@ public class SmtpEmailService implements EmailPort {
     }
 
     @Override
+    public void sendAccountReactivatedEmail(String to, String firstName) {
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setTo(to);
+        msg.setSubject("AKINE account reactivated");
+        msg.setText("Hello " + firstName + ",\n\nYour account has been reactivated. You can now log in.");
+        mailSender.send(msg);
+    }
+
+    @Override
     public void sendPasswordChangedNotification(String to, String firstName) {
         SimpleMailMessage msg = new SimpleMailMessage();
         msg.setTo(to);

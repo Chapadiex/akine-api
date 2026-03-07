@@ -7,7 +7,7 @@ public class EspecialidadCatalogo {
 
     private final UUID id;
     private String nombre;
-    private final String slug;
+    private String slug;
     private boolean activo;
     private final Instant createdAt;
     private Instant updatedAt;
@@ -21,8 +21,9 @@ public class EspecialidadCatalogo {
         this.updatedAt = createdAt;
     }
 
-    public void rename(String nombre) {
+    public void rename(String nombre, String slug) {
         this.nombre = nombre;
+        this.slug = slug;
         this.updatedAt = Instant.now();
     }
 

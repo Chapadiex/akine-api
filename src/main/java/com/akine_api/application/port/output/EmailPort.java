@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 public interface EmailPort {
     void sendActivationEmail(String to, String firstName, String activationToken);
+    void sendAccountReactivatedEmail(String to, String firstName);
     void sendPasswordChangedNotification(String to, String firstName);
     void sendSubscriptionReceived(String to, String firstName, String subscriptionId);
     void sendSubscriptionApproved(String to, String firstName, LocalDate startDate, LocalDate endDate);

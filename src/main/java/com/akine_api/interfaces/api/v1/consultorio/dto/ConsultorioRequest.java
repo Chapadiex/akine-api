@@ -1,7 +1,11 @@
 package com.akine_api.interfaces.api.v1.consultorio.dto;
 
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+
+import java.math.BigDecimal;
 
 public record ConsultorioRequest(
         @NotBlank(message = "El nombre es obligatorio")
@@ -18,5 +22,16 @@ public record ConsultorioRequest(
         String phone,
 
         @Size(max = 255, message = "El email no puede superar 255 caracteres")
-        String email
+        String email,
+
+        @DecimalMin(value = "-90.0", message = "La latitud debe ser mayor o igual a -90")
+        @DecimalMax(value = "90.0", message = "La latitud debe ser menor o igual a 90")
+        BigDecimal mapLatitude,
+
+        @DecimalMin(value = "-180.0", message = "La longitud debe ser mayor o igual a -180")
+        @DecimalMax(value = "180.0", message = "La longitud debe ser menor o igual a 180")
+        BigDecimal mapLongitude,
+
+        @Size(max = 500, message = "La URL de Google Maps no puede superar 500 caracteres")
+        String googleMapsUrl
 ) {}

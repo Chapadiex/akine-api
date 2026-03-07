@@ -47,6 +47,11 @@ public class EmpleadoRepositoryAdapter implements EmpleadoRepositoryPort {
     }
 
     @Override
+    public boolean existsByConsultorioIdAndDni(UUID consultorioId, String dni) {
+        return repo.existsByConsultorioIdAndDni(consultorioId, dni);
+    }
+
+    @Override
     public boolean existsByConsultorioIdAndEmailAndIdNot(UUID consultorioId, String email, UUID id) {
         return repo.existsByConsultorioIdAndEmailAndIdNot(consultorioId, email, id);
     }
@@ -54,5 +59,10 @@ public class EmpleadoRepositoryAdapter implements EmpleadoRepositoryPort {
     @Override
     public boolean existsByConsultorioIdAndDniAndIdNot(UUID consultorioId, String dni, UUID id) {
         return repo.existsByConsultorioIdAndDniAndIdNot(consultorioId, dni, id);
+    }
+
+    @Override
+    public int updateCargoNombre(String cargoAnterior, String cargoNuevo) {
+        return repo.updateCargoNombre(cargoAnterior, cargoNuevo);
     }
 }

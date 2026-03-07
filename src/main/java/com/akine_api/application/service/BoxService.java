@@ -70,7 +70,7 @@ public class BoxService {
         Box box = boxRepo.findById(cmd.id())
                 .filter(b -> b.getConsultorioId().equals(cmd.consultorioId()))
                 .orElseThrow(() -> new BoxNotFoundException("Box no encontrado: " + cmd.id()));
-        box.update(cmd.nombre(), cmd.codigo(), cmd.tipo());
+        box.update(cmd.nombre(), cmd.codigo(), cmd.tipo(), cmd.activo());
         return toResult(boxRepo.save(box));
     }
 
@@ -93,6 +93,15 @@ public class BoxService {
                 .orElseThrow(() -> new BoxNotFoundException("Box no encontrado: " + boxId));
         box.inactivate();
         boxRepo.save(box);
+    }
+
+    public BoxResult activate(UUID consultorioId, UUID boxId, String userEmail, Set<String> roles) {
+        assertCanWrite(consultorioId, userEmail, roles);
+        Box box = boxRepo.findById(boxId)
+                .filter(b -> b.getConsultorioId().equals(consultorioId))
+                .orElseThrow(() -> new BoxNotFoundException("Box no encontrado: " + boxId));
+        box.activate();
+        return toResult(boxRepo.save(box));
     }
 
     // ─── Helpers ──────────────────────────────────────────────────────────────

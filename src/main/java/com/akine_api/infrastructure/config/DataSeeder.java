@@ -1,6 +1,7 @@
 package com.akine_api.infrastructure.config;
 
 import com.akine_api.application.port.output.PasswordEncoderPort;
+import com.akine_api.application.service.CargoEmpleadoCatalogoBootstrapService;
 import com.akine_api.application.service.ConsultorioAntecedenteBootstrapService;
 import com.akine_api.application.service.ConsultorioEspecialidadBootstrapService;
 import com.akine_api.infrastructure.persistence.entity.RoleEntity;
@@ -33,6 +34,7 @@ public class DataSeeder implements ApplicationRunner {
     private final ConsultorioJpaRepository consultorioRepo;
     private final ConsultorioEspecialidadBootstrapService consultorioEspecialidadBootstrapService;
     private final ConsultorioAntecedenteBootstrapService consultorioAntecedenteBootstrapService;
+    private final CargoEmpleadoCatalogoBootstrapService cargoEmpleadoCatalogoBootstrapService;
     private final PasswordEncoderPort passwordEncoder;
     private final boolean devMode;
 
@@ -47,6 +49,7 @@ public class DataSeeder implements ApplicationRunner {
                       ConsultorioJpaRepository consultorioRepo,
                       ConsultorioEspecialidadBootstrapService consultorioEspecialidadBootstrapService,
                       ConsultorioAntecedenteBootstrapService consultorioAntecedenteBootstrapService,
+                      CargoEmpleadoCatalogoBootstrapService cargoEmpleadoCatalogoBootstrapService,
                       PasswordEncoderPort passwordEncoder,
                       @Value("${app.seed.dev-users:false}") boolean devMode) {
         this.userRepo = userRepo;
@@ -54,6 +57,7 @@ public class DataSeeder implements ApplicationRunner {
         this.consultorioRepo = consultorioRepo;
         this.consultorioEspecialidadBootstrapService = consultorioEspecialidadBootstrapService;
         this.consultorioAntecedenteBootstrapService = consultorioAntecedenteBootstrapService;
+        this.cargoEmpleadoCatalogoBootstrapService = cargoEmpleadoCatalogoBootstrapService;
         this.passwordEncoder = passwordEncoder;
         this.devMode = devMode;
     }
@@ -120,6 +124,7 @@ public class DataSeeder implements ApplicationRunner {
     }
 
     private void seedDefaultsForExistingConsultorios() {
+        cargoEmpleadoCatalogoBootstrapService.ensureDefaults();
         consultorioRepo.findAll().forEach(c -> {
             try {
                 consultorioEspecialidadBootstrapService.enableDefaultsForConsultorio(c.getId());

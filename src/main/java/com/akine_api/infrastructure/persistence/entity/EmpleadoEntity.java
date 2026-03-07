@@ -37,17 +37,20 @@ public class EmpleadoEntity {
     @Column(length = 20)
     private String dni;
 
+    @Column(name = "fecha_nacimiento", nullable = false)
+    private LocalDate fechaNacimiento;
+
     @Column(nullable = false, length = 100)
     private String cargo;
-
-    @Column(name = "nro_legajo", length = 50)
-    private String nroLegajo;
 
     @Column(nullable = false, length = 255)
     private String email;
 
     @Column(length = 30)
     private String telefono;
+
+    @Column(nullable = false, length = 255)
+    private String direccion;
 
     @Column(name = "notas_internas", length = 500)
     private String notasInternas;

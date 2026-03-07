@@ -68,12 +68,12 @@ class ConsultorioEspecialidadServiceTest {
 
         EspecialidadResult result = service.createOrLink(
                 CONSULTORIO_ID,
-                "Rehabilitación vestibular",
+                "Rehabilitacion vestibular",
                 USER_EMAIL,
                 ADMIN_ROLES
         );
 
-        assertThat(result.nombre()).isEqualTo("Rehabilitación vestibular");
+        assertThat(result.nombre()).isEqualTo("Rehabilitacion vestibular");
         assertThat(result.slug()).isEqualTo("rehabilitacion-vestibular");
         assertThat(result.activo()).isTrue();
     }
@@ -81,7 +81,7 @@ class ConsultorioEspecialidadServiceTest {
     @Test
     void createOrLink_whenLinkExistsInactive_reactivates() {
         UUID especialidadId = UUID.randomUUID();
-        EspecialidadCatalogo catalog = new EspecialidadCatalogo(especialidadId, "Kinesiología", "kinesiologia", true, Instant.now());
+        EspecialidadCatalogo catalog = new EspecialidadCatalogo(especialidadId, "Kinesiologia", "kinesiologia", true, Instant.now());
         ConsultorioEspecialidad relation = new ConsultorioEspecialidad(UUID.randomUUID(), CONSULTORIO_ID, especialidadId, false, Instant.now());
 
         when(especialidadCatalogoRepo.findBySlug("kinesiologia")).thenReturn(Optional.of(catalog));
@@ -91,7 +91,7 @@ class ConsultorioEspecialidadServiceTest {
 
         EspecialidadResult result = service.createOrLink(
                 CONSULTORIO_ID,
-                "Kinesiología",
+                "Kinesiologia",
                 USER_EMAIL,
                 ADMIN_ROLES
         );
@@ -103,7 +103,7 @@ class ConsultorioEspecialidadServiceTest {
     void list_withSearch_returnsFilteredRows() {
         UUID especialidadId = UUID.randomUUID();
         ConsultorioEspecialidad relation = new ConsultorioEspecialidad(UUID.randomUUID(), CONSULTORIO_ID, especialidadId, true, Instant.now());
-        EspecialidadCatalogo catalog = new EspecialidadCatalogo(especialidadId, "Kinesiología", "kinesiologia", true, Instant.now());
+        EspecialidadCatalogo catalog = new EspecialidadCatalogo(especialidadId, "Kinesiologia", "kinesiologia", true, Instant.now());
 
         when(consultorioEspecialidadRepo.findByConsultorioIdAndNombreContaining(CONSULTORIO_ID, "kine", false))
                 .thenReturn(List.of(relation));
@@ -118,7 +118,54 @@ class ConsultorioEspecialidadServiceTest {
         );
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).nombre()).isEqualTo("Kinesiología");
+        assertThat(result.get(0).nombre()).isEqualTo("Kinesiologia");
+    }
+
+    @Test
+    void update_whenNameChanges_updatesCatalogNameAndSlug() {
+        UUID especialidadId = UUID.randomUUID();
+        ConsultorioEspecialidad relation = new ConsultorioEspecialidad(UUID.randomUUID(), CONSULTORIO_ID, especialidadId, true, Instant.now());
+        EspecialidadCatalogo catalog = new EspecialidadCatalogo(especialidadId, "Kinesiologia", "kinesiologia", true, Instant.now());
+
+        when(consultorioEspecialidadRepo.findByConsultorioIdAndEspecialidadId(CONSULTORIO_ID, especialidadId))
+                .thenReturn(Optional.of(relation));
+        when(especialidadCatalogoRepo.findById(especialidadId)).thenReturn(Optional.of(catalog));
+        when(especialidadCatalogoRepo.findBySlug("fisiatria")).thenReturn(Optional.empty());
+        when(especialidadCatalogoRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        EspecialidadResult result = service.update(
+                CONSULTORIO_ID,
+                especialidadId,
+                "Fisiatria",
+                USER_EMAIL,
+                ADMIN_ROLES
+        );
+
+        assertThat(result.nombre()).isEqualTo("Fisiatria");
+        assertThat(result.slug()).isEqualTo("fisiatria");
+    }
+
+    @Test
+    void update_whenSlugAlreadyExists_throwsIllegalArgumentException() {
+        UUID especialidadId = UUID.randomUUID();
+        UUID existingId = UUID.randomUUID();
+        ConsultorioEspecialidad relation = new ConsultorioEspecialidad(UUID.randomUUID(), CONSULTORIO_ID, especialidadId, true, Instant.now());
+        EspecialidadCatalogo catalog = new EspecialidadCatalogo(especialidadId, "Kinesiologia", "kinesiologia", true, Instant.now());
+        EspecialidadCatalogo existing = new EspecialidadCatalogo(existingId, "Fisiatria", "fisiatria", true, Instant.now());
+
+        when(consultorioEspecialidadRepo.findByConsultorioIdAndEspecialidadId(CONSULTORIO_ID, especialidadId))
+                .thenReturn(Optional.of(relation));
+        when(especialidadCatalogoRepo.findById(especialidadId)).thenReturn(Optional.of(catalog));
+        when(especialidadCatalogoRepo.findBySlug("fisiatria")).thenReturn(Optional.of(existing));
+
+        assertThatThrownBy(() -> service.update(
+                CONSULTORIO_ID,
+                especialidadId,
+                "Fisiatria",
+                USER_EMAIL,
+                ADMIN_ROLES
+        )).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Ya existe una especialidad");
     }
 
     @Test
@@ -137,7 +184,7 @@ class ConsultorioEspecialidadServiceTest {
                 .thenReturn(Optional.of(new User(USER_ID, USER_EMAIL, "x", "A", "B", null, UserStatus.ACTIVE, Instant.now())));
         when(consultorioRepo.findConsultorioIdsByUserId(USER_ID)).thenReturn(List.of(CONSULTORIO_ID));
 
-        assertThatThrownBy(() -> service.createOrLink(CONSULTORIO_ID, "Kinesiología", USER_EMAIL, PROF_ROLES))
+        assertThatThrownBy(() -> service.createOrLink(CONSULTORIO_ID, "Kinesiologia", USER_EMAIL, PROF_ROLES))
                 .isInstanceOf(AccessDeniedException.class);
     }
 

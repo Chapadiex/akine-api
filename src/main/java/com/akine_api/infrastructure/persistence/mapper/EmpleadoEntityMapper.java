@@ -16,10 +16,11 @@ public interface EmpleadoEntityMapper {
                 entity.getNombre(),
                 entity.getApellido(),
                 entity.getDni(),
+                entity.getFechaNacimiento(),
                 entity.getCargo(),
-                entity.getNroLegajo(),
                 entity.getEmail(),
                 entity.getTelefono(),
+                entity.getDireccion(),
                 entity.getNotasInternas(),
                 entity.getFechaAlta(),
                 entity.getFechaBaja(),
@@ -39,10 +40,11 @@ public interface EmpleadoEntityMapper {
         entity.setNombre(domain.getNombre());
         entity.setApellido(domain.getApellido());
         entity.setDni(domain.getDni());
+        entity.setFechaNacimiento(domain.getFechaNacimiento());
         entity.setCargo(domain.getCargo());
-        entity.setNroLegajo(domain.getNroLegajo());
         entity.setEmail(domain.getEmail());
         entity.setTelefono(domain.getTelefono());
+        entity.setDireccion(domain.getDireccion());
         entity.setNotasInternas(domain.getNotasInternas());
         entity.setFechaAlta(domain.getFechaAlta());
         entity.setFechaBaja(domain.getFechaBaja());

@@ -32,9 +32,16 @@ public class Box {
     }
 
     public void update(String nombre, String codigo, BoxTipo tipo) {
+        update(nombre, codigo, tipo, null);
+    }
+
+    public void update(String nombre, String codigo, BoxTipo tipo, Boolean activo) {
         this.nombre = nombre;
         this.codigo = codigo;
         this.tipo = tipo;
+        if (activo != null) {
+            this.activo = activo;
+        }
         this.updatedAt = Instant.now();
     }
 
@@ -50,6 +57,11 @@ public class Box {
 
     public void inactivate() {
         this.activo = false;
+        this.updatedAt = Instant.now();
+    }
+
+    public void activate() {
+        this.activo = true;
         this.updatedAt = Instant.now();
     }
 

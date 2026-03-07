@@ -2,8 +2,10 @@ package com.akine_api.service;
 
 import com.akine_api.application.dto.command.CreateFeriadoCommand;
 import com.akine_api.application.dto.result.ConsultorioFeriadoResult;
+import com.akine_api.application.dto.result.FeriadoSyncResult;
 import com.akine_api.application.port.output.ConsultorioFeriadoRepositoryPort;
 import com.akine_api.application.port.output.ConsultorioRepositoryPort;
+import com.akine_api.application.port.output.FeriadoNacionalProviderPort;
 import com.akine_api.application.port.output.UserRepositoryPort;
 import com.akine_api.application.service.ConsultorioFeriadoService;
 import com.akine_api.domain.model.Consultorio;
@@ -33,6 +35,7 @@ class ConsultorioFeriadoServiceTest {
     @Mock ConsultorioFeriadoRepositoryPort feriadoRepo;
     @Mock ConsultorioRepositoryPort consultorioRepo;
     @Mock UserRepositoryPort userRepo;
+    @Mock FeriadoNacionalProviderPort feriadoNacionalProvider;
 
     ConsultorioFeriadoService service;
 
@@ -41,7 +44,7 @@ class ConsultorioFeriadoServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new ConsultorioFeriadoService(feriadoRepo, consultorioRepo, userRepo);
+        service = new ConsultorioFeriadoService(feriadoRepo, consultorioRepo, userRepo, feriadoNacionalProvider);
     }
 
     private void stubConsultorioExists() {
@@ -113,5 +116,32 @@ class ConsultorioFeriadoServiceTest {
         service.delete(CONSULTORIO_ID, feriadoId, "admin@test.com", ADMIN_ROLES);
 
         verify(feriadoRepo).deleteById(feriadoId);
+    }
+
+    @Test
+    void syncNacionales_asAdmin_createsOnlyMissing() {
+        stubConsultorioExists();
+        when(feriadoNacionalProvider.findByYear(2026)).thenReturn(List.of(
+                new FeriadoNacionalProviderPort.FeriadoNacionalItem(LocalDate.of(2026, 1, 1), "Anio nuevo", "inamovible"),
+                new FeriadoNacionalProviderPort.FeriadoNacionalItem(LocalDate.of(2026, 5, 1), "Dia del Trabajador", "inamovible")
+        ));
+        when(feriadoRepo.findByConsultorioIdAndYear(CONSULTORIO_ID, 2026)).thenReturn(List.of(
+                new ConsultorioFeriado(UUID.randomUUID(), CONSULTORIO_ID, LocalDate.of(2026, 1, 1), "Ya cargado", Instant.now())
+        ));
+        when(feriadoRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        FeriadoSyncResult result = service.syncNacionales(CONSULTORIO_ID, 2026, "admin@test.com", ADMIN_ROLES);
+
+        assertThat(result.year()).isEqualTo(2026);
+        assertThat(result.fetched()).isEqualTo(2);
+        assertThat(result.created()).isEqualTo(1);
+        assertThat(result.skippedExisting()).isEqualTo(1);
+    }
+
+    @Test
+    void syncNacionales_invalidYear_throws() {
+        assertThatThrownBy(() -> service.syncNacionales(CONSULTORIO_ID, 1900, "admin@test.com", ADMIN_ROLES))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("anio");
     }
 }

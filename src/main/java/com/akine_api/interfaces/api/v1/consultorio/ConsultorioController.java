@@ -42,7 +42,8 @@ public class ConsultorioController {
             @Valid @RequestBody ConsultorioRequest req,
             @AuthenticationPrincipal UserDetails principal) {
         CreateConsultorioCommand cmd = new CreateConsultorioCommand(
-                req.name(), req.cuit(), req.address(), req.phone(), req.email());
+                req.name(), req.cuit(), req.address(), req.phone(), req.email(),
+                req.mapLatitude(), req.mapLongitude(), req.googleMapsUrl());
         ConsultorioResponse response = toResponse(service.create(cmd, roles(principal)));
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -61,7 +62,8 @@ public class ConsultorioController {
             @Valid @RequestBody ConsultorioRequest req,
             @AuthenticationPrincipal UserDetails principal) {
         UpdateConsultorioCommand cmd = new UpdateConsultorioCommand(
-                id, req.name(), req.cuit(), req.address(), req.phone(), req.email());
+                id, req.name(), req.cuit(), req.address(), req.phone(), req.email(),
+                req.mapLatitude(), req.mapLongitude(), req.googleMapsUrl());
         return ResponseEntity.ok(toResponse(
                 service.update(cmd, principal.getUsername(), roles(principal))));
     }
@@ -83,7 +85,8 @@ public class ConsultorioController {
 
     private ConsultorioResponse toResponse(ConsultorioResult r) {
         return new ConsultorioResponse(r.id(), r.name(), r.cuit(), r.address(),
-                r.phone(), r.email(), r.status(), r.createdAt(), r.updatedAt());
+                r.phone(), r.email(), r.mapLatitude(), r.mapLongitude(), r.googleMapsUrl(),
+                r.status(), r.createdAt(), r.updatedAt());
     }
 
     private Set<String> roles(UserDetails principal) {

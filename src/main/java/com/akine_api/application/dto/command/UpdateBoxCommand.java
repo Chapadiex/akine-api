@@ -9,5 +9,6 @@ public record UpdateBoxCommand(
         UUID consultorioId,
         String nombre,
         String codigo,
-        BoxTipo tipo
+        BoxTipo tipo,
+        Boolean activo
 ) {}

@@ -1,6 +1,7 @@
 package com.akine_api.application.service;
 
 import com.akine_api.application.dto.command.*;
+import com.akine_api.application.dto.result.CargoEmpleadoCatalogoResult;
 import com.akine_api.application.dto.result.ColaboradorEmpleadoResult;
 import com.akine_api.application.dto.result.ColaboradorProfesionalResult;
 import com.akine_api.application.port.output.*;
@@ -33,6 +34,7 @@ public class ColaboradorService {
     private final EmailPort emailPort;
     private final ProfesionalRepositoryPort profesionalRepo;
     private final EmpleadoRepositoryPort empleadoRepo;
+    private final CargoEmpleadoCatalogoRepositoryPort cargoEmpleadoCatalogoRepo;
 
     public ColaboradorService(ConsultorioRepositoryPort consultorioRepo,
                               UserRepositoryPort userRepo,
@@ -42,7 +44,8 @@ public class ColaboradorService {
                               PasswordEncoderPort passwordEncoder,
                               EmailPort emailPort,
                               ProfesionalRepositoryPort profesionalRepo,
-                              EmpleadoRepositoryPort empleadoRepo) {
+                              EmpleadoRepositoryPort empleadoRepo,
+                              CargoEmpleadoCatalogoRepositoryPort cargoEmpleadoCatalogoRepo) {
         this.consultorioRepo = consultorioRepo;
         this.userRepo = userRepo;
         this.roleRepo = roleRepo;
@@ -52,6 +55,7 @@ public class ColaboradorService {
         this.emailPort = emailPort;
         this.profesionalRepo = profesionalRepo;
         this.empleadoRepo = empleadoRepo;
+        this.cargoEmpleadoCatalogoRepo = cargoEmpleadoCatalogoRepo;
     }
 
     @Transactional(readOnly = true)
@@ -100,14 +104,13 @@ public class ColaboradorService {
             if (email == null) {
                 throw new IllegalArgumentException("Email obligatorio para alta por invitacion.");
             }
-            User user = createPendingUserForCollaborator(
+            User user = resolveOrCreateProfessionalUser(
                     email,
                     cmd.nombre(),
                     cmd.apellido(),
                     cmd.telefono(),
-                    RoleName.PROFESIONAL,
-                    MembershipRole.PROFESIONAL,
-                    cmd.consultorioId()
+                    cmd.consultorioId(),
+                    null
             );
             linkedUserId = user.getId();
         }
@@ -154,6 +157,26 @@ public class ColaboradorService {
 
         String especialidadesCsv = normalizeEspecialidades(cmd.especialidades());
         String especialidadPrincipal = parseEspecialidades(especialidadesCsv).stream().findFirst().orElse(null);
+        String email = normalize(cmd.email());
+        String currentEmail = normalize(profesional.getEmail());
+        boolean emailChanged = !Objects.equals(currentEmail, email);
+
+        if (profesional.getUserId() != null && emailChanged) {
+            if (email == null) {
+                throw new IllegalArgumentException("Email obligatorio para profesionales con cuenta vinculada.");
+            }
+            User linkedUser = userRepo.findById(profesional.getUserId())
+                    .orElseThrow(() -> new IllegalArgumentException("Cuenta vinculada no encontrada."));
+            Optional<User> existingWithEmail = userRepo.findByEmail(email);
+            if (existingWithEmail.isPresent() && !existingWithEmail.get().getId().equals(linkedUser.getId())) {
+                throw new IllegalArgumentException("El email ingresado ya pertenece a otra cuenta.");
+            }
+            linkedUser.updateEmail(email);
+            linkedUser.markPending();
+            userRepo.save(linkedUser);
+            activationTokenRepo.deleteByUserId(linkedUser.getId());
+            sendActivationEmail(linkedUser);
+        }
 
         profesional.update(
                 cmd.nombre(),
@@ -162,7 +185,7 @@ public class ColaboradorService {
                 cmd.matricula(),
                 especialidadPrincipal,
                 especialidadesCsv,
-                normalize(cmd.email()),
+                email,
                 normalize(cmd.telefono()),
                 normalize(cmd.domicilio()),
                 normalize(cmd.fotoPerfilUrl())
@@ -176,6 +199,15 @@ public class ColaboradorService {
         Profesional profesional = findProfesional(cmd.consultorioId(), cmd.colaboradorId());
         if (cmd.activo()) {
             profesional.activate();
+            if (profesional.getUserId() != null) {
+                User user = userRepo.findById(profesional.getUserId())
+                        .orElseThrow(() -> new IllegalArgumentException("Cuenta vinculada no encontrada."));
+                if (user.getStatus() == UserStatus.SUSPENDED) {
+                    user.activate();
+                    userRepo.save(user);
+                    emailPort.sendAccountReactivatedEmail(user.getEmail(), user.getFirstName());
+                }
+            }
         } else {
             LocalDate fecha = cmd.fechaDeBaja() != null ? cmd.fechaDeBaja() : LocalDate.now();
             String motivo = normalize(cmd.motivoDeBaja());
@@ -183,6 +215,12 @@ public class ColaboradorService {
                 throw new IllegalArgumentException("El motivo de baja es obligatorio.");
             }
             profesional.inactivate(fecha, motivo);
+            if (profesional.getUserId() != null) {
+                User user = userRepo.findById(profesional.getUserId())
+                        .orElseThrow(() -> new IllegalArgumentException("Cuenta vinculada no encontrada."));
+                user.suspend();
+                userRepo.save(user);
+            }
         }
         return toProfesionalResult(profesionalRepo.save(profesional));
     }
@@ -202,14 +240,13 @@ public class ColaboradorService {
             throw new IllegalArgumentException("Email obligatorio para crear cuenta.");
         }
 
-        User user = createPendingUserForCollaborator(
+        User user = resolveOrCreateProfessionalUser(
                 email,
                 profesional.getNombre(),
                 profesional.getApellido(),
                 profesional.getTelefono(),
-                RoleName.PROFESIONAL,
-                MembershipRole.PROFESIONAL,
-                consultorioId
+                consultorioId,
+                profesionalId
         );
         if (!Objects.equals(profesional.getEmail(), email)) {
             profesional.update(
@@ -229,6 +266,95 @@ public class ColaboradorService {
         return toProfesionalResult(profesionalRepo.save(profesional));
     }
 
+    private User resolveOrCreateProfessionalUser(String email, String firstName, String lastName, String phone,
+                                                 UUID consultorioId, UUID targetProfesionalId) {
+        Optional<User> existing = userRepo.findByEmail(email);
+        if (existing.isPresent()) {
+            return reuseExistingProfessionalUser(existing.get(), consultorioId, targetProfesionalId);
+        }
+        return createPendingUserForCollaborator(
+                email,
+                firstName,
+                lastName,
+                phone,
+                RoleName.PROFESIONAL,
+                MembershipRole.PROFESIONAL,
+                consultorioId
+        );
+    }
+
+    private User reuseExistingProfessionalUser(User user, UUID consultorioId, UUID targetProfesionalId) {
+        assertCompatibleUserForProfessionalLink(user.getId(), consultorioId, targetProfesionalId);
+        ensureProfessionalRole(user);
+        ensureProfessionalMembership(user.getId(), consultorioId);
+
+        if (user.getStatus() == UserStatus.REJECTED || user.getStatus() == UserStatus.PENDING) {
+            resendActivationForUser(user);
+            return user;
+        }
+        if (user.getStatus() == UserStatus.SUSPENDED) {
+            user.activate();
+            userRepo.save(user);
+            emailPort.sendAccountReactivatedEmail(user.getEmail(), user.getFirstName());
+        }
+        return user;
+    }
+
+    private void assertCompatibleUserForProfessionalLink(UUID userId, UUID consultorioId, UUID targetProfesionalId) {
+        Optional<Profesional> linkedProfesional = profesionalRepo.findByUserId(userId);
+        if (linkedProfesional.isPresent()) {
+            boolean isTarget = targetProfesionalId != null && linkedProfesional.get().getId().equals(targetProfesionalId);
+            if (!isTarget) {
+                throw new IllegalArgumentException("El email ya esta vinculado a otro profesional.");
+            }
+        }
+
+        empleadoRepo.findByUserId(userId)
+                .filter(e -> e.getConsultorioId().equals(consultorioId))
+                .ifPresent(e -> {
+                    throw new IllegalArgumentException("El email ya esta vinculado a un colaborador incompatible en este consultorio.");
+                });
+
+        membershipRepo.findByUserIdAndConsultorioId(userId, consultorioId)
+                .filter(m -> m.getRoleInConsultorio() != MembershipRole.PROFESIONAL)
+                .ifPresent(m -> {
+                    throw new IllegalArgumentException("El email ya pertenece a otro tipo de colaborador en este consultorio.");
+                });
+    }
+
+    private void ensureProfessionalMembership(UUID userId, UUID consultorioId) {
+        Optional<Membership> existingMembership = membershipRepo.findByUserIdAndConsultorioId(userId, consultorioId);
+        if (existingMembership.isPresent()) {
+            Membership membership = existingMembership.get();
+            if (membership.getRoleInConsultorio() != MembershipRole.PROFESIONAL) {
+                throw new IllegalArgumentException("El usuario ya tiene una membresia incompatible en este consultorio.");
+            }
+            if (membership.getStatus() != MembershipStatus.ACTIVE) {
+                membership.activate();
+                membershipRepo.save(membership);
+            }
+            return;
+        }
+
+        membershipRepo.save(new Membership(
+                UUID.randomUUID(),
+                userId,
+                consultorioId,
+                MembershipRole.PROFESIONAL,
+                MembershipStatus.ACTIVE,
+                Instant.now()
+        ));
+    }
+
+    private void ensureProfessionalRole(User user) {
+        if (user.getRoles().stream().noneMatch(r -> r.getName() == RoleName.PROFESIONAL)) {
+            Role role = roleRepo.findByName(RoleName.PROFESIONAL)
+                    .orElseThrow(() -> new RoleNotFoundException(RoleName.PROFESIONAL.name()));
+            user.addRole(role);
+            userRepo.save(user);
+        }
+    }
+
     public ColaboradorProfesionalResult reenviarActivacionProfesional(UUID consultorioId, UUID profesionalId,
                                                                       String userEmail, Set<String> roles) {
         assertCanWrite(consultorioId, userEmail, roles);
@@ -240,6 +366,123 @@ public class ColaboradorService {
                 .orElseThrow(() -> new IllegalArgumentException("Cuenta vinculada no encontrada."));
         resendActivationForUser(user);
         return toProfesionalResult(profesional);
+    }
+
+    @Transactional(readOnly = true)
+    public List<CargoEmpleadoCatalogoResult> listCargosEmpleado(UUID consultorioId,
+                                                                 String search,
+                                                                 boolean includeInactive,
+                                                                 String userEmail,
+                                                                 Set<String> roles) {
+        assertConsultorioExists(consultorioId);
+        assertCanRead(consultorioId, userEmail, roles);
+        return (includeInactive ? cargoEmpleadoCatalogoRepo.findAllOrdered() : cargoEmpleadoCatalogoRepo.findActiveOrdered())
+                .stream()
+                .filter(item -> search == null || search.isBlank()
+                        || containsIgnoreCase(item.getNombre(), search)
+                        || containsIgnoreCase(item.getSlug(), search))
+                .map(this::toCargoCatalogoResult)
+                .toList();
+    }
+
+    public CargoEmpleadoCatalogoResult createCargoEmpleado(UUID consultorioId,
+                                                           String nombre,
+                                                           String userEmail,
+                                                           Set<String> roles) {
+        assertConsultorioExists(consultorioId);
+        assertCanWrite(consultorioId, userEmail, roles);
+        String cleanedName = validateCargoNombre(nombre);
+        String slug = normalizeSlug(cleanedName);
+        if (slug.isBlank()) {
+            throw new IllegalArgumentException("El nombre no es valido para generar slug.");
+        }
+
+        Optional<CargoEmpleadoCatalogo> existing = cargoEmpleadoCatalogoRepo.findBySlug(slug);
+        if (existing.isPresent()) {
+            CargoEmpleadoCatalogo cargo = existing.get();
+            if (!cargo.isActivo()) {
+                cargo.rename(cleanedName, slug);
+                cargo.activate();
+                return toCargoCatalogoResult(cargoEmpleadoCatalogoRepo.save(cargo));
+            }
+            throw new IllegalArgumentException("Ya existe un cargo con ese nombre.");
+        }
+
+        int nextOrder = cargoEmpleadoCatalogoRepo.findAllOrdered().stream()
+                .mapToInt(CargoEmpleadoCatalogo::getOrden)
+                .max()
+                .orElse(0) + 10;
+
+        CargoEmpleadoCatalogo created = new CargoEmpleadoCatalogo(
+                UUID.randomUUID(),
+                cleanedName,
+                slug,
+                true,
+                nextOrder,
+                Instant.now(),
+                Instant.now()
+        );
+        return toCargoCatalogoResult(cargoEmpleadoCatalogoRepo.save(created));
+    }
+
+    public CargoEmpleadoCatalogoResult updateCargoEmpleado(UUID consultorioId,
+                                                           UUID cargoId,
+                                                           String nombre,
+                                                           String userEmail,
+                                                           Set<String> roles) {
+        assertConsultorioExists(consultorioId);
+        assertCanWrite(consultorioId, userEmail, roles);
+
+        CargoEmpleadoCatalogo cargo = cargoEmpleadoCatalogoRepo.findById(cargoId)
+                .orElseThrow(() -> new IllegalArgumentException("Cargo no encontrado."));
+        String oldName = cargo.getNombre();
+        String cleanedName = validateCargoNombre(nombre);
+        String slug = normalizeSlug(cleanedName);
+        if (slug.isBlank()) {
+            throw new IllegalArgumentException("El nombre no es valido para generar slug.");
+        }
+        cargoEmpleadoCatalogoRepo.findBySlug(slug)
+                .filter(other -> !other.getId().equals(cargoId))
+                .ifPresent(other -> {
+                    throw new IllegalArgumentException("Ya existe un cargo con ese nombre.");
+                });
+
+        cargo.rename(cleanedName, slug);
+        CargoEmpleadoCatalogo saved = cargoEmpleadoCatalogoRepo.save(cargo);
+        if (!oldName.equals(cleanedName)) {
+            empleadoRepo.updateCargoNombre(oldName, cleanedName);
+        }
+        return toCargoCatalogoResult(saved);
+    }
+
+    public CargoEmpleadoCatalogoResult activateCargoEmpleado(UUID consultorioId,
+                                                             UUID cargoId,
+                                                             String userEmail,
+                                                             Set<String> roles) {
+        assertConsultorioExists(consultorioId);
+        assertCanWrite(consultorioId, userEmail, roles);
+        CargoEmpleadoCatalogo cargo = cargoEmpleadoCatalogoRepo.findById(cargoId)
+                .orElseThrow(() -> new IllegalArgumentException("Cargo no encontrado."));
+        if (!cargo.isActivo()) {
+            cargo.activate();
+            cargo = cargoEmpleadoCatalogoRepo.save(cargo);
+        }
+        return toCargoCatalogoResult(cargo);
+    }
+
+    public CargoEmpleadoCatalogoResult deactivateCargoEmpleado(UUID consultorioId,
+                                                               UUID cargoId,
+                                                               String userEmail,
+                                                               Set<String> roles) {
+        assertConsultorioExists(consultorioId);
+        assertCanWrite(consultorioId, userEmail, roles);
+        CargoEmpleadoCatalogo cargo = cargoEmpleadoCatalogoRepo.findById(cargoId)
+                .orElseThrow(() -> new IllegalArgumentException("Cargo no encontrado."));
+        if (cargo.isActivo()) {
+            cargo.deactivate();
+            cargo = cargoEmpleadoCatalogoRepo.save(cargo);
+        }
+        return toCargoCatalogoResult(cargo);
     }
 
     @Transactional(readOnly = true)
@@ -275,6 +518,13 @@ public class ColaboradorService {
         if (empleadoRepo.existsByConsultorioIdAndEmail(cmd.consultorioId(), email)) {
             throw new IllegalArgumentException("Ya existe un empleado con ese email en el consultorio.");
         }
+        String dni = normalize(cmd.dni());
+        if (dni == null) {
+            throw new IllegalArgumentException("DNI obligatorio.");
+        }
+        if (empleadoRepo.existsByConsultorioIdAndDni(cmd.consultorioId(), dni)) {
+            throw new IllegalArgumentException("Ya existe un empleado con ese DNI en el consultorio.");
+        }
 
         User user = createPendingUserForCollaborator(
                 email,
@@ -292,11 +542,12 @@ public class ColaboradorService {
                 user.getId(),
                 cmd.nombre(),
                 cmd.apellido(),
-                normalize(cmd.dni()),
-                cmd.cargo(),
-                normalize(cmd.nroLegajo()),
+                dni,
+                cmd.fechaNacimiento(),
+                resolveCargoCanonico(cmd.cargo()),
                 email,
                 normalize(cmd.telefono()),
+                normalize(cmd.direccion()),
                 normalize(cmd.notasInternas()),
                 LocalDate.now(),
                 null,
@@ -321,7 +572,10 @@ public class ColaboradorService {
             throw new IllegalArgumentException("Ya existe un empleado con ese email en el consultorio.");
         }
         String dni = normalize(cmd.dni());
-        if (dni != null && empleadoRepo.existsByConsultorioIdAndDniAndIdNot(cmd.consultorioId(), dni, cmd.empleadoId())) {
+        if (dni == null) {
+            throw new IllegalArgumentException("DNI obligatorio.");
+        }
+        if (empleadoRepo.existsByConsultorioIdAndDniAndIdNot(cmd.consultorioId(), dni, cmd.empleadoId())) {
             throw new IllegalArgumentException("Ya existe un empleado con ese DNI en el consultorio.");
         }
 
@@ -329,10 +583,11 @@ public class ColaboradorService {
                 cmd.nombre(),
                 cmd.apellido(),
                 dni,
-                cmd.cargo(),
-                normalize(cmd.nroLegajo()),
+                cmd.fechaNacimiento(),
+                resolveCargoCanonicoForUpdate(cmd.cargo(), empleado.getCargo()),
                 email,
                 normalize(cmd.telefono()),
+                normalize(cmd.direccion()),
                 normalize(cmd.notasInternas())
         );
         return toEmpleadoResult(empleadoRepo.save(empleado));
@@ -485,10 +740,11 @@ public class ColaboradorService {
                 e.getNombre(),
                 e.getApellido(),
                 e.getDni(),
+                e.getFechaNacimiento(),
                 e.getCargo(),
-                e.getNroLegajo(),
                 e.getEmail(),
                 e.getTelefono(),
+                e.getDireccion(),
                 e.getNotasInternas(),
                 e.getFechaAlta(),
                 e.getFechaBaja(),
@@ -579,6 +835,8 @@ public class ColaboradorService {
             throw new IllegalArgumentException("Debe seleccionar al menos una especialidad.");
         }
         List<String> values = especialidades.stream()
+                .filter(Objects::nonNull)
+                .flatMap(value -> Arrays.stream(value.split("[|,]")))
                 .map(this::normalize)
                 .filter(Objects::nonNull)
                 .distinct()
@@ -591,7 +849,7 @@ public class ColaboradorService {
 
     private List<String> parseEspecialidades(String especialidadesCsv) {
         if (especialidadesCsv == null || especialidadesCsv.isBlank()) return List.of();
-        return Arrays.stream(especialidadesCsv.split("\\|"))
+        return Arrays.stream(especialidadesCsv.split("[|,]"))
                 .map(String::trim)
                 .filter(v -> !v.isBlank())
                 .toList();
@@ -611,6 +869,77 @@ public class ColaboradorService {
             throw new IllegalArgumentException("modoAlta invalido. Valores permitidos: DIRECTA, INVITACION.");
         }
         return upper;
+    }
+
+    private String resolveCargoCanonico(String cargoInput) {
+        String normalized = normalize(cargoInput);
+        if (normalized == null) {
+            throw new IllegalArgumentException("Cargo obligatorio.");
+        }
+        String slug = normalizeSlug(normalized);
+        Optional<CargoEmpleadoCatalogo> bySlug = cargoEmpleadoCatalogoRepo.findBySlugAndActive(slug);
+        if (bySlug.isPresent()) {
+            return bySlug.get().getNombre();
+        }
+        return cargoEmpleadoCatalogoRepo.findActiveOrdered().stream()
+                .filter(c -> normalized.equalsIgnoreCase(c.getNombre()))
+                .findFirst()
+                .map(CargoEmpleadoCatalogo::getNombre)
+                .orElseThrow(() -> new IllegalArgumentException("Cargo invalido. Selecciona un cargo disponible."));
+    }
+
+    private String resolveCargoCanonicoForUpdate(String cargoInput, String cargoActual) {
+        String normalized = normalize(cargoInput);
+        if (normalized == null) {
+            throw new IllegalArgumentException("Cargo obligatorio.");
+        }
+        String slug = normalizeSlug(normalized);
+        Optional<CargoEmpleadoCatalogo> activo = cargoEmpleadoCatalogoRepo.findBySlugAndActive(slug);
+        if (activo.isPresent()) {
+            return activo.get().getNombre();
+        }
+        Optional<CargoEmpleadoCatalogo> byName = cargoEmpleadoCatalogoRepo.findActiveOrdered().stream()
+                .filter(c -> normalized.equalsIgnoreCase(c.getNombre()))
+                .findFirst();
+        if (byName.isPresent()) {
+            return byName.get().getNombre();
+        }
+        if (cargoActual != null && normalizeSlug(cargoActual).equals(slug)) {
+            return cargoActual;
+        }
+        throw new IllegalArgumentException("Cargo invalido. Selecciona un cargo disponible.");
+    }
+
+    private String validateCargoNombre(String nombre) {
+        if (nombre == null) {
+            throw new IllegalArgumentException("El nombre es obligatorio.");
+        }
+        String cleaned = nombre.trim();
+        if (cleaned.length() < 3 || cleaned.length() > 80) {
+            throw new IllegalArgumentException("El nombre debe tener entre 3 y 80 caracteres.");
+        }
+        return cleaned;
+    }
+
+    private CargoEmpleadoCatalogoResult toCargoCatalogoResult(CargoEmpleadoCatalogo cargo) {
+        return new CargoEmpleadoCatalogoResult(
+                cargo.getId(),
+                cargo.getNombre(),
+                cargo.getSlug(),
+                cargo.isActivo(),
+                cargo.getCreatedAt(),
+                cargo.getUpdatedAt()
+        );
+    }
+
+    private String normalizeSlug(String value) {
+        return java.text.Normalizer.normalize(value == null ? "" : value, java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{M}+", "")
+                .toLowerCase(Locale.ROOT)
+                .replaceAll("[^a-z0-9]+", "-")
+                .replaceAll("^-+", "")
+                .replaceAll("-+$", "")
+                .replaceAll("-{2,}", "-");
     }
 
     private boolean containsIgnoreCase(String source, String query) {

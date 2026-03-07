@@ -1,5 +1,6 @@
 package com.akine_api.application.dto.command;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 public record UpdateConsultorioCommand(
@@ -8,5 +9,8 @@ public record UpdateConsultorioCommand(
         String cuit,
         String address,
         String phone,
-        String email
+        String email,
+        BigDecimal mapLatitude,
+        BigDecimal mapLongitude,
+        String googleMapsUrl
 ) {}

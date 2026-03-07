@@ -1,5 +1,6 @@
 package com.akine_api.domain.model;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -11,6 +12,9 @@ public class Consultorio {
     private String address;
     private String phone;
     private String email;
+    private BigDecimal mapLatitude;
+    private BigDecimal mapLongitude;
+    private String googleMapsUrl;
     private String status;
     private UUID empresaId;
     private final Instant createdAt;
@@ -18,17 +22,32 @@ public class Consultorio {
 
     public Consultorio(UUID id, String name, String cuit, String address,
                        String phone, String email, String status, Instant createdAt) {
-        this(id, name, cuit, address, phone, email, status, null, createdAt);
+        this(id, name, cuit, address, phone, email, null, null, null, status, null, createdAt);
+    }
+
+    public Consultorio(UUID id, String name, String cuit, String address,
+                       String phone, String email, BigDecimal mapLatitude, BigDecimal mapLongitude,
+                       String googleMapsUrl, String status, Instant createdAt) {
+        this(id, name, cuit, address, phone, email, mapLatitude, mapLongitude, googleMapsUrl, status, null, createdAt);
     }
 
     public Consultorio(UUID id, String name, String cuit, String address,
                        String phone, String email, String status, UUID empresaId, Instant createdAt) {
+        this(id, name, cuit, address, phone, email, null, null, null, status, empresaId, createdAt);
+    }
+
+    public Consultorio(UUID id, String name, String cuit, String address,
+                       String phone, String email, BigDecimal mapLatitude, BigDecimal mapLongitude,
+                       String googleMapsUrl, String status, UUID empresaId, Instant createdAt) {
         this.id = id;
         this.name = name;
         this.cuit = cuit;
         this.address = address;
         this.phone = phone;
         this.email = email;
+        this.mapLatitude = mapLatitude;
+        this.mapLongitude = mapLongitude;
+        this.googleMapsUrl = googleMapsUrl;
         this.status = status;
         this.empresaId = empresaId;
         this.createdAt = createdAt;
@@ -36,11 +55,19 @@ public class Consultorio {
     }
 
     public void update(String name, String cuit, String address, String phone, String email) {
+        update(name, cuit, address, phone, email, this.mapLatitude, this.mapLongitude, this.googleMapsUrl);
+    }
+
+    public void update(String name, String cuit, String address, String phone, String email,
+                       BigDecimal mapLatitude, BigDecimal mapLongitude, String googleMapsUrl) {
         this.name = name;
         this.cuit = cuit;
         this.address = address;
         this.phone = phone;
         this.email = email;
+        this.mapLatitude = mapLatitude;
+        this.mapLongitude = mapLongitude;
+        this.googleMapsUrl = googleMapsUrl;
         this.updatedAt = Instant.now();
     }
 
@@ -67,6 +94,9 @@ public class Consultorio {
     public String getAddress() { return address; }
     public String getPhone() { return phone; }
     public String getEmail() { return email; }
+    public BigDecimal getMapLatitude() { return mapLatitude; }
+    public BigDecimal getMapLongitude() { return mapLongitude; }
+    public String getGoogleMapsUrl() { return googleMapsUrl; }
     public String getStatus() { return status; }
     public UUID getEmpresaId() { return empresaId; }
     public Instant getCreatedAt() { return createdAt; }

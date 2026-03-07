@@ -8,7 +8,7 @@ import java.util.UUID;
 public class User {
 
     private final UUID id;
-    private final String email;
+    private String email;
     private String passwordHash;
     private String firstName;
     private String lastName;
@@ -46,6 +46,11 @@ public class User {
         this.updatedAt = Instant.now();
     }
 
+    public void suspend() {
+        this.status = UserStatus.SUSPENDED;
+        this.updatedAt = Instant.now();
+    }
+
     public void markPending() {
         this.status = UserStatus.PENDING;
         this.updatedAt = Instant.now();
@@ -70,6 +75,11 @@ public class User {
 
     public void updateDocumentoFiscal(String documentoFiscal) {
         this.documentoFiscal = documentoFiscal;
+        this.updatedAt = Instant.now();
+    }
+
+    public void updateEmail(String email) {
+        this.email = email;
         this.updatedAt = Instant.now();
     }
 

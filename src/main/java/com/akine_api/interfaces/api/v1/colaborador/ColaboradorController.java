@@ -1,6 +1,7 @@
 package com.akine_api.interfaces.api.v1.colaborador;
 
 import com.akine_api.application.dto.command.*;
+import com.akine_api.application.dto.result.CargoEmpleadoCatalogoResult;
 import com.akine_api.application.dto.result.ColaboradorEmpleadoResult;
 import com.akine_api.application.dto.result.ColaboradorProfesionalResult;
 import com.akine_api.application.service.ColaboradorService;
@@ -156,6 +157,78 @@ public class ColaboradorController {
         return ResponseEntity.ok(rows);
     }
 
+    @GetMapping("/cargos-empleado")
+    public ResponseEntity<List<CargoEmpleadoCatalogoResponse>> listCargosEmpleado(
+            @PathVariable UUID consultorioId,
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "false") boolean includeInactive,
+            @AuthenticationPrincipal UserDetails principal) {
+        List<CargoEmpleadoCatalogoResponse> rows = service
+                .listCargosEmpleado(consultorioId, search, includeInactive, principal.getUsername(), roles(principal))
+                .stream()
+                .map(this::toCargoEmpleadoCatalogoResponse)
+                .toList();
+        return ResponseEntity.ok(rows);
+    }
+
+    @PostMapping("/cargos-empleado")
+    public ResponseEntity<CargoEmpleadoCatalogoResponse> createCargoEmpleado(
+            @PathVariable UUID consultorioId,
+            @Valid @RequestBody CargoEmpleadoUpsertRequest req,
+            @AuthenticationPrincipal UserDetails principal) {
+        CargoEmpleadoCatalogoResult result = service.createCargoEmpleado(
+                consultorioId,
+                req.nombre(),
+                principal.getUsername(),
+                roles(principal)
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(toCargoEmpleadoCatalogoResponse(result));
+    }
+
+    @PutMapping("/cargos-empleado/{cargoId}")
+    public ResponseEntity<CargoEmpleadoCatalogoResponse> updateCargoEmpleado(
+            @PathVariable UUID consultorioId,
+            @PathVariable UUID cargoId,
+            @Valid @RequestBody CargoEmpleadoUpsertRequest req,
+            @AuthenticationPrincipal UserDetails principal) {
+        CargoEmpleadoCatalogoResult result = service.updateCargoEmpleado(
+                consultorioId,
+                cargoId,
+                req.nombre(),
+                principal.getUsername(),
+                roles(principal)
+        );
+        return ResponseEntity.ok(toCargoEmpleadoCatalogoResponse(result));
+    }
+
+    @PatchMapping("/cargos-empleado/{cargoId}/activar")
+    public ResponseEntity<CargoEmpleadoCatalogoResponse> activateCargoEmpleado(
+            @PathVariable UUID consultorioId,
+            @PathVariable UUID cargoId,
+            @AuthenticationPrincipal UserDetails principal) {
+        CargoEmpleadoCatalogoResult result = service.activateCargoEmpleado(
+                consultorioId,
+                cargoId,
+                principal.getUsername(),
+                roles(principal)
+        );
+        return ResponseEntity.ok(toCargoEmpleadoCatalogoResponse(result));
+    }
+
+    @PatchMapping("/cargos-empleado/{cargoId}/desactivar")
+    public ResponseEntity<CargoEmpleadoCatalogoResponse> deactivateCargoEmpleado(
+            @PathVariable UUID consultorioId,
+            @PathVariable UUID cargoId,
+            @AuthenticationPrincipal UserDetails principal) {
+        CargoEmpleadoCatalogoResult result = service.deactivateCargoEmpleado(
+                consultorioId,
+                cargoId,
+                principal.getUsername(),
+                roles(principal)
+        );
+        return ResponseEntity.ok(toCargoEmpleadoCatalogoResponse(result));
+    }
+
     @GetMapping("/empleados/{id}")
     public ResponseEntity<ColaboradorEmpleadoResponse> getEmpleado(
             @PathVariable UUID consultorioId,
@@ -175,10 +248,11 @@ public class ColaboradorController {
                 req.nombre(),
                 req.apellido(),
                 req.dni(),
+                req.fechaNacimiento(),
                 req.cargo(),
-                req.nroLegajo(),
                 req.email(),
                 req.telefono(),
+                req.direccion(),
                 req.notasInternas()
         );
         ColaboradorEmpleadoResult result = service.createEmpleado(cmd, principal.getUsername(), roles(principal));
@@ -197,10 +271,11 @@ public class ColaboradorController {
                 req.nombre(),
                 req.apellido(),
                 req.dni(),
+                req.fechaNacimiento(),
                 req.cargo(),
-                req.nroLegajo(),
                 req.email(),
                 req.telefono(),
+                req.direccion(),
                 req.notasInternas()
         );
         ColaboradorEmpleadoResult result = service.updateEmpleado(cmd, principal.getUsername(), roles(principal));
@@ -276,10 +351,11 @@ public class ColaboradorController {
                 r.nombre(),
                 r.apellido(),
                 r.dni(),
+                r.fechaNacimiento(),
                 r.cargo(),
-                r.nroLegajo(),
                 r.email(),
                 r.telefono(),
+                r.direccion(),
                 r.notasInternas(),
                 r.fechaAlta(),
                 r.fechaBaja(),
@@ -288,6 +364,17 @@ public class ColaboradorController {
                 r.estadoColaborador(),
                 r.cuentaStatus(),
                 r.ultimoEnvioActivacionAt(),
+                r.createdAt(),
+                r.updatedAt()
+        );
+    }
+
+    private CargoEmpleadoCatalogoResponse toCargoEmpleadoCatalogoResponse(CargoEmpleadoCatalogoResult r) {
+        return new CargoEmpleadoCatalogoResponse(
+                r.id(),
+                r.nombre(),
+                r.slug(),
+                r.activo(),
                 r.createdAt(),
                 r.updatedAt()
         );

@@ -128,6 +128,37 @@ public class ConsultorioEspecialidadService {
         return toResult(relation, catalog);
     }
 
+    public EspecialidadResult update(UUID consultorioId,
+                                     UUID especialidadId,
+                                     String nombre,
+                                     String userEmail,
+                                     Set<String> roles) {
+        assertConsultorioExists(consultorioId);
+        assertCanWrite(consultorioId, userEmail, roles);
+
+        ConsultorioEspecialidad relation = findRelationOrThrow(consultorioId, especialidadId);
+        EspecialidadCatalogo catalog = findCatalogOrThrow(especialidadId);
+
+        String cleanedName = validateNombre(nombre);
+        String slug = normalizeSlug(cleanedName);
+        if (slug.isBlank()) {
+            throw new IllegalArgumentException("El nombre no es valido para generar slug.");
+        }
+
+        especialidadCatalogoRepo.findBySlug(slug)
+                .filter(existing -> !existing.getId().equals(especialidadId))
+                .ifPresent(existing -> {
+                    throw new IllegalArgumentException("Ya existe una especialidad con ese nombre.");
+                });
+
+        if (!catalog.getNombre().equals(cleanedName) || !catalog.getSlug().equals(slug)) {
+            catalog.rename(cleanedName, slug);
+            catalog = especialidadCatalogoRepo.save(catalog);
+        }
+
+        return toResult(relation, catalog);
+    }
+
     public EspecialidadResult deactivate(UUID consultorioId,
                                          UUID especialidadId,
                                          String userEmail,

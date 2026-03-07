@@ -36,7 +36,7 @@ class ConsultorioControllerTest {
 
     private ConsultorioResult sampleResult() {
         return new ConsultorioResult(ID, "Test Consultorio", null,
-                "Av. 123", "1155550000", "test@mail.com", "ACTIVE",
+                "Av. 123", "1155550000", "test@mail.com", null, null, null, "ACTIVE",
                 Instant.now(), Instant.now());
     }
 
@@ -79,6 +79,28 @@ class ConsultorioControllerTest {
                         .content("{\"name\":\"Test Consultorio\",\"address\":\"Av. 123\",\"phone\":\"1155550000\",\"email\":\"test@mail.com\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("Test Consultorio"));
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void create_withInvalidLatitude_returns400() throws Exception {
+        mvc.perform(post("/api/v1/consultorios")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"name":"Test Consultorio","mapLatitude":120}
+                                """))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void create_withInvalidLongitude_returns400() throws Exception {
+        mvc.perform(post("/api/v1/consultorios")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"name":"Test Consultorio","mapLongitude":-190}
+                                """))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

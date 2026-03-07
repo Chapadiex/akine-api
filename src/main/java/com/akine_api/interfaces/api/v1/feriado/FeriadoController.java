@@ -2,9 +2,11 @@ package com.akine_api.interfaces.api.v1.feriado;
 
 import com.akine_api.application.dto.command.CreateFeriadoCommand;
 import com.akine_api.application.dto.result.ConsultorioFeriadoResult;
+import com.akine_api.application.dto.result.FeriadoSyncResult;
 import com.akine_api.application.service.ConsultorioFeriadoService;
 import com.akine_api.interfaces.api.v1.feriado.dto.FeriadoRequest;
 import com.akine_api.interfaces.api.v1.feriado.dto.FeriadoResponse;
+import com.akine_api.interfaces.api.v1.feriado.dto.FeriadoSyncResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -65,8 +67,28 @@ public class FeriadoController {
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/sync-nacionales")
+    public ResponseEntity<FeriadoSyncResponse> syncNacionales(
+            @PathVariable UUID consultorioId,
+            @RequestParam(required = false) Integer year,
+            @AuthenticationPrincipal UserDetails principal) {
+
+        int yearValue = year != null ? year : LocalDate.now().getYear();
+        FeriadoSyncResult result = service.syncNacionales(
+                consultorioId,
+                yearValue,
+                principal.getUsername(),
+                roles(principal)
+        );
+        return ResponseEntity.ok(toSyncResponse(result));
+    }
+
     private FeriadoResponse toResponse(ConsultorioFeriadoResult r) {
         return new FeriadoResponse(r.id(), r.consultorioId(), r.fecha(), r.descripcion(), r.createdAt());
+    }
+
+    private FeriadoSyncResponse toSyncResponse(FeriadoSyncResult r) {
+        return new FeriadoSyncResponse(r.year(), r.fetched(), r.created(), r.skippedExisting());
     }
 
     private Set<String> roles(UserDetails principal) {

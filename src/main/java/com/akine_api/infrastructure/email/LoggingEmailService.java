@@ -20,6 +20,11 @@ public class LoggingEmailService implements EmailPort {
     }
 
     @Override
+    public void sendAccountReactivatedEmail(String to, String firstName) {
+        log.info("[DEV EMAIL] Account reactivated for {} ({})", firstName, to);
+    }
+
+    @Override
     public void sendPasswordChangedNotification(String to, String firstName) {
         log.info("[DEV EMAIL] Password changed for {} ({})", firstName, to);
     }

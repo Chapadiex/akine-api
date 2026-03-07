@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -30,6 +31,15 @@ public class ConsultorioEntity {
 
     @Column(length = 255)
     private String email;
+
+    @Column(name = "map_latitude", precision = 9, scale = 6)
+    private BigDecimal mapLatitude;
+
+    @Column(name = "map_longitude", precision = 10, scale = 6)
+    private BigDecimal mapLongitude;
+
+    @Column(name = "google_maps_url", length = 500)
+    private String googleMapsUrl;
 
     @Column(name = "empresa_id")
     private UUID empresaId;

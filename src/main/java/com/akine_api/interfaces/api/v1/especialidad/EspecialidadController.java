@@ -4,6 +4,7 @@ import com.akine_api.application.dto.result.EspecialidadResult;
 import com.akine_api.application.service.ConsultorioEspecialidadService;
 import com.akine_api.interfaces.api.v1.especialidad.dto.EspecialidadCreateRequest;
 import com.akine_api.interfaces.api.v1.especialidad.dto.EspecialidadResponse;
+import com.akine_api.interfaces.api.v1.especialidad.dto.EspecialidadUpdateRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,6 +55,23 @@ public class EspecialidadController {
                 roles(principal)
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(created));
+    }
+
+    @PutMapping("/{especialidadId}")
+    public ResponseEntity<EspecialidadResponse> update(
+            @PathVariable UUID consultorioId,
+            @PathVariable UUID especialidadId,
+            @Valid @RequestBody EspecialidadUpdateRequest request,
+            @AuthenticationPrincipal UserDetails principal
+    ) {
+        EspecialidadResult updated = service.update(
+                consultorioId,
+                especialidadId,
+                request.nombre(),
+                principal.getUsername(),
+                roles(principal)
+        );
+        return ResponseEntity.ok(toResponse(updated));
     }
 
     @PatchMapping("/{especialidadId}/activar")

@@ -1,5 +1,6 @@
 package com.akine_api.application.dto.command;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 public record UpdateEmpleadoCommand(
@@ -8,9 +9,10 @@ public record UpdateEmpleadoCommand(
         String nombre,
         String apellido,
         String dni,
+        LocalDate fechaNacimiento,
         String cargo,
-        String nroLegajo,
         String email,
         String telefono,
+        String direccion,
         String notasInternas
 ) {}

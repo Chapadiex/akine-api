@@ -16,6 +16,9 @@ public interface ConsultorioEntityMapper {
                 entity.getAddress(),
                 entity.getPhone(),
                 entity.getEmail(),
+                entity.getMapLatitude(),
+                entity.getMapLongitude(),
+                entity.getGoogleMapsUrl(),
                 entity.getStatus(),
                 entity.getEmpresaId(),
                 entity.getCreatedAt()
@@ -31,6 +34,9 @@ public interface ConsultorioEntityMapper {
         e.setAddress(domain.getAddress());
         e.setPhone(domain.getPhone());
         e.setEmail(domain.getEmail());
+        e.setMapLatitude(domain.getMapLatitude());
+        e.setMapLongitude(domain.getMapLongitude());
+        e.setGoogleMapsUrl(domain.getGoogleMapsUrl());
         e.setEmpresaId(domain.getEmpresaId());
         e.setStatus(domain.getStatus());
         e.setCreatedAt(domain.getCreatedAt());

@@ -25,15 +25,18 @@ public class ConsultorioService {
     private final UserRepositoryPort userRepo;
     private final ConsultorioEspecialidadBootstrapService consultorioEspecialidadBootstrapService;
     private final ConsultorioAntecedenteBootstrapService consultorioAntecedenteBootstrapService;
+    private final CargoEmpleadoCatalogoBootstrapService cargoEmpleadoCatalogoBootstrapService;
 
     public ConsultorioService(ConsultorioRepositoryPort consultorioRepo,
                               UserRepositoryPort userRepo,
                               ConsultorioEspecialidadBootstrapService consultorioEspecialidadBootstrapService,
-                              ConsultorioAntecedenteBootstrapService consultorioAntecedenteBootstrapService) {
+                              ConsultorioAntecedenteBootstrapService consultorioAntecedenteBootstrapService,
+                              CargoEmpleadoCatalogoBootstrapService cargoEmpleadoCatalogoBootstrapService) {
         this.consultorioRepo = consultorioRepo;
         this.userRepo = userRepo;
         this.consultorioEspecialidadBootstrapService = consultorioEspecialidadBootstrapService;
         this.consultorioAntecedenteBootstrapService = consultorioAntecedenteBootstrapService;
+        this.cargoEmpleadoCatalogoBootstrapService = cargoEmpleadoCatalogoBootstrapService;
     }
 
     @Transactional(readOnly = true)
@@ -67,9 +70,11 @@ public class ConsultorioService {
         Consultorio c = new Consultorio(
                 UUID.randomUUID(),
                 cmd.name(), cmd.cuit(), cmd.address(), cmd.phone(), cmd.email(),
+                cmd.mapLatitude(), cmd.mapLongitude(), cmd.googleMapsUrl(),
                 "ACTIVE", Instant.now()
         );
         Consultorio saved = consultorioRepo.save(c);
+        cargoEmpleadoCatalogoBootstrapService.ensureDefaults();
         consultorioEspecialidadBootstrapService.enableDefaultsForConsultorio(saved.getId());
         consultorioAntecedenteBootstrapService.ensureDefaults(saved.getId(), "system");
         return toResult(saved);
@@ -81,7 +86,16 @@ public class ConsultorioService {
             assertAdminMember(cmd.id(), resolveUserId(userEmail), roles);
         }
         assertActive(c);
-        c.update(cmd.name(), cmd.cuit(), cmd.address(), cmd.phone(), cmd.email());
+        c.update(
+                cmd.name(),
+                cmd.cuit(),
+                cmd.address(),
+                cmd.phone(),
+                cmd.email(),
+                cmd.mapLatitude(),
+                cmd.mapLongitude(),
+                cmd.googleMapsUrl()
+        );
         return toResult(consultorioRepo.save(c));
     }
 
@@ -143,7 +157,7 @@ public class ConsultorioService {
     private ConsultorioResult toResult(Consultorio c) {
         return new ConsultorioResult(
                 c.getId(), c.getName(), c.getCuit(), c.getAddress(),
-                c.getPhone(), c.getEmail(), c.getStatus(),
+                c.getPhone(), c.getEmail(), c.getMapLatitude(), c.getMapLongitude(), c.getGoogleMapsUrl(), c.getStatus(),
                 c.getCreatedAt(), c.getUpdatedAt()
         );
     }

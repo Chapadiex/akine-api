@@ -12,10 +12,11 @@ public class Empleado {
     private String nombre;
     private String apellido;
     private String dni;
+    private LocalDate fechaNacimiento;
     private String cargo;
-    private String nroLegajo;
     private String email;
     private String telefono;
+    private String direccion;
     private String notasInternas;
     private LocalDate fechaAlta;
     private LocalDate fechaBaja;
@@ -25,7 +26,7 @@ public class Empleado {
     private Instant updatedAt;
 
     public Empleado(UUID id, UUID consultorioId, UUID userId, String nombre, String apellido, String dni,
-                    String cargo, String nroLegajo, String email, String telefono, String notasInternas,
+                    LocalDate fechaNacimiento, String cargo, String email, String telefono, String direccion, String notasInternas,
                     LocalDate fechaAlta, LocalDate fechaBaja, String motivoBaja, boolean activo, Instant createdAt,
                     Instant updatedAt) {
         this.id = id;
@@ -34,10 +35,11 @@ public class Empleado {
         this.nombre = nombre;
         this.apellido = apellido;
         this.dni = dni;
+        this.fechaNacimiento = fechaNacimiento;
         this.cargo = cargo;
-        this.nroLegajo = nroLegajo;
         this.email = email;
         this.telefono = telefono;
+        this.direccion = direccion;
         this.notasInternas = notasInternas;
         this.fechaAlta = fechaAlta;
         this.fechaBaja = fechaBaja;
@@ -47,15 +49,16 @@ public class Empleado {
         this.updatedAt = updatedAt != null ? updatedAt : createdAt;
     }
 
-    public void update(String nombre, String apellido, String dni, String cargo,
-                       String nroLegajo, String email, String telefono, String notasInternas) {
+    public void update(String nombre, String apellido, String dni, LocalDate fechaNacimiento, String cargo,
+                       String email, String telefono, String direccion, String notasInternas) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.dni = dni;
+        this.fechaNacimiento = fechaNacimiento;
         this.cargo = cargo;
-        this.nroLegajo = nroLegajo;
         this.email = email;
         this.telefono = telefono;
+        this.direccion = direccion;
         this.notasInternas = notasInternas;
         this.updatedAt = Instant.now();
     }
@@ -85,10 +88,11 @@ public class Empleado {
     public String getNombre() { return nombre; }
     public String getApellido() { return apellido; }
     public String getDni() { return dni; }
+    public LocalDate getFechaNacimiento() { return fechaNacimiento; }
     public String getCargo() { return cargo; }
-    public String getNroLegajo() { return nroLegajo; }
     public String getEmail() { return email; }
     public String getTelefono() { return telefono; }
+    public String getDireccion() { return direccion; }
     public String getNotasInternas() { return notasInternas; }
     public LocalDate getFechaAlta() { return fechaAlta; }
     public LocalDate getFechaBaja() { return fechaBaja; }

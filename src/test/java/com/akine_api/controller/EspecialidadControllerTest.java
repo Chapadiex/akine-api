@@ -22,6 +22,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -62,7 +63,7 @@ class EspecialidadControllerTest {
 
         mvc.perform(post("/api/v1/consultorios/" + CONSULTORIO_ID + "/especialidades")
                         .contentType(APPLICATION_JSON)
-                        .content("{\"nombre\":\"Kinesiología\"}"))
+                        .content("{\"nombre\":\"Kinesiologia\"}"))
                 .andExpect(status().isCreated());
     }
 
@@ -74,8 +75,20 @@ class EspecialidadControllerTest {
 
         mvc.perform(post("/api/v1/consultorios/" + CONSULTORIO_ID + "/especialidades")
                         .contentType(APPLICATION_JSON)
-                        .content("{\"nombre\":\"Kinesiología\"}"))
+                        .content("{\"nombre\":\"Kinesiologia\"}"))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(roles = "ADMIN")
+    void update_asAdmin_returns200() throws Exception {
+        when(service.update(any(), any(), any(), any(), any()))
+                .thenReturn(sampleResult());
+
+        mvc.perform(put("/api/v1/consultorios/" + CONSULTORIO_ID + "/especialidades/" + ESPECIALIDAD_ID)
+                        .contentType(APPLICATION_JSON)
+                        .content("{\"nombre\":\"Fisiatria\"}"))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -93,7 +106,7 @@ class EspecialidadControllerTest {
         return new EspecialidadResult(
                 ESPECIALIDAD_ID,
                 CONSULTORIO_ID,
-                "Kinesiología",
+                "Kinesiologia",
                 "kinesiologia",
                 true,
                 Instant.now(),
