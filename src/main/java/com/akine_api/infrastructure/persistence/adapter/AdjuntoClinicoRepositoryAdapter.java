@@ -50,6 +50,23 @@ public class AdjuntoClinicoRepositoryAdapter implements AdjuntoClinicoRepository
     }
 
     @Override
+    public List<AdjuntoClinico> findByAtencionInicialId(UUID atencionInicialId) {
+        return repo.findByAtencionInicialIdOrderByCreatedAtAsc(atencionInicialId).stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<AdjuntoClinico> findByAtencionInicialIds(List<UUID> atencionInicialIds) {
+        if (atencionInicialIds == null || atencionInicialIds.isEmpty()) {
+            return List.of();
+        }
+        return repo.findByAtencionInicialIdInOrderByCreatedAtAsc(atencionInicialIds).stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public void deleteById(UUID id) {
         repo.deleteById(id);
     }

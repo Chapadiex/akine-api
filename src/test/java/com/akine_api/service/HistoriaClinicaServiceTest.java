@@ -7,6 +7,8 @@ import com.akine_api.application.dto.command.ResolveDiagnosticoClinicoCommand;
 import com.akine_api.application.dto.command.UpdateHistoriaClinicaAntecedentesCommand;
 import com.akine_api.application.dto.command.UpdateSesionClinicaCommand;
 import com.akine_api.application.port.output.AdjuntoClinicoRepositoryPort;
+import com.akine_api.application.port.output.AtencionInicialEvaluacionRepositoryPort;
+import com.akine_api.application.port.output.AtencionInicialRepositoryPort;
 import com.akine_api.application.port.output.AttachmentStoragePort;
 import com.akine_api.application.port.output.BoxRepositoryPort;
 import com.akine_api.application.port.output.ConsultorioRepositoryPort;
@@ -15,6 +17,8 @@ import com.akine_api.application.port.output.HistoriaClinicaAntecedenteRepositor
 import com.akine_api.application.port.output.HistoriaClinicaLegajoRepositoryPort;
 import com.akine_api.application.port.output.PacienteConsultorioRepositoryPort;
 import com.akine_api.application.port.output.PacienteRepositoryPort;
+import com.akine_api.application.port.output.PlanTerapeuticoRepositoryPort;
+import com.akine_api.application.port.output.PlanTratamientoDetalleRepositoryPort;
 import com.akine_api.application.port.output.ProfesionalConsultorioRepositoryPort;
 import com.akine_api.application.port.output.ProfesionalRepositoryPort;
 import com.akine_api.application.port.output.SesionClinicaRepositoryPort;
@@ -75,8 +79,12 @@ class HistoriaClinicaServiceTest {
     @Mock SesionClinicaRepositoryPort sesionRepo;
     @Mock DiagnosticoClinicoRepositoryPort diagnosticoRepo;
     @Mock AdjuntoClinicoRepositoryPort adjuntoRepo;
+    @Mock AtencionInicialRepositoryPort atencionInicialRepo;
+    @Mock AtencionInicialEvaluacionRepositoryPort atencionEvaluacionRepo;
     @Mock HistoriaClinicaLegajoRepositoryPort legajoRepo;
     @Mock HistoriaClinicaAntecedenteRepositoryPort antecedenteRepo;
+    @Mock PlanTerapeuticoRepositoryPort planTerapeuticoRepo;
+    @Mock PlanTratamientoDetalleRepositoryPort planDetalleRepo;
     @Mock AttachmentStoragePort attachmentStorage;
     @Mock PacienteRepositoryPort pacienteRepo;
     @Mock PacienteConsultorioRepositoryPort pacienteConsultorioRepo;
@@ -107,8 +115,12 @@ class HistoriaClinicaServiceTest {
                 sesionRepo,
                 diagnosticoRepo,
                 adjuntoRepo,
+                atencionInicialRepo,
+                atencionEvaluacionRepo,
                 legajoRepo,
                 antecedenteRepo,
+                planTerapeuticoRepo,
+                planDetalleRepo,
                 attachmentStorage,
                 pacienteRepo,
                 pacienteConsultorioRepo,
@@ -731,6 +743,7 @@ class HistoriaClinicaServiceTest {
                 consultorioId,
                 pacienteId,
                 sesionId,
+                null,
                 "storage-key",
                 "nota.pdf",
                 "application/pdf",

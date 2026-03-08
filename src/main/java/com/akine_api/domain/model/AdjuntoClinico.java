@@ -9,6 +9,7 @@ public class AdjuntoClinico {
     private final UUID consultorioId;
     private final UUID pacienteId;
     private final UUID sesionId;
+    private final UUID atencionInicialId;
     private final String storageKey;
     private final String originalFilename;
     private final String contentType;
@@ -20,14 +21,18 @@ public class AdjuntoClinico {
                           UUID consultorioId,
                           UUID pacienteId,
                           UUID sesionId,
+                          UUID atencionInicialId,
                           String storageKey,
                           String originalFilename,
                           String contentType,
                           long sizeBytes,
                           UUID createdByUserId,
                           Instant createdAt) {
-        if (consultorioId == null || pacienteId == null || sesionId == null) {
-            throw new IllegalArgumentException("Consultorio, paciente y sesion son obligatorios");
+        if (consultorioId == null || pacienteId == null) {
+            throw new IllegalArgumentException("Consultorio y paciente son obligatorios");
+        }
+        if (sesionId == null && atencionInicialId == null) {
+            throw new IllegalArgumentException("El adjunto clinico debe pertenecer a una sesion o atencion inicial");
         }
         if (storageKey == null || storageKey.isBlank()
                 || originalFilename == null || originalFilename.isBlank()
@@ -39,6 +44,7 @@ public class AdjuntoClinico {
         this.consultorioId = consultorioId;
         this.pacienteId = pacienteId;
         this.sesionId = sesionId;
+        this.atencionInicialId = atencionInicialId;
         this.storageKey = storageKey;
         this.originalFilename = originalFilename;
         this.contentType = contentType;
@@ -51,6 +57,7 @@ public class AdjuntoClinico {
     public UUID getConsultorioId() { return consultorioId; }
     public UUID getPacienteId() { return pacienteId; }
     public UUID getSesionId() { return sesionId; }
+    public UUID getAtencionInicialId() { return atencionInicialId; }
     public String getStorageKey() { return storageKey; }
     public String getOriginalFilename() { return originalFilename; }
     public String getContentType() { return contentType; }

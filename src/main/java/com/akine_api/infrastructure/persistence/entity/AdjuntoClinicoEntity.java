@@ -27,8 +27,11 @@ public class AdjuntoClinicoEntity {
     @Column(name = "paciente_id", nullable = false)
     private UUID pacienteId;
 
-    @Column(name = "sesion_id", nullable = false)
+    @Column(name = "sesion_id")
     private UUID sesionId;
+
+    @Column(name = "atencion_inicial_id")
+    private UUID atencionInicialId;
 
     @Column(name = "storage_key", nullable = false, length = 500)
     private String storageKey;

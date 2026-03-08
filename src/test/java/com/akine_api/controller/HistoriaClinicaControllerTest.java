@@ -499,7 +499,10 @@ class HistoriaClinicaControllerTest {
                         "Control semanal"
                 ),
                 List.of(adjuntoResult()),
-                "Dr. House"
+                "Dr. House",
+                null,
+                null,
+                null
         );
     }
 
@@ -581,6 +584,7 @@ class HistoriaClinicaControllerTest {
         return new AdjuntoClinicoResult(
                 ADJUNTO_ID,
                 SESION_ID,
+                null,
                 "nota.pdf",
                 "application/pdf",
                 4L,

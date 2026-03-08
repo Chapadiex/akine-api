@@ -1,11 +1,13 @@
 package com.akine_api.interfaces.api.v1.historiaclinica;
 
 import com.akine_api.application.dto.command.ChangeSesionClinicaEstadoCommand;
+import com.akine_api.application.dto.command.CreateAtencionInicialCommand;
 import com.akine_api.application.dto.command.CreateHistoriaClinicaLegajoCommand;
 import com.akine_api.application.dto.command.CreateDiagnosticoClinicoCommand;
 import com.akine_api.application.dto.command.CreateSesionClinicaCommand;
 import com.akine_api.application.dto.command.DiscardDiagnosticoClinicoCommand;
 import com.akine_api.application.dto.command.HistoriaClinicaAntecedenteItemCommand;
+import com.akine_api.application.dto.command.PlanTratamientoDetalleCommand;
 import com.akine_api.application.dto.command.ResolveDiagnosticoClinicoCommand;
 import com.akine_api.application.dto.command.UpdateHistoriaClinicaAntecedentesCommand;
 import com.akine_api.application.dto.command.UpdateDiagnosticoClinicoCommand;
@@ -21,11 +23,14 @@ import com.akine_api.application.dto.result.HistoriaClinicaWorkspaceResult;
 import com.akine_api.application.dto.result.SesionClinicaResult;
 import com.akine_api.application.service.HistoriaClinicaService;
 import com.akine_api.domain.model.HistoriaClinicaSesionEstado;
+import com.akine_api.interfaces.api.v1.historiaclinica.dto.AtencionInicialEvaluacionRequest;
+import com.akine_api.interfaces.api.v1.historiaclinica.dto.CreateAtencionInicialRequest;
 import com.akine_api.interfaces.api.v1.historiaclinica.dto.CreateHistoriaClinicaLegajoRequest;
 import com.akine_api.interfaces.api.v1.historiaclinica.dto.DiagnosticoClinicoEstadoRequest;
 import com.akine_api.interfaces.api.v1.historiaclinica.dto.DiagnosticoClinicoRequest;
 import com.akine_api.interfaces.api.v1.historiaclinica.dto.HistoriaClinicaAntecedenteItemRequest;
 import com.akine_api.interfaces.api.v1.historiaclinica.dto.HistoriaClinicaAntecedentesUpdateRequest;
+import com.akine_api.interfaces.api.v1.historiaclinica.dto.PlanTratamientoDetalleRequest;
 import com.akine_api.interfaces.api.v1.historiaclinica.dto.SesionClinicaRequest;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -126,6 +131,41 @@ public class HistoriaClinicaController {
                         request.casoFechaInicio(),
                         request.casoNotas(),
                         toAntecedenteCommands(request.antecedentes()),
+                        null
+                ),
+                principal.getUsername(),
+                roles(principal)
+        ));
+    }
+
+    @PostMapping("/pacientes/{pacienteId}/atencion-inicial")
+    public ResponseEntity<HistoriaClinicaOverviewResult> createAtencionInicial(
+            @PathVariable UUID consultorioId,
+            @PathVariable UUID pacienteId,
+            @Valid @RequestBody CreateAtencionInicialRequest request,
+            @AuthenticationPrincipal UserDetails principal) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.createAtencionInicial(
+                new CreateAtencionInicialCommand(
+                        consultorioId,
+                        pacienteId,
+                        request.profesionalId(),
+                        request.fechaHora(),
+                        request.tipoIngreso(),
+                        request.motivoConsultaBreve(),
+                        request.sintomasPrincipales(),
+                        request.tiempoEvolucion(),
+                        request.observaciones(),
+                        request.especialidadDerivante(),
+                        request.profesionalDerivante(),
+                        request.fechaPrescripcion(),
+                        request.diagnosticoTexto(),
+                        request.observacionesPrescripcion(),
+                        toEvaluacionCommand(request.evaluacion()),
+                        request.resumenClinicoInicial(),
+                        request.hallazgosRelevantes(),
+                        toAntecedenteCommands(request.antecedentes()),
+                        request.planObservacionesGenerales(),
+                        toPlanTratamientoCommands(request.tratamientos()),
                         null
                 ),
                 principal.getUsername(),
@@ -394,6 +434,18 @@ public class HistoriaClinicaController {
         ));
     }
 
+    @PostMapping(path = "/pacientes/{pacienteId}/atenciones-iniciales/{atencionInicialId}/adjuntos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<AdjuntoClinicoResult> uploadAdjuntoAtencionInicial(
+            @PathVariable UUID consultorioId,
+            @PathVariable UUID pacienteId,
+            @PathVariable UUID atencionInicialId,
+            @RequestPart("file") MultipartFile file,
+            @AuthenticationPrincipal UserDetails principal) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.addAdjuntoAtencionInicial(
+                consultorioId, pacienteId, atencionInicialId, file, principal.getUsername(), roles(principal)
+        ));
+    }
+
     @GetMapping("/pacientes/{pacienteId}/adjuntos/{adjuntoId}")
     public ResponseEntity<byte[]> downloadAdjunto(
             @PathVariable UUID consultorioId,
@@ -441,6 +493,41 @@ public class HistoriaClinicaController {
                         request.valueText(),
                         request.critical(),
                         request.notes()
+                ))
+                .toList();
+    }
+
+    private com.akine_api.application.dto.command.AtencionInicialEvaluacionCommand toEvaluacionCommand(AtencionInicialEvaluacionRequest request) {
+        if (request == null) {
+            return null;
+        }
+        return new com.akine_api.application.dto.command.AtencionInicialEvaluacionCommand(
+                request.peso(),
+                request.altura(),
+                request.imc(),
+                request.presionArterial(),
+                request.frecuenciaCardiaca(),
+                request.saturacion(),
+                request.temperatura(),
+                request.observaciones()
+        );
+    }
+
+    private List<PlanTratamientoDetalleCommand> toPlanTratamientoCommands(List<PlanTratamientoDetalleRequest> requests) {
+        if (requests == null) {
+            return List.of();
+        }
+        return requests.stream()
+                .filter(Objects::nonNull)
+                .map(request -> new PlanTratamientoDetalleCommand(
+                        request.tratamientoId(),
+                        request.cantidadSesiones(),
+                        request.frecuenciaSugerida(),
+                        request.caracterCaso(),
+                        request.fechaEstimadaInicio(),
+                        request.requiereAutorizacion(),
+                        request.observaciones(),
+                        request.observacionesAdministrativas()
                 ))
                 .toList();
     }

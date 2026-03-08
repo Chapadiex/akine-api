@@ -9,4 +9,6 @@ import java.util.UUID;
 public interface AdjuntoClinicoJpaRepository extends JpaRepository<AdjuntoClinicoEntity, UUID> {
     List<AdjuntoClinicoEntity> findBySesionIdOrderByCreatedAtAsc(UUID sesionId);
     List<AdjuntoClinicoEntity> findBySesionIdInOrderByCreatedAtAsc(List<UUID> sesionIds);
+    List<AdjuntoClinicoEntity> findByAtencionInicialIdOrderByCreatedAtAsc(UUID atencionInicialId);
+    List<AdjuntoClinicoEntity> findByAtencionInicialIdInOrderByCreatedAtAsc(List<UUID> atencionInicialIds);
 }

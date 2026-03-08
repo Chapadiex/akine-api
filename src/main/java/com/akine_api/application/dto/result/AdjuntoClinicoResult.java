@@ -6,6 +6,7 @@ import java.util.UUID;
 public record AdjuntoClinicoResult(
         UUID id,
         UUID sesionId,
+        UUID atencionInicialId,
         String originalFilename,
         String contentType,
         long sizeBytes,

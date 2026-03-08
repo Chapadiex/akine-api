@@ -64,6 +64,7 @@ public class SecurityConfig {
                 // Admin
                 .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/v1/consultorios/*/historia-clinica/**").hasAnyRole("ADMIN", "PROFESIONAL_ADMIN", "PROFESIONAL")
+                .requestMatchers("/api/v1/consultorios/*/tratamientos-catalogo/**").hasAnyRole("ADMIN", "PROFESIONAL_ADMIN", "PROFESIONAL")
                 .requestMatchers(
                         "/api/v1/consultorios/*/pacientes/*/360/historia-clinica",
                         "/api/v1/consultorios/*/pacientes/*/360/diagnosticos",

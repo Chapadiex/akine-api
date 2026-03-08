@@ -1,17 +1,21 @@
 package com.akine_api.application.service;
 
 import com.akine_api.application.dto.command.ChangeSesionClinicaEstadoCommand;
+import com.akine_api.application.dto.command.CreateAtencionInicialCommand;
 import com.akine_api.application.dto.command.CreateHistoriaClinicaLegajoCommand;
 import com.akine_api.application.dto.command.CreateDiagnosticoClinicoCommand;
 import com.akine_api.application.dto.command.CreateSesionClinicaCommand;
 import com.akine_api.application.dto.command.DiscardDiagnosticoClinicoCommand;
 import com.akine_api.application.dto.command.HistoriaClinicaAntecedenteItemCommand;
+import com.akine_api.application.dto.command.PlanTratamientoDetalleCommand;
 import com.akine_api.application.dto.command.ResolveDiagnosticoClinicoCommand;
 import com.akine_api.application.dto.command.UpdateHistoriaClinicaAntecedentesCommand;
 import com.akine_api.application.dto.command.UpdateDiagnosticoClinicoCommand;
 import com.akine_api.application.dto.command.UpdateSesionClinicaCommand;
 import com.akine_api.application.dto.result.AdjuntoClinicoDownloadResult;
 import com.akine_api.application.dto.result.AdjuntoClinicoResult;
+import com.akine_api.application.dto.result.AtencionInicialEvaluacionResult;
+import com.akine_api.application.dto.result.AtencionInicialSummaryResult;
 import com.akine_api.application.dto.result.DiagnosticoClinicoResult;
 import com.akine_api.application.dto.result.HistoriaClinicaActiveCaseSummaryResult;
 import com.akine_api.application.dto.result.HistoriaClinicaAntecedenteResult;
@@ -22,8 +26,12 @@ import com.akine_api.application.dto.result.HistoriaClinicaSesionSummaryResult;
 import com.akine_api.application.dto.result.HistoriaClinicaTimelineEventResult;
 import com.akine_api.application.dto.result.HistoriaClinicaWorkspaceItem;
 import com.akine_api.application.dto.result.HistoriaClinicaWorkspaceResult;
+import com.akine_api.application.dto.result.PlanTerapeuticoSummaryResult;
+import com.akine_api.application.dto.result.PlanTratamientoDetalleResult;
 import com.akine_api.application.dto.result.SesionClinicaResult;
 import com.akine_api.application.port.output.AdjuntoClinicoRepositoryPort;
+import com.akine_api.application.port.output.AtencionInicialEvaluacionRepositoryPort;
+import com.akine_api.application.port.output.AtencionInicialRepositoryPort;
 import com.akine_api.application.port.output.AttachmentStoragePort;
 import com.akine_api.application.port.output.BoxRepositoryPort;
 import com.akine_api.application.port.output.ConsultorioRepositoryPort;
@@ -32,6 +40,8 @@ import com.akine_api.application.port.output.HistoriaClinicaAntecedenteRepositor
 import com.akine_api.application.port.output.HistoriaClinicaLegajoRepositoryPort;
 import com.akine_api.application.port.output.PacienteConsultorioRepositoryPort;
 import com.akine_api.application.port.output.PacienteRepositoryPort;
+import com.akine_api.application.port.output.PlanTerapeuticoRepositoryPort;
+import com.akine_api.application.port.output.PlanTratamientoDetalleRepositoryPort;
 import com.akine_api.application.port.output.ProfesionalConsultorioRepositoryPort;
 import com.akine_api.application.port.output.ProfesionalRepositoryPort;
 import com.akine_api.application.port.output.SesionClinicaRepositoryPort;
@@ -45,6 +55,9 @@ import com.akine_api.domain.exception.PacienteNotFoundException;
 import com.akine_api.domain.exception.ProfesionalNotFoundException;
 import com.akine_api.domain.exception.SesionClinicaNotFoundException;
 import com.akine_api.domain.model.AdjuntoClinico;
+import com.akine_api.domain.model.AtencionInicial;
+import com.akine_api.domain.model.AtencionInicialEvaluacion;
+import com.akine_api.domain.model.AtencionInicialTipoIngreso;
 import com.akine_api.domain.model.Box;
 import com.akine_api.domain.model.DiagnosticoClinico;
 import com.akine_api.domain.model.DiagnosticoClinicoEstado;
@@ -54,6 +67,9 @@ import com.akine_api.domain.model.HistoriaClinicaOrigenRegistro;
 import com.akine_api.domain.model.HistoriaClinicaSesionEstado;
 import com.akine_api.domain.model.HistoriaClinicaTimelineEventType;
 import com.akine_api.domain.model.Paciente;
+import com.akine_api.domain.model.PlanTerapeutico;
+import com.akine_api.domain.model.PlanTerapeuticoEstado;
+import com.akine_api.domain.model.PlanTratamientoDetalle;
 import com.akine_api.domain.model.Profesional;
 import com.akine_api.domain.model.ProfesionalConsultorio;
 import com.akine_api.domain.model.SesionClinica;
@@ -65,6 +81,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.text.Normalizer;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -90,8 +107,12 @@ public class HistoriaClinicaService {
     private final SesionClinicaRepositoryPort sesionRepo;
     private final DiagnosticoClinicoRepositoryPort diagnosticoRepo;
     private final AdjuntoClinicoRepositoryPort adjuntoRepo;
+    private final AtencionInicialRepositoryPort atencionInicialRepo;
+    private final AtencionInicialEvaluacionRepositoryPort atencionEvaluacionRepo;
     private final HistoriaClinicaLegajoRepositoryPort legajoRepo;
     private final HistoriaClinicaAntecedenteRepositoryPort antecedenteRepo;
+    private final PlanTerapeuticoRepositoryPort planTerapeuticoRepo;
+    private final PlanTratamientoDetalleRepositoryPort planDetalleRepo;
     private final AttachmentStoragePort attachmentStorage;
     private final PacienteRepositoryPort pacienteRepo;
     private final PacienteConsultorioRepositoryPort pacienteConsultorioRepo;
@@ -105,8 +126,12 @@ public class HistoriaClinicaService {
     public HistoriaClinicaService(SesionClinicaRepositoryPort sesionRepo,
                                   DiagnosticoClinicoRepositoryPort diagnosticoRepo,
                                   AdjuntoClinicoRepositoryPort adjuntoRepo,
+                                  AtencionInicialRepositoryPort atencionInicialRepo,
+                                  AtencionInicialEvaluacionRepositoryPort atencionEvaluacionRepo,
                                   HistoriaClinicaLegajoRepositoryPort legajoRepo,
                                   HistoriaClinicaAntecedenteRepositoryPort antecedenteRepo,
+                                  PlanTerapeuticoRepositoryPort planTerapeuticoRepo,
+                                  PlanTratamientoDetalleRepositoryPort planDetalleRepo,
                                   AttachmentStoragePort attachmentStorage,
                                   PacienteRepositoryPort pacienteRepo,
                                   PacienteConsultorioRepositoryPort pacienteConsultorioRepo,
@@ -119,8 +144,12 @@ public class HistoriaClinicaService {
         this.sesionRepo = sesionRepo;
         this.diagnosticoRepo = diagnosticoRepo;
         this.adjuntoRepo = adjuntoRepo;
+        this.atencionInicialRepo = atencionInicialRepo;
+        this.atencionEvaluacionRepo = atencionEvaluacionRepo;
         this.legajoRepo = legajoRepo;
         this.antecedenteRepo = antecedenteRepo;
+        this.planTerapeuticoRepo = planTerapeuticoRepo;
+        this.planDetalleRepo = planDetalleRepo;
         this.attachmentStorage = attachmentStorage;
         this.pacienteRepo = pacienteRepo;
         this.pacienteConsultorioRepo = pacienteConsultorioRepo;
@@ -213,10 +242,24 @@ public class HistoriaClinicaService {
         List<DiagnosticoClinico> diagnosticos = diagnosticoRepo.findByPacienteIdAndConsultorioId(pacienteId, consultorioId);
         List<HistoriaClinicaAntecedente> antecedentes = antecedenteRepo.findByConsultorioIdAndPacienteId(consultorioId, pacienteId);
         HistoriaClinicaLegajo legajo = legajoRepo.findByConsultorioIdAndPacienteId(consultorioId, pacienteId).orElse(null);
+        AtencionInicial atencionInicial = atencionInicialRepo.findLatestByConsultorioIdAndPacienteId(consultorioId, pacienteId).orElse(null);
+        AtencionInicialEvaluacion evaluacionInicial = atencionInicial != null
+                ? atencionEvaluacionRepo.findByAtencionInicialId(atencionInicial.getId()).orElse(null)
+                : null;
+        PlanTerapeutico planTerapeutico = planTerapeuticoRepo.findLatestByConsultorioIdAndPacienteId(consultorioId, pacienteId).orElse(null);
+        List<PlanTratamientoDetalle> planTratamientos = planTerapeutico != null
+                ? planDetalleRepo.findByPlanTerapeuticoId(planTerapeutico.getId())
+                : List.of();
         Map<UUID, Profesional> profesionales = buildProfesionalMap(consultorioId);
-        List<AdjuntoClinico> adjuntos = loadAdjuntosForSesiones(sesiones);
+        List<AdjuntoClinico> adjuntos = new ArrayList<>(loadAdjuntosForSesiones(sesiones));
+        if (atencionInicial != null) {
+            adjuntos.addAll(adjuntoRepo.findByAtencionInicialId(atencionInicial.getId()));
+        }
 
-        HistoriaClinicaLegajoStatusResult legajoStatus = toLegajoStatus(legajo, !sesiones.isEmpty() || !diagnosticos.isEmpty() || !antecedentes.isEmpty());
+        HistoriaClinicaLegajoStatusResult legajoStatus = toLegajoStatus(
+                legajo,
+                !sesiones.isEmpty() || !diagnosticos.isEmpty() || !antecedentes.isEmpty() || atencionInicial != null || planTerapeutico != null
+        );
         List<HistoriaClinicaAntecedenteResult> antecedentesRelevantes = antecedentes.stream()
                 .sorted(Comparator.comparing(HistoriaClinicaAntecedente::isCritical).reversed()
                         .thenComparing(HistoriaClinicaAntecedente::getUpdatedAt, Comparator.reverseOrder()))
@@ -257,8 +300,130 @@ public class HistoriaClinicaService {
                 casosActivos,
                 ultimaSesion,
                 adjuntosRecientes,
-                resolveProfesionalHabitual(sesiones, profesionales)
+                resolveProfesionalHabitual(sesiones, profesionales),
+                toAtencionInicialSummary(atencionInicial, profesionales.get(atencionInicial != null ? atencionInicial.getProfesionalId() : null)),
+                toAtencionInicialEvaluacionResult(evaluacionInicial),
+                toPlanTerapeuticoSummary(planTerapeutico, planTratamientos, profesionales.get(planTerapeutico != null ? planTerapeutico.getProfesionalId() : null))
         );
+    }
+
+    public HistoriaClinicaOverviewResult createAtencionInicial(CreateAtencionInicialCommand command,
+                                                               String userEmail,
+                                                               Set<String> roles) {
+        UUID actorUserId = resolveUserId(userEmail);
+        loadPacienteWithClinicalAccess(command.consultorioId(), command.pacienteId(), userEmail, roles);
+        validateProfesionalCanWrite(command.consultorioId(), command.profesionalId(), userEmail, roles);
+        validateAtencionInicialPayload(command);
+
+        HistoriaClinicaLegajo legajo = legajoRepo.findByConsultorioIdAndPacienteId(command.consultorioId(), command.pacienteId())
+                .orElseGet(() -> legajoRepo.save(new HistoriaClinicaLegajo(
+                        UUID.randomUUID(),
+                        command.consultorioId(),
+                        command.pacienteId(),
+                        actorUserId,
+                        actorUserId,
+                        Instant.now(),
+                        Instant.now()
+                )));
+
+        AtencionInicial atencionInicial = atencionInicialRepo.save(new AtencionInicial(
+                UUID.randomUUID(),
+                legajo.getId(),
+                command.consultorioId(),
+                command.pacienteId(),
+                command.profesionalId(),
+                command.fechaHora(),
+                command.tipoIngreso(),
+                trimToNull(command.motivoConsultaBreve()),
+                trimToNull(command.sintomasPrincipales()),
+                trimToNull(command.tiempoEvolucion()),
+                trimToNull(command.observaciones()),
+                trimToNull(command.especialidadDerivante()),
+                trimToNull(command.profesionalDerivante()),
+                command.fechaPrescripcion(),
+                trimToNull(command.diagnosticoTexto()),
+                trimToNull(command.observacionesPrescripcion()),
+                trimToNull(command.resumenClinicoInicial()),
+                trimToNull(command.hallazgosRelevantes()),
+                actorUserId,
+                actorUserId,
+                Instant.now(),
+                Instant.now()
+        ));
+
+        if (hasEvaluacionPayload(command)) {
+            atencionEvaluacionRepo.save(new AtencionInicialEvaluacion(
+                    UUID.randomUUID(),
+                    atencionInicial.getId(),
+                    command.evaluacion().peso(),
+                    command.evaluacion().altura(),
+                    resolveImc(command.evaluacion().peso(), command.evaluacion().altura(), command.evaluacion().imc()),
+                    trimToNull(command.evaluacion().presionArterial()),
+                    command.evaluacion().frecuenciaCardiaca(),
+                    command.evaluacion().saturacion(),
+                    command.evaluacion().temperatura(),
+                    trimToNull(command.evaluacion().observaciones()),
+                    Instant.now(),
+                    Instant.now()
+            ));
+        }
+
+        persistAntecedentes(legajo, command.antecedentes(), actorUserId);
+
+        PlanTerapeutico planTerapeutico = planTerapeuticoRepo.save(new PlanTerapeutico(
+                UUID.randomUUID(),
+                atencionInicial.getId(),
+                command.consultorioId(),
+                command.pacienteId(),
+                command.profesionalId(),
+                PlanTerapeuticoEstado.ACTIVO,
+                trimToNull(command.planObservacionesGenerales()),
+                actorUserId,
+                actorUserId,
+                Instant.now(),
+                Instant.now()
+        ));
+
+        List<PlanTratamientoDetalle> detalles = new ArrayList<>();
+        for (int index = 0; index < command.tratamientos().size(); index++) {
+            PlanTratamientoDetalleCommand tratamiento = command.tratamientos().get(index);
+            detalles.add(new PlanTratamientoDetalle(
+                    UUID.randomUUID(),
+                    planTerapeutico.getId(),
+                    tratamiento.tratamientoId().trim(),
+                    resolveTreatmentSnapshot(tratamiento.tratamientoId()),
+                    tratamiento.cantidadSesiones(),
+                    trimToNull(tratamiento.frecuenciaSugerida()),
+                    tratamiento.caracterCaso(),
+                    tratamiento.fechaEstimadaInicio(),
+                    tratamiento.requiereAutorizacion(),
+                    trimToNull(tratamiento.observaciones()),
+                    trimToNull(tratamiento.observacionesAdministrativas()),
+                    index,
+                    Instant.now()
+            ));
+        }
+        planDetalleRepo.saveAll(detalles);
+
+        diagnosticoRepo.save(new DiagnosticoClinico(
+                UUID.randomUUID(),
+                command.consultorioId(),
+                command.pacienteId(),
+                command.profesionalId(),
+                null,
+                null,
+                buildInitialCaseDescription(detalles, command),
+                DiagnosticoClinicoEstado.ACTIVO,
+                command.fechaHora().toLocalDate(),
+                null,
+                trimToNull(command.planObservacionesGenerales()),
+                actorUserId,
+                actorUserId,
+                Instant.now(),
+                Instant.now()
+        ));
+
+        return getOverview(command.consultorioId(), command.pacienteId(), userEmail, roles);
     }
 
     public HistoriaClinicaOverviewResult createLegajo(CreateHistoriaClinicaLegajoCommand command,
@@ -385,10 +550,18 @@ public class HistoriaClinicaService {
         List<DiagnosticoClinico> diagnosticos = diagnosticoRepo.findByPacienteIdAndConsultorioId(pacienteId, consultorioId);
         List<HistoriaClinicaAntecedente> antecedentes = antecedenteRepo.findByConsultorioIdAndPacienteId(consultorioId, pacienteId);
         HistoriaClinicaLegajo legajo = legajoRepo.findByConsultorioIdAndPacienteId(consultorioId, pacienteId).orElse(null);
+        List<AtencionInicial> atencionesIniciales = atencionInicialRepo.findByConsultorioIdAndPacienteId(consultorioId, pacienteId);
+        PlanTerapeutico planTerapeutico = planTerapeuticoRepo.findLatestByConsultorioIdAndPacienteId(consultorioId, pacienteId).orElse(null);
+        List<PlanTratamientoDetalle> planTratamientos = planTerapeutico != null
+                ? planDetalleRepo.findByPlanTerapeuticoId(planTerapeutico.getId())
+                : List.of();
         Map<UUID, Profesional> profesionales = buildProfesionalMap(consultorioId);
         Map<UUID, SesionClinica> sesionesById = sesiones.stream()
                 .collect(Collectors.toMap(SesionClinica::getId, Function.identity(), (left, right) -> left));
-        List<AdjuntoClinico> adjuntos = loadAdjuntosForSesiones(sesiones);
+        Map<UUID, AtencionInicial> atencionesById = atencionesIniciales.stream()
+                .collect(Collectors.toMap(AtencionInicial::getId, Function.identity(), (left, right) -> left));
+        List<AdjuntoClinico> adjuntos = new ArrayList<>(loadAdjuntosForSesiones(sesiones));
+        adjuntos.addAll(adjuntoRepo.findByAtencionInicialIds(atencionesIniciales.stream().map(AtencionInicial::getId).toList()));
 
         List<HistoriaClinicaTimelineEventResult> events = new ArrayList<>();
         if (legajo != null) {
@@ -404,6 +577,20 @@ public class HistoriaClinicaService {
                     legajo.getId()
             ));
         }
+        atencionesIniciales.forEach(atencion -> {
+            Profesional profesional = profesionales.get(atencion.getProfesionalId());
+            events.add(new HistoriaClinicaTimelineEventResult(
+                    atencion.getId().toString(),
+                    HistoriaClinicaTimelineEventType.ATENCION_INICIAL,
+                    atencion.getFechaHora(),
+                    atencion.getProfesionalId(),
+                    fullName(profesional),
+                    "Atencion inicial registrada",
+                    firstNonBlank(atencion.getMotivoConsultaBreve(), atencion.getDiagnosticoTexto(), "Base clinica inicial"),
+                    atencion.getTipoIngreso().name(),
+                    atencion.getId()
+            ));
+        });
         antecedentes.forEach(antecedente -> events.add(new HistoriaClinicaTimelineEventResult(
                 antecedente.getId().toString(),
                 HistoriaClinicaTimelineEventType.ANTECEDENTE_UPDATED,
@@ -446,6 +633,20 @@ public class HistoriaClinicaService {
                 ));
             }
         });
+        if (planTerapeutico != null) {
+            Profesional profesional = profesionales.get(planTerapeutico.getProfesionalId());
+            events.add(new HistoriaClinicaTimelineEventResult(
+                    planTerapeutico.getId().toString(),
+                    HistoriaClinicaTimelineEventType.PLAN_TERAPEUTICO,
+                    toLocalDateTime(planTerapeutico.getCreatedAt()),
+                    planTerapeutico.getProfesionalId(),
+                    fullName(profesional),
+                    "Plan terapeutico inicial",
+                    summarizePlanTratamientos(planTratamientos),
+                    planTerapeutico.getEstado().name(),
+                    planTerapeutico.getId()
+            ));
+        }
         sesiones.forEach(sesion -> {
             Profesional profesional = profesionales.get(sesion.getProfesionalId());
             events.add(new HistoriaClinicaTimelineEventResult(
@@ -462,12 +663,15 @@ public class HistoriaClinicaService {
         });
         adjuntos.forEach(adjunto -> {
             SesionClinica sesion = sesionesById.get(adjunto.getSesionId());
-            Profesional profesional = sesion != null ? profesionales.get(sesion.getProfesionalId()) : null;
+            AtencionInicial atencion = adjunto.getAtencionInicialId() != null ? atencionesById.get(adjunto.getAtencionInicialId()) : null;
+            Profesional profesional = sesion != null
+                    ? profesionales.get(sesion.getProfesionalId())
+                    : atencion != null ? profesionales.get(atencion.getProfesionalId()) : null;
             events.add(new HistoriaClinicaTimelineEventResult(
                     adjunto.getId().toString(),
                     HistoriaClinicaTimelineEventType.ADJUNTO,
                     toLocalDateTime(adjunto.getCreatedAt()),
-                    sesion != null ? sesion.getProfesionalId() : null,
+                    sesion != null ? sesion.getProfesionalId() : atencion != null ? atencion.getProfesionalId() : null,
                     fullName(profesional),
                     "Adjunto agregado",
                     adjunto.getOriginalFilename(),
@@ -743,6 +947,50 @@ public class HistoriaClinicaService {
                 consultorioId,
                 pacienteId,
                 sesionId,
+                null,
+                storageKey,
+                originalFilename,
+                contentType,
+                file.getSize(),
+                actorUserId,
+                Instant.now()
+        );
+        return toAdjuntoResult(adjuntoRepo.save(adjunto));
+    }
+
+    public AdjuntoClinicoResult addAdjuntoAtencionInicial(UUID consultorioId,
+                                                          UUID pacienteId,
+                                                          UUID atencionInicialId,
+                                                          MultipartFile file,
+                                                          String userEmail,
+                                                          Set<String> roles) {
+        UUID actorUserId = resolveUserId(userEmail);
+        loadPacienteWithClinicalAccess(consultorioId, pacienteId, userEmail, roles);
+        AtencionInicial atencionInicial = loadAtencionInicial(consultorioId, pacienteId, atencionInicialId);
+        validateProfesionalCanWrite(consultorioId, atencionInicial.getProfesionalId(), userEmail, roles);
+        validateAttachment(file);
+        UUID adjuntoId = UUID.randomUUID();
+        String originalFilename = sanitizeFilename(file.getOriginalFilename());
+        String contentType = sanitizeContentType(file.getContentType());
+        String storageKey;
+        try {
+            storageKey = attachmentStorage.store(
+                    consultorioId,
+                    pacienteId,
+                    atencionInicialId,
+                    adjuntoId,
+                    originalFilename,
+                    file.getBytes()
+            );
+        } catch (Exception ex) {
+            throw new HistoriaClinicaValidationException("No se pudo procesar el adjunto clinico");
+        }
+        AdjuntoClinico adjunto = new AdjuntoClinico(
+                adjuntoId,
+                consultorioId,
+                pacienteId,
+                null,
+                atencionInicialId,
                 storageKey,
                 originalFilename,
                 contentType,
@@ -776,10 +1024,24 @@ public class HistoriaClinicaService {
                               Set<String> roles) {
         loadPacienteWithClinicalAccess(consultorioId, pacienteId, userEmail, roles);
         AdjuntoClinico adjunto = loadAdjunto(consultorioId, pacienteId, adjuntoId);
-        SesionClinica sesion = loadSesion(consultorioId, pacienteId, adjunto.getSesionId());
-        assertCanMutateSesion(sesion, userEmail, roles);
+        if (adjunto.getSesionId() != null) {
+            SesionClinica sesion = loadSesion(consultorioId, pacienteId, adjunto.getSesionId());
+            assertCanMutateSesion(sesion, userEmail, roles);
+        } else if (adjunto.getAtencionInicialId() != null) {
+            AtencionInicial atencionInicial = loadAtencionInicial(consultorioId, pacienteId, adjunto.getAtencionInicialId());
+            validateProfesionalCanWrite(consultorioId, atencionInicial.getProfesionalId(), userEmail, roles);
+        }
         attachmentStorage.delete(adjunto.getStorageKey());
         adjuntoRepo.deleteById(adjuntoId);
+    }
+
+    private AtencionInicial loadAtencionInicial(UUID consultorioId, UUID pacienteId, UUID atencionInicialId) {
+        AtencionInicial atencionInicial = atencionInicialRepo.findById(atencionInicialId)
+                .orElseThrow(() -> new HistoriaClinicaValidationException("Atencion inicial no encontrada"));
+        if (!consultorioId.equals(atencionInicial.getConsultorioId()) || !pacienteId.equals(atencionInicial.getPacienteId())) {
+            throw new HistoriaClinicaValidationException("Atencion inicial no encontrada");
+        }
+        return atencionInicial;
     }
 
     private SesionClinica loadSesion(UUID consultorioId, UUID pacienteId, UUID sesionId) {
@@ -1025,6 +1287,7 @@ public class HistoriaClinicaService {
         return new AdjuntoClinicoResult(
                 adjunto.getId(),
                 adjunto.getSesionId(),
+                adjunto.getAtencionInicialId(),
                 adjunto.getOriginalFilename(),
                 adjunto.getContentType(),
                 adjunto.getSizeBytes(),
@@ -1092,6 +1355,79 @@ public class HistoriaClinicaService {
                 sesion.getEstado(),
                 sesion.getTipoAtencion(),
                 firstNonBlank(sesion.getResumenClinico(), sesion.getMotivoConsulta(), "Sesion clinica")
+        );
+    }
+
+    private AtencionInicialSummaryResult toAtencionInicialSummary(AtencionInicial atencionInicial, Profesional profesional) {
+        if (atencionInicial == null) {
+            return null;
+        }
+        return new AtencionInicialSummaryResult(
+                atencionInicial.getId(),
+                atencionInicial.getProfesionalId(),
+                fullName(profesional),
+                atencionInicial.getFechaHora(),
+                atencionInicial.getTipoIngreso(),
+                atencionInicial.getMotivoConsultaBreve(),
+                atencionInicial.getSintomasPrincipales(),
+                atencionInicial.getTiempoEvolucion(),
+                atencionInicial.getObservaciones(),
+                atencionInicial.getEspecialidadDerivante(),
+                atencionInicial.getProfesionalDerivante(),
+                atencionInicial.getFechaPrescripcion(),
+                atencionInicial.getDiagnosticoTexto(),
+                atencionInicial.getObservacionesPrescripcion(),
+                atencionInicial.getResumenClinicoInicial(),
+                atencionInicial.getHallazgosRelevantes()
+        );
+    }
+
+    private AtencionInicialEvaluacionResult toAtencionInicialEvaluacionResult(AtencionInicialEvaluacion evaluacion) {
+        if (evaluacion == null) {
+            return null;
+        }
+        return new AtencionInicialEvaluacionResult(
+                evaluacion.getId(),
+                evaluacion.getAtencionInicialId(),
+                evaluacion.getPeso(),
+                evaluacion.getAltura(),
+                evaluacion.getImc(),
+                evaluacion.getPresionArterial(),
+                evaluacion.getFrecuenciaCardiaca(),
+                evaluacion.getSaturacion(),
+                evaluacion.getTemperatura(),
+                evaluacion.getObservaciones()
+        );
+    }
+
+    private PlanTerapeuticoSummaryResult toPlanTerapeuticoSummary(PlanTerapeutico planTerapeutico,
+                                                                  List<PlanTratamientoDetalle> detalles,
+                                                                  Profesional profesional) {
+        if (planTerapeutico == null) {
+            return null;
+        }
+        List<PlanTratamientoDetalleResult> tratamientos = detalles.stream()
+                .map(detalle -> new PlanTratamientoDetalleResult(
+                        detalle.getId(),
+                        detalle.getTratamientoId(),
+                        detalle.getTratamientoNombreSnapshot(),
+                        detalle.getCantidadSesiones(),
+                        detalle.getFrecuenciaSugerida(),
+                        detalle.getCaracterCaso(),
+                        detalle.getFechaEstimadaInicio(),
+                        detalle.isRequiereAutorizacion(),
+                        detalle.getObservaciones(),
+                        detalle.getObservacionesAdministrativas()
+                ))
+                .toList();
+        return new PlanTerapeuticoSummaryResult(
+                planTerapeutico.getId(),
+                planTerapeutico.getAtencionInicialId(),
+                planTerapeutico.getProfesionalId(),
+                fullName(profesional),
+                planTerapeutico.getEstado(),
+                planTerapeutico.getObservacionesGenerales(),
+                tratamientos
         );
     }
 
@@ -1193,8 +1529,105 @@ public class HistoriaClinicaService {
                     || eventType == HistoriaClinicaTimelineEventType.CASO_CLOSED;
             case "antecedents", "antecedentes" -> eventType == HistoriaClinicaTimelineEventType.ANTECEDENTE_UPDATED;
             case "attachments", "adjuntos" -> eventType == HistoriaClinicaTimelineEventType.ADJUNTO;
+            case "initial", "inicial" -> eventType == HistoriaClinicaTimelineEventType.ATENCION_INICIAL
+                    || eventType == HistoriaClinicaTimelineEventType.PLAN_TERAPEUTICO;
             default -> true;
         };
+    }
+
+    private void validateAtencionInicialPayload(CreateAtencionInicialCommand command) {
+        if (command.profesionalId() == null || command.fechaHora() == null || command.tipoIngreso() == null) {
+            throw new HistoriaClinicaValidationException("Debe indicar profesional, fecha y tipo de ingreso");
+        }
+        if (!hasText(command.motivoConsultaBreve()) && !hasUsefulPrescriptionData(command)) {
+            throw new HistoriaClinicaValidationException("Debe indicar motivo breve o datos utiles de prescripcion");
+        }
+        if (command.tratamientos() == null || command.tratamientos().isEmpty()) {
+            throw new HistoriaClinicaValidationException("Debe indicar al menos un tratamiento para el plan terapeutico");
+        }
+        boolean invalidTratamiento = command.tratamientos().stream().anyMatch(item ->
+                item == null
+                        || !hasText(item.tratamientoId())
+                        || item.cantidadSesiones() <= 0
+                        || item.caracterCaso() == null
+        );
+        if (invalidTratamiento) {
+            throw new HistoriaClinicaValidationException("El plan terapeutico contiene tratamientos invalidos");
+        }
+    }
+
+    private boolean hasUsefulPrescriptionData(CreateAtencionInicialCommand command) {
+        return hasText(command.especialidadDerivante())
+                || hasText(command.profesionalDerivante())
+                || command.fechaPrescripcion() != null
+                || hasText(command.diagnosticoTexto())
+                || hasText(command.observacionesPrescripcion());
+    }
+
+    private boolean hasEvaluacionPayload(CreateAtencionInicialCommand command) {
+        return command.evaluacion() != null
+                && (command.evaluacion().peso() != null
+                || command.evaluacion().altura() != null
+                || command.evaluacion().imc() != null
+                || hasText(command.evaluacion().presionArterial())
+                || command.evaluacion().frecuenciaCardiaca() != null
+                || command.evaluacion().saturacion() != null
+                || command.evaluacion().temperatura() != null
+                || hasText(command.evaluacion().observaciones()));
+    }
+
+    private BigDecimal resolveImc(BigDecimal peso, BigDecimal altura, BigDecimal requestedImc) {
+        if (requestedImc != null) {
+            return requestedImc;
+        }
+        if (peso == null || altura == null || altura.compareTo(BigDecimal.ZERO) <= 0) {
+            return null;
+        }
+        BigDecimal alturaMetros = altura.compareTo(BigDecimal.valueOf(3)) > 0
+                ? altura.divide(BigDecimal.valueOf(100))
+                : altura;
+        BigDecimal divisor = alturaMetros.multiply(alturaMetros);
+        return divisor.compareTo(BigDecimal.ZERO) == 0 ? null : peso.divide(divisor, 2, java.math.RoundingMode.HALF_UP);
+    }
+
+    private String resolveTreatmentSnapshot(String tratamientoId) {
+        if (tratamientoId == null) {
+            return "Tratamiento";
+        }
+        String normalized = tratamientoId.trim().replace('-', ' ').replace('_', ' ').toLowerCase(Locale.ROOT);
+        if (normalized.isBlank()) {
+            return "Tratamiento";
+        }
+        String[] parts = normalized.split("\\s+");
+        StringBuilder out = new StringBuilder();
+        for (String part : parts) {
+            if (part.isBlank()) {
+                continue;
+            }
+            if (!out.isEmpty()) {
+                out.append(' ');
+            }
+            out.append(Character.toUpperCase(part.charAt(0))).append(part.substring(1));
+        }
+        return out.toString();
+    }
+
+    private String buildInitialCaseDescription(List<PlanTratamientoDetalle> detalles, CreateAtencionInicialCommand command) {
+        if (detalles != null && !detalles.isEmpty()) {
+            return summarizePlanTratamientos(detalles);
+        }
+        return firstNonBlank(command.motivoConsultaBreve(), command.diagnosticoTexto(), "Plan terapeutico inicial");
+    }
+
+    private String summarizePlanTratamientos(List<PlanTratamientoDetalle> detalles) {
+        if (detalles == null || detalles.isEmpty()) {
+            return "Plan terapeutico inicial";
+        }
+        return detalles.stream()
+                .map(PlanTratamientoDetalle::getTratamientoNombreSnapshot)
+                .filter(Objects::nonNull)
+                .limit(3)
+                .collect(Collectors.joining(", "));
     }
 
     private boolean hasText(String value) {
