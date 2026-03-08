@@ -186,4 +186,61 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>flyway-local-h2</id>
+			<properties>
+				<akine.flyway.local.url>jdbc:h2:mem:akine_flyway;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_DELAY=-1</akine.flyway.local.url>
+				<akine.flyway.local.user>sa</akine.flyway.local.user>
+				<akine.flyway.local.password></akine.flyway.local.password>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.flywaydb</groupId>
+						<artifactId>flyway-maven-plugin</artifactId>
+						<version>11.7.2</version>
+						<configuration>
+							<url>${akine.flyway.local.url}</url>
+							<user>${akine.flyway.local.user}</user>
+							<password>${akine.flyway.local.password}</password>
+							<cleanDisabled>true</cleanDisabled>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>3.5.0</version>
+						<executions>
+							<execution>
+								<id>flyway-local-validate</id>
+								<goals>
+									<goal>java</goal>
+								</goals>
+								<configuration>
+									<mainClass>com.akine_api.infrastructure.flyway.FlywayLocalValidationRunner</mainClass>
+									<classpathScope>runtime</classpathScope>
+									<systemProperties>
+										<systemProperty>
+											<key>akine.flyway.local.url</key>
+											<value>${akine.flyway.local.url}</value>
+										</systemProperty>
+										<systemProperty>
+											<key>akine.flyway.local.user</key>
+											<value>${akine.flyway.local.user}</value>
+										</systemProperty>
+										<systemProperty>
+											<key>akine.flyway.local.password</key>
+											<value>${akine.flyway.local.password}</value>
+										</systemProperty>
+									</systemProperties>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>

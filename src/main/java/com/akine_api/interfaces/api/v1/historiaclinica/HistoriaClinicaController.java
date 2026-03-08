@@ -1,22 +1,31 @@
 package com.akine_api.interfaces.api.v1.historiaclinica;
 
 import com.akine_api.application.dto.command.ChangeSesionClinicaEstadoCommand;
+import com.akine_api.application.dto.command.CreateHistoriaClinicaLegajoCommand;
 import com.akine_api.application.dto.command.CreateDiagnosticoClinicoCommand;
 import com.akine_api.application.dto.command.CreateSesionClinicaCommand;
 import com.akine_api.application.dto.command.DiscardDiagnosticoClinicoCommand;
+import com.akine_api.application.dto.command.HistoriaClinicaAntecedenteItemCommand;
 import com.akine_api.application.dto.command.ResolveDiagnosticoClinicoCommand;
+import com.akine_api.application.dto.command.UpdateHistoriaClinicaAntecedentesCommand;
 import com.akine_api.application.dto.command.UpdateDiagnosticoClinicoCommand;
 import com.akine_api.application.dto.command.UpdateSesionClinicaCommand;
 import com.akine_api.application.dto.result.AdjuntoClinicoDownloadResult;
 import com.akine_api.application.dto.result.AdjuntoClinicoResult;
 import com.akine_api.application.dto.result.DiagnosticoClinicoResult;
+import com.akine_api.application.dto.result.HistoriaClinicaAntecedenteResult;
+import com.akine_api.application.dto.result.HistoriaClinicaOverviewResult;
 import com.akine_api.application.dto.result.HistoriaClinicaPacienteResult;
+import com.akine_api.application.dto.result.HistoriaClinicaTimelineEventResult;
 import com.akine_api.application.dto.result.HistoriaClinicaWorkspaceResult;
 import com.akine_api.application.dto.result.SesionClinicaResult;
 import com.akine_api.application.service.HistoriaClinicaService;
 import com.akine_api.domain.model.HistoriaClinicaSesionEstado;
+import com.akine_api.interfaces.api.v1.historiaclinica.dto.CreateHistoriaClinicaLegajoRequest;
 import com.akine_api.interfaces.api.v1.historiaclinica.dto.DiagnosticoClinicoEstadoRequest;
 import com.akine_api.interfaces.api.v1.historiaclinica.dto.DiagnosticoClinicoRequest;
+import com.akine_api.interfaces.api.v1.historiaclinica.dto.HistoriaClinicaAntecedenteItemRequest;
+import com.akine_api.interfaces.api.v1.historiaclinica.dto.HistoriaClinicaAntecedentesUpdateRequest;
 import com.akine_api.interfaces.api.v1.historiaclinica.dto.SesionClinicaRequest;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -41,6 +50,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -80,6 +90,85 @@ public class HistoriaClinicaController {
             @AuthenticationPrincipal UserDetails principal) {
         return ResponseEntity.ok(service.getPaciente(
                 consultorioId, pacienteId, principal.getUsername(), roles(principal)
+        ));
+    }
+
+    @GetMapping("/pacientes/{pacienteId}/overview")
+    public ResponseEntity<HistoriaClinicaOverviewResult> overview(
+            @PathVariable UUID consultorioId,
+            @PathVariable UUID pacienteId,
+            @AuthenticationPrincipal UserDetails principal) {
+        return ResponseEntity.ok(service.getOverview(
+                consultorioId, pacienteId, principal.getUsername(), roles(principal)
+        ));
+    }
+
+    @PostMapping("/pacientes/{pacienteId}/legajo")
+    public ResponseEntity<HistoriaClinicaOverviewResult> createLegajo(
+            @PathVariable UUID consultorioId,
+            @PathVariable UUID pacienteId,
+            @Valid @RequestBody CreateHistoriaClinicaLegajoRequest request,
+            @AuthenticationPrincipal UserDetails principal) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.createLegajo(
+                new CreateHistoriaClinicaLegajoCommand(
+                        consultorioId,
+                        pacienteId,
+                        request.profesionalId(),
+                        request.fechaAtencion(),
+                        request.motivoConsulta(),
+                        request.resumenClinico(),
+                        request.subjetivo(),
+                        request.objetivo(),
+                        request.evaluacion(),
+                        request.plan(),
+                        request.casoCodigo(),
+                        request.casoDescripcion(),
+                        request.casoFechaInicio(),
+                        request.casoNotas(),
+                        toAntecedenteCommands(request.antecedentes()),
+                        null
+                ),
+                principal.getUsername(),
+                roles(principal)
+        ));
+    }
+
+    @GetMapping("/pacientes/{pacienteId}/antecedentes")
+    public ResponseEntity<List<HistoriaClinicaAntecedenteResult>> antecedentes(
+            @PathVariable UUID consultorioId,
+            @PathVariable UUID pacienteId,
+            @AuthenticationPrincipal UserDetails principal) {
+        return ResponseEntity.ok(service.getAntecedentes(
+                consultorioId, pacienteId, principal.getUsername(), roles(principal)
+        ));
+    }
+
+    @PutMapping("/pacientes/{pacienteId}/antecedentes")
+    public ResponseEntity<List<HistoriaClinicaAntecedenteResult>> updateAntecedentes(
+            @PathVariable UUID consultorioId,
+            @PathVariable UUID pacienteId,
+            @Valid @RequestBody HistoriaClinicaAntecedentesUpdateRequest request,
+            @AuthenticationPrincipal UserDetails principal) {
+        return ResponseEntity.ok(service.updateAntecedentes(
+                new UpdateHistoriaClinicaAntecedentesCommand(
+                        consultorioId,
+                        pacienteId,
+                        toAntecedenteCommands(request.antecedentes()),
+                        null
+                ),
+                principal.getUsername(),
+                roles(principal)
+        ));
+    }
+
+    @GetMapping("/pacientes/{pacienteId}/timeline")
+    public ResponseEntity<List<HistoriaClinicaTimelineEventResult>> timeline(
+            @PathVariable UUID consultorioId,
+            @PathVariable UUID pacienteId,
+            @RequestParam(defaultValue = "all") String type,
+            @AuthenticationPrincipal UserDetails principal) {
+        return ResponseEntity.ok(service.getTimeline(
+                consultorioId, pacienteId, type, principal.getUsername(), roles(principal)
         ));
     }
 
@@ -337,5 +426,22 @@ public class HistoriaClinicaController {
         return principal.getAuthorities().stream()
                 .map(a -> a.getAuthority())
                 .collect(Collectors.toSet());
+    }
+
+    private List<HistoriaClinicaAntecedenteItemCommand> toAntecedenteCommands(List<HistoriaClinicaAntecedenteItemRequest> requests) {
+        if (requests == null) {
+            return List.of();
+        }
+        return requests.stream()
+                .filter(Objects::nonNull)
+                .map(request -> new HistoriaClinicaAntecedenteItemCommand(
+                        request.categoryCode(),
+                        request.catalogItemCode(),
+                        request.label(),
+                        request.valueText(),
+                        request.critical(),
+                        request.notes()
+                ))
+                .toList();
     }
 }

@@ -126,6 +126,31 @@ class PacienteServiceTest {
         verify(pacienteConsultorioRepo).save(any(PacienteConsultorio.class));
     }
 
+    @Test
+    void search_profesionalRole_canSearchByDniWithinConsultorio() {
+        Paciente existing = samplePaciente();
+
+        when(consultorioRepo.findById(CONSULTORIO_ID)).thenReturn(Optional.of(sampleConsultorio()));
+        when(userRepo.findByEmail(EMAIL)).thenReturn(Optional.of(activeUser()));
+        when(consultorioRepo.findConsultorioIdsByUserId(USER_ID)).thenReturn(List.of(CONSULTORIO_ID));
+        when(pacienteRepo.findByDni("30111222")).thenReturn(Optional.of(existing));
+        when(pacienteConsultorioRepo.findPacienteIdsByConsultorioIdAndPacienteIds(CONSULTORIO_ID, List.of(existing.getId())))
+                .thenReturn(List.of(existing.getId()));
+
+        var result = service.search(
+                CONSULTORIO_ID,
+                "30111222",
+                null,
+                EMAIL,
+                Set.of("ROLE_PROFESIONAL")
+        );
+
+        assertThat(result).singleElement().satisfies(item -> {
+            assertThat(item.id()).isEqualTo(existing.getId());
+            assertThat(item.linkedToConsultorio()).isTrue();
+        });
+    }
+
     private User activeUser() {
         return new User(USER_ID, EMAIL, "hash", "Admin", "Istrativo", null, UserStatus.ACTIVE, Instant.now());
     }

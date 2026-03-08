@@ -1,6 +1,7 @@
 package com.akine_api.service;
 
 import com.akine_api.application.dto.command.ChangeColaboradorEstadoCommand;
+import com.akine_api.application.dto.command.CreateColaboradorProfesionalCommand;
 import com.akine_api.application.dto.command.UpdateColaboradorProfesionalCommand;
 import com.akine_api.application.dto.result.ColaboradorProfesionalResult;
 import com.akine_api.application.port.output.*;
@@ -36,6 +37,7 @@ class ColaboradorServiceTest {
     @Mock PasswordEncoderPort passwordEncoder;
     @Mock EmailPort emailPort;
     @Mock ProfesionalRepositoryPort profesionalRepo;
+    @Mock ProfesionalConsultorioRepositoryPort profesionalConsultorioRepo;
     @Mock EmpleadoRepositoryPort empleadoRepo;
     @Mock CargoEmpleadoCatalogoRepositoryPort cargoEmpleadoCatalogoRepo;
 
@@ -50,9 +52,87 @@ class ColaboradorServiceTest {
     void setUp() {
         service = new ColaboradorService(
                 consultorioRepo, userRepo, roleRepo, membershipRepo, activationTokenRepo,
-                passwordEncoder, emailPort, profesionalRepo, empleadoRepo, cargoEmpleadoCatalogoRepo
+                passwordEncoder, emailPort, profesionalRepo, profesionalConsultorioRepo,
+                empleadoRepo, cargoEmpleadoCatalogoRepo
         );
         when(consultorioRepo.findById(CONSULTORIO_ID)).thenReturn(Optional.of(activeConsultorio()));
+    }
+
+    @Test
+    void createProfesional_directAlta_createsConsultorioRelation() {
+        when(profesionalRepo.existsByMatriculaAndConsultorioId("MP-23", CONSULTORIO_ID)).thenReturn(false);
+        when(profesionalRepo.existsByNroDocumento("12345678")).thenReturn(false);
+        when(profesionalRepo.save(any(Profesional.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(profesionalConsultorioRepo.findByProfesionalIdAndConsultorioId(any(), eq(CONSULTORIO_ID)))
+                .thenReturn(Optional.empty());
+
+        ColaboradorProfesionalResult result = service.createProfesional(
+                new CreateColaboradorProfesionalCommand(
+                        CONSULTORIO_ID,
+                        "DIRECTA",
+                        "Raul",
+                        "Arena",
+                        "12345678",
+                        "MP-23",
+                        List.of("Kinesiologia"),
+                        null,
+                        "1111",
+                        "Dir",
+                        null
+                ),
+                "admin@akine.com",
+                ADMIN_ROLES
+        );
+
+        assertThat(result.userId()).isNull();
+        verify(profesionalConsultorioRepo).save(argThat(pc ->
+                pc.getProfesionalId().equals(result.id())
+                        && pc.getConsultorioId().equals(CONSULTORIO_ID)
+                        && pc.isActivo()));
+    }
+
+    @Test
+    void createProfesional_invitacion_createsConsultorioRelation() {
+        Role role = new Role(UUID.randomUUID(), RoleName.PROFESIONAL, "PROFESIONAL");
+
+        when(profesionalRepo.existsByMatriculaAndConsultorioId("MP-23", CONSULTORIO_ID)).thenReturn(false);
+        when(profesionalRepo.existsByNroDocumento("12345678")).thenReturn(false);
+        when(userRepo.findByEmail("new@akine.com")).thenReturn(Optional.empty());
+        when(userRepo.existsByEmail("new@akine.com")).thenReturn(false);
+        when(roleRepo.findByName(RoleName.PROFESIONAL)).thenReturn(Optional.of(role));
+        when(passwordEncoder.encode(anyString())).thenReturn("hash");
+        when(userRepo.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(membershipRepo.save(any(Membership.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(activationTokenRepo.save(any(ActivationToken.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(profesionalRepo.save(any(Profesional.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(profesionalConsultorioRepo.findByProfesionalIdAndConsultorioId(any(), eq(CONSULTORIO_ID)))
+                .thenReturn(Optional.empty());
+
+        ColaboradorProfesionalResult result = service.createProfesional(
+                new CreateColaboradorProfesionalCommand(
+                        CONSULTORIO_ID,
+                        "INVITACION",
+                        "Raul",
+                        "Arena",
+                        "12345678",
+                        "MP-23",
+                        List.of("Kinesiologia"),
+                        "new@akine.com",
+                        "1111",
+                        "Dir",
+                        null
+                ),
+                "admin@akine.com",
+                ADMIN_ROLES
+        );
+
+        assertThat(result.userId()).isNotNull();
+        verify(membershipRepo).save(any(Membership.class));
+        verify(profesionalConsultorioRepo).save(argThat(pc ->
+                pc.getProfesionalId().equals(result.id())
+                        && pc.getConsultorioId().equals(CONSULTORIO_ID)
+                        && pc.isActivo()));
+        verify(emailPort).sendActivationEmail(eq("new@akine.com"), eq("Raul"), anyString());
     }
 
     @Test
@@ -61,7 +141,6 @@ class ColaboradorServiceTest {
         User linkedUser = userWithRole(USER_ID, "old@akine.com", UserStatus.ACTIVE, RoleName.PROFESIONAL);
 
         when(profesionalRepo.findById(PROFESIONAL_ID)).thenReturn(Optional.of(profesional));
-        when(profesionalRepo.existsByMatriculaAndConsultorioIdAndIdNot(any(), any(), any())).thenReturn(false);
         when(userRepo.findById(USER_ID)).thenReturn(Optional.of(linkedUser));
         when(userRepo.findByEmail("new@akine.com")).thenReturn(Optional.empty());
         when(userRepo.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
@@ -144,6 +223,8 @@ class ColaboradorServiceTest {
         when(membershipRepo.findByUserIdAndConsultorioId(USER_ID, CONSULTORIO_ID)).thenReturn(Optional.empty());
         when(membershipRepo.save(any(Membership.class))).thenAnswer(inv -> inv.getArgument(0));
         when(profesionalRepo.save(any(Profesional.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(profesionalConsultorioRepo.findByProfesionalIdAndConsultorioId(PROFESIONAL_ID, CONSULTORIO_ID))
+                .thenReturn(Optional.empty());
 
         ColaboradorProfesionalResult result = service.crearCuentaProfesional(
                 CONSULTORIO_ID,
@@ -157,6 +238,10 @@ class ColaboradorServiceTest {
         verify(userRepo, never()).existsByEmail(anyString());
         verify(passwordEncoder, never()).encode(anyString());
         verify(membershipRepo).save(any(Membership.class));
+        verify(profesionalConsultorioRepo).save(argThat(pc ->
+                pc.getProfesionalId().equals(PROFESIONAL_ID)
+                        && pc.getConsultorioId().equals(CONSULTORIO_ID)
+                        && pc.isActivo()));
     }
 
     @Test

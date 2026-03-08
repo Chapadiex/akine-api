@@ -11,6 +11,7 @@ import com.akine_api.domain.exception.ConsultorioNotFoundException;
 import com.akine_api.domain.exception.ProfesionalNotFoundException;
 import com.akine_api.domain.model.Consultorio;
 import com.akine_api.domain.model.Profesional;
+import com.akine_api.domain.model.ProfesionalConsultorio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +29,10 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class ProfesionalServiceTest {
@@ -110,7 +114,17 @@ class ProfesionalServiceTest {
         when(profesionalRepo.existsByMatriculaAndConsultorioId("MP-9999", CONSULTORIO_ID)).thenReturn(false);
         when(profesionalRepo.existsByNroDocumento("32123123")).thenReturn(false);
         when(profesionalRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
-        when(profesionalConsultorioRepo.findByProfesionalId(any())).thenReturn(List.of());
+        when(profesionalConsultorioRepo.findByProfesionalIdAndConsultorioId(any(), eq(CONSULTORIO_ID)))
+                .thenReturn(Optional.empty());
+        when(profesionalConsultorioRepo.findByProfesionalId(any())).thenAnswer(inv -> List.of(
+                new ProfesionalConsultorio(
+                        UUID.randomUUID(),
+                        inv.getArgument(0),
+                        CONSULTORIO_ID,
+                        true,
+                        Instant.now()
+                )
+        ));
 
         CreateProfesionalCommand cmd = new CreateProfesionalCommand(
                 CONSULTORIO_ID, "Ana", "Garcia", "32123123", "MP-9999",
@@ -122,6 +136,11 @@ class ProfesionalServiceTest {
         assertThat(result.nombre()).isEqualTo("Ana");
         assertThat(result.matricula()).isEqualTo("MP-9999");
         assertThat(result.activo()).isTrue();
+        assertThat(result.consultoriosAsociados()).isEqualTo(1);
+        verify(profesionalConsultorioRepo).save(argThat(pc ->
+                pc.getProfesionalId().equals(result.id())
+                        && pc.getConsultorioId().equals(CONSULTORIO_ID)
+                        && pc.isActivo()));
     }
 
     @Test
@@ -155,6 +174,7 @@ class ProfesionalServiceTest {
     @Test
     void inactivate_asAdmin_setsInactive() {
         Profesional p = profesional();
+        when(consultorioRepo.findById(CONSULTORIO_ID)).thenReturn(Optional.of(consultorio()));
         when(profesionalRepo.findById(PROF_ID)).thenReturn(Optional.of(p));
         when(profesionalRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
         when(profesionalConsultorioRepo.findByProfesionalId(any())).thenReturn(List.of());
@@ -167,6 +187,7 @@ class ProfesionalServiceTest {
 
     @Test
     void inactivate_notFound_throws() {
+        when(consultorioRepo.findById(CONSULTORIO_ID)).thenReturn(Optional.of(consultorio()));
         when(profesionalRepo.findById(any())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.inactivate(CONSULTORIO_ID, PROF_ID, USER_EMAIL, ADMIN_ROLES))

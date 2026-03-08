@@ -9,6 +9,7 @@ import com.akine_api.application.port.output.ProfesionalRepositoryPort;
 import com.akine_api.application.port.output.UserRepositoryPort;
 import com.akine_api.domain.exception.ProfesionalNotFoundException;
 import com.akine_api.domain.model.Profesional;
+import com.akine_api.domain.model.ProfesionalConsultorio;
 import com.akine_api.domain.model.User;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -96,7 +97,9 @@ public class ProfesionalService {
                 true,
                 Instant.now()
         );
-        return toResult(profesionalRepo.save(p));
+        Profesional saved = profesionalRepo.save(p);
+        ensureProfesionalConsultorioRelation(saved.getId(), cmd.consultorioId());
+        return toResult(saved);
     }
 
     public ProfesionalResult update(UpdateProfesionalCommand cmd, String userEmail, Set<String> roles) {
@@ -182,6 +185,27 @@ public class ProfesionalService {
                 && profesionalRepo.existsByNroDocumentoAndIdNot(newDocumento, cmd.id())) {
             throw new IllegalArgumentException("El DNI ya esta registrado.");
         }
+    }
+
+    private void ensureProfesionalConsultorioRelation(UUID profesionalId, UUID consultorioId) {
+        profesionalConsultorioRepo.findByProfesionalIdAndConsultorioId(profesionalId, consultorioId)
+                .ifPresentOrElse(existing -> {
+                    if (!existing.isActivo()) {
+                        profesionalConsultorioRepo.save(new ProfesionalConsultorio(
+                                existing.getId(),
+                                existing.getProfesionalId(),
+                                existing.getConsultorioId(),
+                                true,
+                                existing.getCreatedAt()
+                        ));
+                    }
+                }, () -> profesionalConsultorioRepo.save(new ProfesionalConsultorio(
+                        UUID.randomUUID(),
+                        profesionalId,
+                        consultorioId,
+                        true,
+                        Instant.now()
+                )));
     }
 
     private boolean matchesQuery(Profesional p, String q) {

@@ -1,16 +1,25 @@
 package com.akine_api.application.service;
 
 import com.akine_api.application.dto.command.ChangeSesionClinicaEstadoCommand;
+import com.akine_api.application.dto.command.CreateHistoriaClinicaLegajoCommand;
 import com.akine_api.application.dto.command.CreateDiagnosticoClinicoCommand;
 import com.akine_api.application.dto.command.CreateSesionClinicaCommand;
 import com.akine_api.application.dto.command.DiscardDiagnosticoClinicoCommand;
+import com.akine_api.application.dto.command.HistoriaClinicaAntecedenteItemCommand;
 import com.akine_api.application.dto.command.ResolveDiagnosticoClinicoCommand;
+import com.akine_api.application.dto.command.UpdateHistoriaClinicaAntecedentesCommand;
 import com.akine_api.application.dto.command.UpdateDiagnosticoClinicoCommand;
 import com.akine_api.application.dto.command.UpdateSesionClinicaCommand;
 import com.akine_api.application.dto.result.AdjuntoClinicoDownloadResult;
 import com.akine_api.application.dto.result.AdjuntoClinicoResult;
 import com.akine_api.application.dto.result.DiagnosticoClinicoResult;
+import com.akine_api.application.dto.result.HistoriaClinicaActiveCaseSummaryResult;
+import com.akine_api.application.dto.result.HistoriaClinicaAntecedenteResult;
+import com.akine_api.application.dto.result.HistoriaClinicaLegajoStatusResult;
+import com.akine_api.application.dto.result.HistoriaClinicaOverviewResult;
 import com.akine_api.application.dto.result.HistoriaClinicaPacienteResult;
+import com.akine_api.application.dto.result.HistoriaClinicaSesionSummaryResult;
+import com.akine_api.application.dto.result.HistoriaClinicaTimelineEventResult;
 import com.akine_api.application.dto.result.HistoriaClinicaWorkspaceItem;
 import com.akine_api.application.dto.result.HistoriaClinicaWorkspaceResult;
 import com.akine_api.application.dto.result.SesionClinicaResult;
@@ -19,6 +28,8 @@ import com.akine_api.application.port.output.AttachmentStoragePort;
 import com.akine_api.application.port.output.BoxRepositoryPort;
 import com.akine_api.application.port.output.ConsultorioRepositoryPort;
 import com.akine_api.application.port.output.DiagnosticoClinicoRepositoryPort;
+import com.akine_api.application.port.output.HistoriaClinicaAntecedenteRepositoryPort;
+import com.akine_api.application.port.output.HistoriaClinicaLegajoRepositoryPort;
 import com.akine_api.application.port.output.PacienteConsultorioRepositoryPort;
 import com.akine_api.application.port.output.PacienteRepositoryPort;
 import com.akine_api.application.port.output.ProfesionalConsultorioRepositoryPort;
@@ -37,8 +48,11 @@ import com.akine_api.domain.model.AdjuntoClinico;
 import com.akine_api.domain.model.Box;
 import com.akine_api.domain.model.DiagnosticoClinico;
 import com.akine_api.domain.model.DiagnosticoClinicoEstado;
+import com.akine_api.domain.model.HistoriaClinicaAntecedente;
+import com.akine_api.domain.model.HistoriaClinicaLegajo;
 import com.akine_api.domain.model.HistoriaClinicaOrigenRegistro;
 import com.akine_api.domain.model.HistoriaClinicaSesionEstado;
+import com.akine_api.domain.model.HistoriaClinicaTimelineEventType;
 import com.akine_api.domain.model.Paciente;
 import com.akine_api.domain.model.Profesional;
 import com.akine_api.domain.model.ProfesionalConsultorio;
@@ -53,6 +67,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.text.Normalizer;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -73,6 +90,8 @@ public class HistoriaClinicaService {
     private final SesionClinicaRepositoryPort sesionRepo;
     private final DiagnosticoClinicoRepositoryPort diagnosticoRepo;
     private final AdjuntoClinicoRepositoryPort adjuntoRepo;
+    private final HistoriaClinicaLegajoRepositoryPort legajoRepo;
+    private final HistoriaClinicaAntecedenteRepositoryPort antecedenteRepo;
     private final AttachmentStoragePort attachmentStorage;
     private final PacienteRepositoryPort pacienteRepo;
     private final PacienteConsultorioRepositoryPort pacienteConsultorioRepo;
@@ -86,6 +105,8 @@ public class HistoriaClinicaService {
     public HistoriaClinicaService(SesionClinicaRepositoryPort sesionRepo,
                                   DiagnosticoClinicoRepositoryPort diagnosticoRepo,
                                   AdjuntoClinicoRepositoryPort adjuntoRepo,
+                                  HistoriaClinicaLegajoRepositoryPort legajoRepo,
+                                  HistoriaClinicaAntecedenteRepositoryPort antecedenteRepo,
                                   AttachmentStoragePort attachmentStorage,
                                   PacienteRepositoryPort pacienteRepo,
                                   PacienteConsultorioRepositoryPort pacienteConsultorioRepo,
@@ -98,6 +119,8 @@ public class HistoriaClinicaService {
         this.sesionRepo = sesionRepo;
         this.diagnosticoRepo = diagnosticoRepo;
         this.adjuntoRepo = adjuntoRepo;
+        this.legajoRepo = legajoRepo;
+        this.antecedenteRepo = antecedenteRepo;
         this.attachmentStorage = attachmentStorage;
         this.pacienteRepo = pacienteRepo;
         this.pacienteConsultorioRepo = pacienteConsultorioRepo;
@@ -181,6 +204,285 @@ public class HistoriaClinicaService {
     }
 
     @Transactional(readOnly = true)
+    public HistoriaClinicaOverviewResult getOverview(UUID consultorioId,
+                                                     UUID pacienteId,
+                                                     String userEmail,
+                                                     Set<String> roles) {
+        HistoriaClinicaPacienteResult paciente = getPaciente(consultorioId, pacienteId, userEmail, roles);
+        List<SesionClinica> sesiones = sesionRepo.findByPacienteIdAndConsultorioId(pacienteId, consultorioId);
+        List<DiagnosticoClinico> diagnosticos = diagnosticoRepo.findByPacienteIdAndConsultorioId(pacienteId, consultorioId);
+        List<HistoriaClinicaAntecedente> antecedentes = antecedenteRepo.findByConsultorioIdAndPacienteId(consultorioId, pacienteId);
+        HistoriaClinicaLegajo legajo = legajoRepo.findByConsultorioIdAndPacienteId(consultorioId, pacienteId).orElse(null);
+        Map<UUID, Profesional> profesionales = buildProfesionalMap(consultorioId);
+        List<AdjuntoClinico> adjuntos = loadAdjuntosForSesiones(sesiones);
+
+        HistoriaClinicaLegajoStatusResult legajoStatus = toLegajoStatus(legajo, !sesiones.isEmpty() || !diagnosticos.isEmpty() || !antecedentes.isEmpty());
+        List<HistoriaClinicaAntecedenteResult> antecedentesRelevantes = antecedentes.stream()
+                .sorted(Comparator.comparing(HistoriaClinicaAntecedente::isCritical).reversed()
+                        .thenComparing(HistoriaClinicaAntecedente::getUpdatedAt, Comparator.reverseOrder()))
+                .limit(4)
+                .map(this::toAntecedenteResult)
+                .toList();
+        List<HistoriaClinicaActiveCaseSummaryResult> casosActivos = diagnosticos.stream()
+                .filter(diagnostico -> diagnostico.getEstado() == DiagnosticoClinicoEstado.ACTIVO)
+                .sorted(Comparator.comparing(DiagnosticoClinico::getFechaInicio, Comparator.reverseOrder()))
+                .map(diagnostico -> toCaseSummary(diagnostico, sesiones, profesionales))
+                .toList();
+        List<String> alertasClinicas = antecedentes.stream()
+                .filter(HistoriaClinicaAntecedente::isCritical)
+                .map(antecedente -> firstNonBlank(
+                        antecedente.getLabel() + (antecedente.getValueText() != null ? ": " + antecedente.getValueText() : ""),
+                        antecedente.getLabel(),
+                        "Alerta clinica"
+                ))
+                .limit(4)
+                .toList();
+        HistoriaClinicaSesionSummaryResult ultimaSesion = sesiones.stream()
+                .filter(sesion -> sesion.getEstado() != HistoriaClinicaSesionEstado.ANULADA)
+                .sorted(Comparator.comparing(SesionClinica::getFechaAtencion).reversed())
+                .findFirst()
+                .map(sesion -> toSesionSummary(sesion, profesionales.get(sesion.getProfesionalId())))
+                .orElse(null);
+        List<AdjuntoClinicoResult> adjuntosRecientes = adjuntos.stream()
+                .sorted(Comparator.comparing(AdjuntoClinico::getCreatedAt).reversed())
+                .limit(4)
+                .map(this::toAdjuntoResult)
+                .toList();
+
+        return new HistoriaClinicaOverviewResult(
+                paciente,
+                legajoStatus,
+                alertasClinicas,
+                antecedentesRelevantes,
+                casosActivos,
+                ultimaSesion,
+                adjuntosRecientes,
+                resolveProfesionalHabitual(sesiones, profesionales)
+        );
+    }
+
+    public HistoriaClinicaOverviewResult createLegajo(CreateHistoriaClinicaLegajoCommand command,
+                                                      String userEmail,
+                                                      Set<String> roles) {
+        UUID actorUserId = resolveUserId(userEmail);
+        loadPacienteWithClinicalAccess(command.consultorioId(), command.pacienteId(), userEmail, roles);
+        if (legajoRepo.findByConsultorioIdAndPacienteId(command.consultorioId(), command.pacienteId()).isPresent()) {
+            throw new HistoriaClinicaConflictException("La historia clinica ya existe para este paciente");
+        }
+
+        boolean hasInitialSessionPayload = command.fechaAtencion() != null
+                || hasText(command.motivoConsulta())
+                || hasText(command.resumenClinico())
+                || hasText(command.subjetivo())
+                || hasText(command.objetivo())
+                || hasText(command.evaluacion())
+                || hasText(command.plan());
+        boolean hasInitialCasePayload = hasText(command.casoDescripcion())
+                || hasText(command.casoCodigo())
+                || hasText(command.casoNotas())
+                || command.casoFechaInicio() != null;
+
+        if ((hasInitialSessionPayload || hasInitialCasePayload) && command.profesionalId() == null) {
+            throw new HistoriaClinicaValidationException("Debe indicar el profesional responsable para crear contexto clinico inicial");
+        }
+        if (command.profesionalId() != null) {
+            validateProfesionalCanWrite(command.consultorioId(), command.profesionalId(), userEmail, roles);
+        }
+
+        HistoriaClinicaLegajo legajo = legajoRepo.save(new HistoriaClinicaLegajo(
+                UUID.randomUUID(),
+                command.consultorioId(),
+                command.pacienteId(),
+                actorUserId,
+                actorUserId,
+                Instant.now(),
+                Instant.now()
+        ));
+
+        persistAntecedentes(legajo, command.antecedentes(), actorUserId);
+
+        SesionClinica sesionInicial = null;
+        if (hasInitialSessionPayload && command.profesionalId() != null) {
+            sesionInicial = sesionRepo.save(new SesionClinica(
+                    UUID.randomUUID(),
+                    command.consultorioId(),
+                    command.pacienteId(),
+                    command.profesionalId(),
+                    null,
+                    null,
+                    command.fechaAtencion() != null ? command.fechaAtencion() : LocalDateTime.now(),
+                    HistoriaClinicaSesionEstado.BORRADOR,
+                    com.akine_api.domain.model.HistoriaClinicaTipoAtencion.EVALUACION,
+                    trimToNull(command.motivoConsulta()),
+                    trimToNull(command.resumenClinico()),
+                    trimToNull(command.subjetivo()),
+                    trimToNull(command.objetivo()),
+                    trimToNull(command.evaluacion()),
+                    trimToNull(command.plan()),
+                    HistoriaClinicaOrigenRegistro.MANUAL,
+                    actorUserId,
+                    actorUserId,
+                    null,
+                    Instant.now(),
+                    Instant.now(),
+                    null
+            ));
+        }
+
+        if (hasInitialCasePayload && command.profesionalId() != null) {
+            diagnosticoRepo.save(new DiagnosticoClinico(
+                    UUID.randomUUID(),
+                    command.consultorioId(),
+                    command.pacienteId(),
+                    command.profesionalId(),
+                    sesionInicial != null ? sesionInicial.getId() : null,
+                    trimToNull(command.casoCodigo()),
+                    trimToNull(command.casoDescripcion()),
+                    DiagnosticoClinicoEstado.ACTIVO,
+                    command.casoFechaInicio() != null
+                            ? command.casoFechaInicio()
+                            : (sesionInicial != null ? sesionInicial.getFechaAtencion().toLocalDate() : LocalDate.now()),
+                    null,
+                    trimToNull(command.casoNotas()),
+                    actorUserId,
+                    actorUserId,
+                    Instant.now(),
+                    Instant.now()
+            ));
+        }
+
+        return getOverview(command.consultorioId(), command.pacienteId(), userEmail, roles);
+    }
+
+    @Transactional(readOnly = true)
+    public List<HistoriaClinicaAntecedenteResult> getAntecedentes(UUID consultorioId,
+                                                                  UUID pacienteId,
+                                                                  String userEmail,
+                                                                  Set<String> roles) {
+        loadPacienteWithClinicalAccess(consultorioId, pacienteId, userEmail, roles);
+        return antecedenteRepo.findByConsultorioIdAndPacienteId(consultorioId, pacienteId).stream()
+                .map(this::toAntecedenteResult)
+                .toList();
+    }
+
+    public List<HistoriaClinicaAntecedenteResult> updateAntecedentes(UpdateHistoriaClinicaAntecedentesCommand command,
+                                                                     String userEmail,
+                                                                     Set<String> roles) {
+        UUID actorUserId = resolveUserId(userEmail);
+        loadPacienteWithClinicalAccess(command.consultorioId(), command.pacienteId(), userEmail, roles);
+        HistoriaClinicaLegajo legajo = ensureLegajoExists(command.consultorioId(), command.pacienteId(), actorUserId);
+        return persistAntecedentes(legajo, command.antecedentes(), actorUserId);
+    }
+
+    @Transactional(readOnly = true)
+    public List<HistoriaClinicaTimelineEventResult> getTimeline(UUID consultorioId,
+                                                                UUID pacienteId,
+                                                                String type,
+                                                                String userEmail,
+                                                                Set<String> roles) {
+        loadPacienteWithClinicalAccess(consultorioId, pacienteId, userEmail, roles);
+        List<SesionClinica> sesiones = sesionRepo.findByPacienteIdAndConsultorioId(pacienteId, consultorioId);
+        List<DiagnosticoClinico> diagnosticos = diagnosticoRepo.findByPacienteIdAndConsultorioId(pacienteId, consultorioId);
+        List<HistoriaClinicaAntecedente> antecedentes = antecedenteRepo.findByConsultorioIdAndPacienteId(consultorioId, pacienteId);
+        HistoriaClinicaLegajo legajo = legajoRepo.findByConsultorioIdAndPacienteId(consultorioId, pacienteId).orElse(null);
+        Map<UUID, Profesional> profesionales = buildProfesionalMap(consultorioId);
+        Map<UUID, SesionClinica> sesionesById = sesiones.stream()
+                .collect(Collectors.toMap(SesionClinica::getId, Function.identity(), (left, right) -> left));
+        List<AdjuntoClinico> adjuntos = loadAdjuntosForSesiones(sesiones);
+
+        List<HistoriaClinicaTimelineEventResult> events = new ArrayList<>();
+        if (legajo != null) {
+            events.add(new HistoriaClinicaTimelineEventResult(
+                    legajo.getId().toString(),
+                    HistoriaClinicaTimelineEventType.HC_CREATED,
+                    toLocalDateTime(legajo.getCreatedAt()),
+                    null,
+                    null,
+                    "Historia clinica creada",
+                    "Se creo el legajo clinico del paciente en este consultorio.",
+                    null,
+                    legajo.getId()
+            ));
+        }
+        antecedentes.forEach(antecedente -> events.add(new HistoriaClinicaTimelineEventResult(
+                antecedente.getId().toString(),
+                HistoriaClinicaTimelineEventType.ANTECEDENTE_UPDATED,
+                toLocalDateTime(antecedente.getUpdatedAt()),
+                null,
+                null,
+                "Antecedente actualizado",
+                firstNonBlank(
+                        antecedente.getLabel() + (antecedente.getValueText() != null ? ": " + antecedente.getValueText() : ""),
+                        antecedente.getLabel(),
+                        "Antecedente"
+                ),
+                antecedente.isCritical() ? "Critico" : null,
+                antecedente.getId()
+        )));
+        diagnosticos.forEach(diagnostico -> {
+            Profesional profesional = profesionales.get(diagnostico.getProfesionalId());
+            events.add(new HistoriaClinicaTimelineEventResult(
+                    diagnostico.getId() + ":open",
+                    HistoriaClinicaTimelineEventType.CASO_OPENED,
+                    diagnostico.getFechaInicio().atStartOfDay(),
+                    diagnostico.getProfesionalId(),
+                    fullName(profesional),
+                    "Apertura de caso clinico",
+                    diagnostico.getDescripcion(),
+                    diagnostico.getEstado().name(),
+                    diagnostico.getId()
+            ));
+            if (diagnostico.getEstado() != DiagnosticoClinicoEstado.ACTIVO && diagnostico.getFechaFin() != null) {
+                events.add(new HistoriaClinicaTimelineEventResult(
+                        diagnostico.getId() + ":close",
+                        HistoriaClinicaTimelineEventType.CASO_CLOSED,
+                        diagnostico.getFechaFin().atStartOfDay(),
+                        diagnostico.getProfesionalId(),
+                        fullName(profesional),
+                        "Cierre de caso clinico",
+                        diagnostico.getDescripcion(),
+                        diagnostico.getEstado().name(),
+                        diagnostico.getId()
+                ));
+            }
+        });
+        sesiones.forEach(sesion -> {
+            Profesional profesional = profesionales.get(sesion.getProfesionalId());
+            events.add(new HistoriaClinicaTimelineEventResult(
+                    sesion.getId().toString(),
+                    HistoriaClinicaTimelineEventType.SESION,
+                    sesion.getFechaAtencion(),
+                    sesion.getProfesionalId(),
+                    fullName(profesional),
+                    "Sesion " + tipoToTimelineLabel(sesion),
+                    firstNonBlank(sesion.getResumenClinico(), sesion.getMotivoConsulta(), "Sesion clinica"),
+                    sesion.getEstado().name(),
+                    sesion.getId()
+            ));
+        });
+        adjuntos.forEach(adjunto -> {
+            SesionClinica sesion = sesionesById.get(adjunto.getSesionId());
+            Profesional profesional = sesion != null ? profesionales.get(sesion.getProfesionalId()) : null;
+            events.add(new HistoriaClinicaTimelineEventResult(
+                    adjunto.getId().toString(),
+                    HistoriaClinicaTimelineEventType.ADJUNTO,
+                    toLocalDateTime(adjunto.getCreatedAt()),
+                    sesion != null ? sesion.getProfesionalId() : null,
+                    fullName(profesional),
+                    "Adjunto agregado",
+                    adjunto.getOriginalFilename(),
+                    null,
+                    adjunto.getId()
+            ));
+        });
+
+        return events.stream()
+                .filter(event -> matchesTimelineType(type, event.type()))
+                .sorted(Comparator.comparing(HistoriaClinicaTimelineEventResult::occurredAt).reversed())
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public List<SesionClinicaResult> listSesiones(UUID consultorioId,
                                                   UUID pacienteId,
                                                   UUID profesionalId,
@@ -223,6 +525,7 @@ public class HistoriaClinicaService {
                                             Set<String> roles) {
         UUID actorUserId = resolveUserId(userEmail);
         loadPacienteWithClinicalAccess(command.consultorioId(), command.pacienteId(), userEmail, roles);
+        ensureLegajoExists(command.consultorioId(), command.pacienteId(), actorUserId);
         validateProfesionalCanWrite(command.consultorioId(), command.profesionalId(), userEmail, roles);
         TurnoLinkValidation turnoLink = validateTurnoLink(
                 command.consultorioId(),
@@ -332,6 +635,7 @@ public class HistoriaClinicaService {
                                                       Set<String> roles) {
         UUID actorUserId = resolveUserId(userEmail);
         loadPacienteWithClinicalAccess(command.consultorioId(), command.pacienteId(), userEmail, roles);
+        ensureLegajoExists(command.consultorioId(), command.pacienteId(), actorUserId);
         validateProfesionalCanWrite(command.consultorioId(), command.profesionalId(), userEmail, roles);
         if (command.sesionId() != null) {
             SesionClinica sesion = loadSesion(command.consultorioId(), command.pacienteId(), command.sesionId());
@@ -726,6 +1030,175 @@ public class HistoriaClinicaService {
                 adjunto.getSizeBytes(),
                 adjunto.getCreatedAt()
         );
+    }
+
+    private HistoriaClinicaLegajoStatusResult toLegajoStatus(HistoriaClinicaLegajo legajo, boolean fallbackExists) {
+        return new HistoriaClinicaLegajoStatusResult(
+                legajo != null || fallbackExists,
+                legajo != null ? legajo.getId() : null,
+                legajo != null ? legajo.getCreatedAt() : null,
+                legajo != null ? legajo.getUpdatedAt() : null
+        );
+    }
+
+    private HistoriaClinicaAntecedenteResult toAntecedenteResult(HistoriaClinicaAntecedente antecedente) {
+        return new HistoriaClinicaAntecedenteResult(
+                antecedente.getId(),
+                antecedente.getCategoryCode(),
+                antecedente.getCatalogItemCode(),
+                antecedente.getLabel(),
+                antecedente.getValueText(),
+                antecedente.isCritical(),
+                antecedente.getNotes(),
+                antecedente.getUpdatedAt()
+        );
+    }
+
+    private HistoriaClinicaActiveCaseSummaryResult toCaseSummary(DiagnosticoClinico diagnostico,
+                                                                List<SesionClinica> sesiones,
+                                                                Map<UUID, Profesional> profesionales) {
+        List<SesionClinica> relatedSessions = sesiones.stream()
+                .filter(sesion -> sesion.getEstado() != HistoriaClinicaSesionEstado.ANULADA)
+                .filter(sesion -> Objects.equals(sesion.getProfesionalId(), diagnostico.getProfesionalId()))
+                .filter(sesion -> !sesion.getFechaAtencion().toLocalDate().isBefore(diagnostico.getFechaInicio()))
+                .sorted(Comparator.comparing(SesionClinica::getFechaAtencion).reversed())
+                .toList();
+        Profesional profesional = profesionales.get(diagnostico.getProfesionalId());
+        return new HistoriaClinicaActiveCaseSummaryResult(
+                diagnostico.getId(),
+                diagnostico.getProfesionalId(),
+                fullName(profesional),
+                diagnostico.getCodigo(),
+                diagnostico.getDescripcion(),
+                diagnostico.getEstado(),
+                diagnostico.getFechaInicio(),
+                relatedSessions.size(),
+                relatedSessions.isEmpty()
+                        ? null
+                        : firstNonBlank(
+                                relatedSessions.get(0).getResumenClinico(),
+                                relatedSessions.get(0).getEvaluacion(),
+                                relatedSessions.get(0).getMotivoConsulta()
+                        )
+        );
+    }
+
+    private HistoriaClinicaSesionSummaryResult toSesionSummary(SesionClinica sesion, Profesional profesional) {
+        return new HistoriaClinicaSesionSummaryResult(
+                sesion.getId(),
+                sesion.getProfesionalId(),
+                fullName(profesional),
+                sesion.getFechaAtencion(),
+                sesion.getEstado(),
+                sesion.getTipoAtencion(),
+                firstNonBlank(sesion.getResumenClinico(), sesion.getMotivoConsulta(), "Sesion clinica")
+        );
+    }
+
+    private HistoriaClinicaLegajo ensureLegajoExists(UUID consultorioId, UUID pacienteId, UUID actorUserId) {
+        return legajoRepo.findByConsultorioIdAndPacienteId(consultorioId, pacienteId)
+                .orElseGet(() -> legajoRepo.save(new HistoriaClinicaLegajo(
+                        UUID.randomUUID(),
+                        consultorioId,
+                        pacienteId,
+                        actorUserId,
+                        actorUserId,
+                        Instant.now(),
+                        Instant.now()
+                )));
+    }
+
+    private List<HistoriaClinicaAntecedenteResult> persistAntecedentes(HistoriaClinicaLegajo legajo,
+                                                                       List<HistoriaClinicaAntecedenteItemCommand> antecedentes,
+                                                                       UUID actorUserId) {
+        List<HistoriaClinicaAntecedenteItemCommand> normalized = antecedentes == null ? List.of() : antecedentes.stream()
+                .filter(Objects::nonNull)
+                .filter(item -> hasText(item.label()))
+                .toList();
+        antecedenteRepo.deleteByConsultorioIdAndPacienteId(legajo.getConsultorioId(), legajo.getPacienteId());
+        List<HistoriaClinicaAntecedente> saved = normalized.isEmpty()
+                ? List.of()
+                : antecedenteRepo.saveAll(normalized.stream()
+                        .map(item -> new HistoriaClinicaAntecedente(
+                                UUID.randomUUID(),
+                                legajo.getId(),
+                                legajo.getConsultorioId(),
+                                legajo.getPacienteId(),
+                                trimToNull(item.categoryCode()),
+                                trimToNull(item.catalogItemCode()),
+                                item.label().trim(),
+                                trimToNull(item.valueText()),
+                                item.critical(),
+                                trimToNull(item.notes()),
+                                actorUserId,
+                                actorUserId,
+                                Instant.now(),
+                                Instant.now()
+                        ))
+                        .toList());
+        legajo.touch(actorUserId);
+        legajoRepo.save(legajo);
+        return saved.stream()
+                .sorted(Comparator.comparing(HistoriaClinicaAntecedente::isCritical).reversed()
+                        .thenComparing(HistoriaClinicaAntecedente::getUpdatedAt, Comparator.reverseOrder()))
+                .map(this::toAntecedenteResult)
+                .toList();
+    }
+
+    private List<AdjuntoClinico> loadAdjuntosForSesiones(List<SesionClinica> sesiones) {
+        List<UUID> sesionIds = sesiones.stream().map(SesionClinica::getId).toList();
+        if (sesionIds.isEmpty()) {
+            return List.of();
+        }
+        return adjuntoRepo.findBySesionIds(sesionIds);
+    }
+
+    private String resolveProfesionalHabitual(List<SesionClinica> sesiones, Map<UUID, Profesional> profesionales) {
+        return sesiones.stream()
+                .filter(sesion -> sesion.getEstado() != HistoriaClinicaSesionEstado.ANULADA)
+                .collect(Collectors.groupingBy(SesionClinica::getProfesionalId, Collectors.counting()))
+                .entrySet()
+                .stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .map(profesionales::get)
+                .map(this::fullName)
+                .orElse(null);
+    }
+
+    private LocalDateTime toLocalDateTime(Instant instant) {
+        return instant == null ? null : LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+    }
+
+    private String tipoToTimelineLabel(SesionClinica sesion) {
+        if (sesion.getTipoAtencion() == null) {
+            return "clinica";
+        }
+        return switch (sesion.getTipoAtencion()) {
+            case EVALUACION -> "de evaluacion inicial";
+            case TRATAMIENTO -> "de tratamiento";
+            case INTERCONSULTA -> "de interconsulta";
+            case OTRO -> "clinica";
+            case SEGUIMIENTO -> "de seguimiento";
+        };
+    }
+
+    private boolean matchesTimelineType(String requestedType, HistoriaClinicaTimelineEventType eventType) {
+        if (requestedType == null || requestedType.isBlank() || "all".equalsIgnoreCase(requestedType)) {
+            return true;
+        }
+        return switch (requestedType.toLowerCase(Locale.ROOT)) {
+            case "sessions", "sesiones" -> eventType == HistoriaClinicaTimelineEventType.SESION;
+            case "cases", "casos" -> eventType == HistoriaClinicaTimelineEventType.CASO_OPENED
+                    || eventType == HistoriaClinicaTimelineEventType.CASO_CLOSED;
+            case "antecedents", "antecedentes" -> eventType == HistoriaClinicaTimelineEventType.ANTECEDENTE_UPDATED;
+            case "attachments", "adjuntos" -> eventType == HistoriaClinicaTimelineEventType.ADJUNTO;
+            default -> true;
+        };
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.isBlank();
     }
 
     private boolean matchesWorkspaceQuery(SesionClinica sesion, Paciente paciente, String q) {

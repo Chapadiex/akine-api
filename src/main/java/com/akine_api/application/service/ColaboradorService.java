@@ -33,6 +33,7 @@ public class ColaboradorService {
     private final PasswordEncoderPort passwordEncoder;
     private final EmailPort emailPort;
     private final ProfesionalRepositoryPort profesionalRepo;
+    private final ProfesionalConsultorioRepositoryPort profesionalConsultorioRepo;
     private final EmpleadoRepositoryPort empleadoRepo;
     private final CargoEmpleadoCatalogoRepositoryPort cargoEmpleadoCatalogoRepo;
 
@@ -44,6 +45,7 @@ public class ColaboradorService {
                               PasswordEncoderPort passwordEncoder,
                               EmailPort emailPort,
                               ProfesionalRepositoryPort profesionalRepo,
+                              ProfesionalConsultorioRepositoryPort profesionalConsultorioRepo,
                               EmpleadoRepositoryPort empleadoRepo,
                               CargoEmpleadoCatalogoRepositoryPort cargoEmpleadoCatalogoRepo) {
         this.consultorioRepo = consultorioRepo;
@@ -54,6 +56,7 @@ public class ColaboradorService {
         this.passwordEncoder = passwordEncoder;
         this.emailPort = emailPort;
         this.profesionalRepo = profesionalRepo;
+        this.profesionalConsultorioRepo = profesionalConsultorioRepo;
         this.empleadoRepo = empleadoRepo;
         this.cargoEmpleadoCatalogoRepo = cargoEmpleadoCatalogoRepo;
     }
@@ -135,7 +138,9 @@ public class ColaboradorService {
                 true,
                 Instant.now()
         );
-        return toProfesionalResult(profesionalRepo.save(profesional));
+        Profesional saved = profesionalRepo.save(profesional);
+        ensureProfesionalConsultorioRelation(saved.getId(), cmd.consultorioId());
+        return toProfesionalResult(saved);
     }
 
     public ColaboradorProfesionalResult updateProfesional(UpdateColaboradorProfesionalCommand cmd,
@@ -263,7 +268,9 @@ public class ColaboradorService {
             );
         }
         profesional.linkUser(user.getId());
-        return toProfesionalResult(profesionalRepo.save(profesional));
+        Profesional saved = profesionalRepo.save(profesional);
+        ensureProfesionalConsultorioRelation(saved.getId(), consultorioId);
+        return toProfesionalResult(saved);
     }
 
     private User resolveOrCreateProfessionalUser(String email, String firstName, String lastName, String phone,
@@ -342,6 +349,34 @@ public class ColaboradorService {
                 consultorioId,
                 MembershipRole.PROFESIONAL,
                 MembershipStatus.ACTIVE,
+                Instant.now()
+        ));
+    }
+
+    private void ensureProfesionalConsultorioRelation(UUID profesionalId, UUID consultorioId) {
+        Optional<ProfesionalConsultorio> existing = profesionalConsultorioRepo
+                .findByProfesionalIdAndConsultorioId(profesionalId, consultorioId);
+
+        if (existing.isPresent()) {
+            ProfesionalConsultorio relation = existing.get();
+            if (relation.isActivo()) {
+                return;
+            }
+            profesionalConsultorioRepo.save(new ProfesionalConsultorio(
+                    relation.getId(),
+                    relation.getProfesionalId(),
+                    relation.getConsultorioId(),
+                    true,
+                    relation.getCreatedAt()
+            ));
+            return;
+        }
+
+        profesionalConsultorioRepo.save(new ProfesionalConsultorio(
+                UUID.randomUUID(),
+                profesionalId,
+                consultorioId,
+                true,
                 Instant.now()
         ));
     }

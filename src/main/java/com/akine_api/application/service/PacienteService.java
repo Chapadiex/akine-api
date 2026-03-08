@@ -215,7 +215,7 @@ public class PacienteService {
                                              String q,
                                              String userEmail,
                                              Set<String> roles) {
-        assertBackofficeRole(roles);
+        assertClinicalSearchRole(roles);
         assertCanManageConsultorio(consultorioId, userEmail, roles);
 
         List<Paciente> pacientes = new ArrayList<>();
@@ -282,6 +282,16 @@ public class PacienteService {
 
     private void assertBackofficeRole(Set<String> roles) {
         if (roles.contains("ROLE_ADMIN") || roles.contains("ROLE_PROFESIONAL_ADMIN") || roles.contains("ROLE_ADMINISTRATIVO")) {
+            return;
+        }
+        throw new AccessDeniedException("Permiso denegado");
+    }
+
+    private void assertClinicalSearchRole(Set<String> roles) {
+        if (roles.contains("ROLE_ADMIN")
+                || roles.contains("ROLE_PROFESIONAL_ADMIN")
+                || roles.contains("ROLE_ADMINISTRATIVO")
+                || roles.contains("ROLE_PROFESIONAL")) {
             return;
         }
         throw new AccessDeniedException("Permiso denegado");
