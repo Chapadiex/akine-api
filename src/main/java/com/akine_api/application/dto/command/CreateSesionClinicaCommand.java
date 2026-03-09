@@ -3,6 +3,7 @@ package com.akine_api.application.dto.command;
 import com.akine_api.domain.model.HistoriaClinicaTipoAtencion;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public record CreateSesionClinicaCommand(
@@ -19,5 +20,8 @@ public record CreateSesionClinicaCommand(
         String objetivo,
         String evaluacion,
         String plan,
+        SesionEvaluacionDTO evaluacionEstructurada,
+        SesionExamenFisicoDTO examenFisico,
+        List<SesionIntervencionDTO> intervenciones,
         UUID actorUserId
 ) {}
