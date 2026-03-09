@@ -21,7 +21,14 @@ public class AtencionInicial {
     private final String especialidadDerivante;
     private final String profesionalDerivante;
     private final LocalDate fechaPrescripcion;
-    private final String diagnosticoTexto;
+    private final String diagnosticoCodigo;
+    private final String diagnosticoNombre;
+    private final String diagnosticoTipo;
+    private final String diagnosticoCategoriaCodigo;
+    private final String diagnosticoCategoriaNombre;
+    private final String diagnosticoSubcategoria;
+    private final String diagnosticoRegionAnatomica;
+    private final String diagnosticoObservacion;
     private final String observacionesPrescripcion;
     private final String resumenClinicoInicial;
     private final String hallazgosRelevantes;
@@ -44,7 +51,14 @@ public class AtencionInicial {
                            String especialidadDerivante,
                            String profesionalDerivante,
                            LocalDate fechaPrescripcion,
-                           String diagnosticoTexto,
+                           String diagnosticoCodigo,
+                           String diagnosticoNombre,
+                           String diagnosticoTipo,
+                           String diagnosticoCategoriaCodigo,
+                           String diagnosticoCategoriaNombre,
+                           String diagnosticoSubcategoria,
+                           String diagnosticoRegionAnatomica,
+                           String diagnosticoObservacion,
                            String observacionesPrescripcion,
                            String resumenClinicoInicial,
                            String hallazgosRelevantes,
@@ -72,7 +86,14 @@ public class AtencionInicial {
         this.especialidadDerivante = especialidadDerivante;
         this.profesionalDerivante = profesionalDerivante;
         this.fechaPrescripcion = fechaPrescripcion;
-        this.diagnosticoTexto = diagnosticoTexto;
+        this.diagnosticoCodigo = diagnosticoCodigo;
+        this.diagnosticoNombre = diagnosticoNombre;
+        this.diagnosticoTipo = diagnosticoTipo;
+        this.diagnosticoCategoriaCodigo = diagnosticoCategoriaCodigo;
+        this.diagnosticoCategoriaNombre = diagnosticoCategoriaNombre;
+        this.diagnosticoSubcategoria = diagnosticoSubcategoria;
+        this.diagnosticoRegionAnatomica = diagnosticoRegionAnatomica;
+        this.diagnosticoObservacion = diagnosticoObservacion;
         this.observacionesPrescripcion = observacionesPrescripcion;
         this.resumenClinicoInicial = resumenClinicoInicial;
         this.hallazgosRelevantes = hallazgosRelevantes;
@@ -96,7 +117,14 @@ public class AtencionInicial {
     public String getEspecialidadDerivante() { return especialidadDerivante; }
     public String getProfesionalDerivante() { return profesionalDerivante; }
     public LocalDate getFechaPrescripcion() { return fechaPrescripcion; }
-    public String getDiagnosticoTexto() { return diagnosticoTexto; }
+    public String getDiagnosticoCodigo() { return diagnosticoCodigo; }
+    public String getDiagnosticoNombre() { return diagnosticoNombre; }
+    public String getDiagnosticoTipo() { return diagnosticoTipo; }
+    public String getDiagnosticoCategoriaCodigo() { return diagnosticoCategoriaCodigo; }
+    public String getDiagnosticoCategoriaNombre() { return diagnosticoCategoriaNombre; }
+    public String getDiagnosticoSubcategoria() { return diagnosticoSubcategoria; }
+    public String getDiagnosticoRegionAnatomica() { return diagnosticoRegionAnatomica; }
+    public String getDiagnosticoObservacion() { return diagnosticoObservacion; }
     public String getObservacionesPrescripcion() { return observacionesPrescripcion; }
     public String getResumenClinicoInicial() { return resumenClinicoInicial; }
     public String getHallazgosRelevantes() { return hallazgosRelevantes; }

@@ -17,6 +17,11 @@ public class DiagnosticoClinico {
     private UUID sesionId;
     private String codigo;
     private String descripcion;
+    private String diagnosticoTipo;
+    private String diagnosticoCategoriaCodigo;
+    private String diagnosticoCategoriaNombre;
+    private String diagnosticoSubcategoria;
+    private String diagnosticoRegionAnatomica;
     private DiagnosticoClinicoEstado estado;
     private LocalDate fechaInicio;
     private LocalDate fechaFin;
@@ -31,6 +36,11 @@ public class DiagnosticoClinico {
                               UUID sesionId,
                               String codigo,
                               String descripcion,
+                              String diagnosticoTipo,
+                              String diagnosticoCategoriaCodigo,
+                              String diagnosticoCategoriaNombre,
+                              String diagnosticoSubcategoria,
+                              String diagnosticoRegionAnatomica,
                               DiagnosticoClinicoEstado estado,
                               LocalDate fechaInicio,
                               LocalDate fechaFin,
@@ -55,6 +65,11 @@ public class DiagnosticoClinico {
         this.sesionId = sesionId;
         this.codigo = codigo;
         this.descripcion = descripcion;
+        this.diagnosticoTipo = diagnosticoTipo;
+        this.diagnosticoCategoriaCodigo = diagnosticoCategoriaCodigo;
+        this.diagnosticoCategoriaNombre = diagnosticoCategoriaNombre;
+        this.diagnosticoSubcategoria = diagnosticoSubcategoria;
+        this.diagnosticoRegionAnatomica = diagnosticoRegionAnatomica;
         this.estado = estado;
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
@@ -69,6 +84,11 @@ public class DiagnosticoClinico {
                        UUID sesionId,
                        String codigo,
                        String descripcion,
+                       String diagnosticoTipo,
+                       String diagnosticoCategoriaCodigo,
+                       String diagnosticoCategoriaNombre,
+                       String diagnosticoSubcategoria,
+                       String diagnosticoRegionAnatomica,
                        LocalDate fechaInicio,
                        String notas,
                        UUID updatedByUserId) {
@@ -80,6 +100,11 @@ public class DiagnosticoClinico {
         this.sesionId = sesionId;
         this.codigo = codigo;
         this.descripcion = descripcion;
+        this.diagnosticoTipo = diagnosticoTipo;
+        this.diagnosticoCategoriaCodigo = diagnosticoCategoriaCodigo;
+        this.diagnosticoCategoriaNombre = diagnosticoCategoriaNombre;
+        this.diagnosticoSubcategoria = diagnosticoSubcategoria;
+        this.diagnosticoRegionAnatomica = diagnosticoRegionAnatomica;
         this.fechaInicio = fechaInicio;
         this.notas = notas;
         this.updatedByUserId = updatedByUserId;
@@ -125,6 +150,11 @@ public class DiagnosticoClinico {
     public UUID getSesionId() { return sesionId; }
     public String getCodigo() { return codigo; }
     public String getDescripcion() { return descripcion; }
+    public String getDiagnosticoTipo() { return diagnosticoTipo; }
+    public String getDiagnosticoCategoriaCodigo() { return diagnosticoCategoriaCodigo; }
+    public String getDiagnosticoCategoriaNombre() { return diagnosticoCategoriaNombre; }
+    public String getDiagnosticoSubcategoria() { return diagnosticoSubcategoria; }
+    public String getDiagnosticoRegionAnatomica() { return diagnosticoRegionAnatomica; }
     public DiagnosticoClinicoEstado getEstado() { return estado; }
     public LocalDate getFechaInicio() { return fechaInicio; }
     public LocalDate getFechaFin() { return fechaFin; }

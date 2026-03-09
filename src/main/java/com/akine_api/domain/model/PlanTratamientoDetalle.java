@@ -10,6 +10,12 @@ public class PlanTratamientoDetalle {
     private final UUID planTerapeuticoId;
     private final String tratamientoId;
     private final String tratamientoNombreSnapshot;
+    private final String tratamientoCategoriaCodigoSnapshot;
+    private final String tratamientoCategoriaNombreSnapshot;
+    private final String tratamientoTipoSnapshot;
+    private final boolean tratamientoRequiereAutorizacionSnapshot;
+    private final boolean tratamientoRequierePrescripcionMedicaSnapshot;
+    private final Integer tratamientoDuracionSugeridaMinutosSnapshot;
     private final int cantidadSesiones;
     private final String frecuenciaSugerida;
     private final PlanTratamientoCaracter caracterCaso;
@@ -24,6 +30,12 @@ public class PlanTratamientoDetalle {
                                   UUID planTerapeuticoId,
                                   String tratamientoId,
                                   String tratamientoNombreSnapshot,
+                                  String tratamientoCategoriaCodigoSnapshot,
+                                  String tratamientoCategoriaNombreSnapshot,
+                                  String tratamientoTipoSnapshot,
+                                  boolean tratamientoRequiereAutorizacionSnapshot,
+                                  boolean tratamientoRequierePrescripcionMedicaSnapshot,
+                                  Integer tratamientoDuracionSugeridaMinutosSnapshot,
                                   int cantidadSesiones,
                                   String frecuenciaSugerida,
                                   PlanTratamientoCaracter caracterCaso,
@@ -46,6 +58,12 @@ public class PlanTratamientoDetalle {
         this.planTerapeuticoId = planTerapeuticoId;
         this.tratamientoId = tratamientoId;
         this.tratamientoNombreSnapshot = tratamientoNombreSnapshot;
+        this.tratamientoCategoriaCodigoSnapshot = tratamientoCategoriaCodigoSnapshot;
+        this.tratamientoCategoriaNombreSnapshot = tratamientoCategoriaNombreSnapshot;
+        this.tratamientoTipoSnapshot = tratamientoTipoSnapshot;
+        this.tratamientoRequiereAutorizacionSnapshot = tratamientoRequiereAutorizacionSnapshot;
+        this.tratamientoRequierePrescripcionMedicaSnapshot = tratamientoRequierePrescripcionMedicaSnapshot;
+        this.tratamientoDuracionSugeridaMinutosSnapshot = tratamientoDuracionSugeridaMinutosSnapshot;
         this.cantidadSesiones = cantidadSesiones;
         this.frecuenciaSugerida = frecuenciaSugerida;
         this.caracterCaso = caracterCaso;
@@ -61,6 +79,12 @@ public class PlanTratamientoDetalle {
     public UUID getPlanTerapeuticoId() { return planTerapeuticoId; }
     public String getTratamientoId() { return tratamientoId; }
     public String getTratamientoNombreSnapshot() { return tratamientoNombreSnapshot; }
+    public String getTratamientoCategoriaCodigoSnapshot() { return tratamientoCategoriaCodigoSnapshot; }
+    public String getTratamientoCategoriaNombreSnapshot() { return tratamientoCategoriaNombreSnapshot; }
+    public String getTratamientoTipoSnapshot() { return tratamientoTipoSnapshot; }
+    public boolean isTratamientoRequiereAutorizacionSnapshot() { return tratamientoRequiereAutorizacionSnapshot; }
+    public boolean isTratamientoRequierePrescripcionMedicaSnapshot() { return tratamientoRequierePrescripcionMedicaSnapshot; }
+    public Integer getTratamientoDuracionSugeridaMinutosSnapshot() { return tratamientoDuracionSugeridaMinutosSnapshot; }
     public int getCantidadSesiones() { return cantidadSesiones; }
     public String getFrecuenciaSugerida() { return frecuenciaSugerida; }
     public PlanTratamientoCaracter getCaracterCaso() { return caracterCaso; }

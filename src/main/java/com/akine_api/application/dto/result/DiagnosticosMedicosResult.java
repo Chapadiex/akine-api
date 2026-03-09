@@ -5,15 +5,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.time.Instant;
 import java.util.UUID;
 
-public record TratamientoCatalogResult(
+public record DiagnosticosMedicosResult(
         UUID consultorioId,
         String version,
-        String monedaNomenclador,
         String pais,
-        JsonNode observaciones,
+        String idioma,
         JsonNode tipos,
         JsonNode categorias,
-        JsonNode tratamientos,
+        JsonNode diagnosticos,
         Instant createdAt,
         String createdBy,
         Instant updatedAt,

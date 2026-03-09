@@ -10,9 +10,11 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Set;
@@ -43,18 +45,35 @@ public class TratamientoCatalogController {
         TratamientoCatalogResult result = service.upsert(
                 consultorioId,
                 request.version(),
-                request.items(),
+                request.monedaNomenclador(),
+                request.pais(),
+                request.observaciones(),
+                request.tipos(),
+                request.categorias(),
+                request.tratamientos(),
                 principal.getUsername(),
                 roles(principal)
         );
         return ResponseEntity.ok(toResponse(result));
     }
 
+    @PostMapping("/defaults/restore")
+    public ResponseEntity<TratamientoCatalogResponse> restoreDefaults(@PathVariable UUID consultorioId,
+                                                                     @RequestParam(defaultValue = "ADD_MISSING") ConsultorioTratamientoCatalogService.DefaultsMode mode,
+                                                                     @AuthenticationPrincipal UserDetails principal) {
+        return ResponseEntity.ok(toResponse(service.restoreDefaults(consultorioId, mode, principal.getUsername(), roles(principal))));
+    }
+
     private TratamientoCatalogResponse toResponse(TratamientoCatalogResult result) {
         return new TratamientoCatalogResponse(
                 result.consultorioId(),
                 result.version(),
-                result.items(),
+                result.monedaNomenclador(),
+                result.pais(),
+                result.observaciones(),
+                result.tipos(),
+                result.categorias(),
+                result.tratamientos(),
                 result.createdAt(),
                 result.createdBy(),
                 result.updatedAt(),

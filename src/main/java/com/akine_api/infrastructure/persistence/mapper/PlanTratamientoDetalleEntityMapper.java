@@ -14,6 +14,12 @@ public interface PlanTratamientoDetalleEntityMapper {
                 entity.getPlanTerapeuticoId(),
                 entity.getTratamientoId(),
                 entity.getTratamientoNombreSnapshot(),
+                entity.getTratamientoCategoriaCodigoSnapshot(),
+                entity.getTratamientoCategoriaNombreSnapshot(),
+                entity.getTratamientoTipoSnapshot(),
+                Boolean.TRUE.equals(entity.getTratamientoRequiereAutorizacionSnapshot()),
+                Boolean.TRUE.equals(entity.getTratamientoRequierePrescripcionMedicaSnapshot()),
+                entity.getTratamientoDuracionSugeridaMinutosSnapshot(),
                 entity.getCantidadSesiones(),
                 entity.getFrecuenciaSugerida(),
                 entity.getCaracterCaso(),
@@ -33,6 +39,12 @@ public interface PlanTratamientoDetalleEntityMapper {
         entity.setPlanTerapeuticoId(domain.getPlanTerapeuticoId());
         entity.setTratamientoId(domain.getTratamientoId());
         entity.setTratamientoNombreSnapshot(domain.getTratamientoNombreSnapshot());
+        entity.setTratamientoCategoriaCodigoSnapshot(domain.getTratamientoCategoriaCodigoSnapshot());
+        entity.setTratamientoCategoriaNombreSnapshot(domain.getTratamientoCategoriaNombreSnapshot());
+        entity.setTratamientoTipoSnapshot(domain.getTratamientoTipoSnapshot());
+        entity.setTratamientoRequiereAutorizacionSnapshot(domain.isTratamientoRequiereAutorizacionSnapshot());
+        entity.setTratamientoRequierePrescripcionMedicaSnapshot(domain.isTratamientoRequierePrescripcionMedicaSnapshot());
+        entity.setTratamientoDuracionSugeridaMinutosSnapshot(domain.getTratamientoDuracionSugeridaMinutosSnapshot());
         entity.setCantidadSesiones(domain.getCantidadSesiones());
         entity.setFrecuenciaSugerida(domain.getFrecuenciaSugerida());
         entity.setCaracterCaso(domain.getCaracterCaso());

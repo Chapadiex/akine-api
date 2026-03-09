@@ -43,6 +43,21 @@ public class DiagnosticoClinicoEntity {
     @Column(nullable = false, length = 500)
     private String descripcion;
 
+    @Column(name = "diagnostico_tipo", length = 40)
+    private String diagnosticoTipo;
+
+    @Column(name = "diagnostico_categoria_codigo", length = 100)
+    private String diagnosticoCategoriaCodigo;
+
+    @Column(name = "diagnostico_categoria_nombre", length = 120)
+    private String diagnosticoCategoriaNombre;
+
+    @Column(name = "diagnostico_subcategoria", length = 120)
+    private String diagnosticoSubcategoria;
+
+    @Column(name = "diagnostico_region_anatomica", length = 120)
+    private String diagnosticoRegionAnatomica;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private DiagnosticoClinicoEstado estado;

@@ -8,7 +8,12 @@ import java.util.UUID;
 public record TratamientoCatalogResponse(
         UUID consultorioId,
         String version,
-        JsonNode items,
+        String monedaNomenclador,
+        String pais,
+        JsonNode observaciones,
+        JsonNode tipos,
+        JsonNode categorias,
+        JsonNode tratamientos,
         Instant createdAt,
         String createdBy,
         Instant updatedAt,

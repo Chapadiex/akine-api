@@ -1,8 +1,10 @@
 package com.akine_api.service;
 
 import com.akine_api.application.dto.command.CreateHistoriaClinicaLegajoCommand;
+import com.akine_api.application.dto.command.CreateAtencionInicialCommand;
 import com.akine_api.application.dto.command.CreateSesionClinicaCommand;
 import com.akine_api.application.dto.command.HistoriaClinicaAntecedenteItemCommand;
+import com.akine_api.application.dto.command.PlanTratamientoDetalleCommand;
 import com.akine_api.application.dto.command.ResolveDiagnosticoClinicoCommand;
 import com.akine_api.application.dto.command.UpdateHistoriaClinicaAntecedentesCommand;
 import com.akine_api.application.dto.command.UpdateSesionClinicaCommand;
@@ -25,6 +27,8 @@ import com.akine_api.application.port.output.SesionClinicaRepositoryPort;
 import com.akine_api.application.port.output.TurnoRepositoryPort;
 import com.akine_api.application.port.output.UserRepositoryPort;
 import com.akine_api.application.service.HistoriaClinicaService;
+import com.akine_api.application.service.ConsultorioDiagnosticosMedicosService;
+import com.akine_api.application.service.ConsultorioTratamientoCatalogService;
 import com.akine_api.domain.exception.HistoriaClinicaConflictException;
 import com.akine_api.domain.exception.HistoriaClinicaValidationException;
 import com.akine_api.domain.exception.SesionClinicaNotFoundException;
@@ -39,7 +43,10 @@ import com.akine_api.domain.model.HistoriaClinicaOrigenRegistro;
 import com.akine_api.domain.model.HistoriaClinicaSesionEstado;
 import com.akine_api.domain.model.HistoriaClinicaTimelineEventType;
 import com.akine_api.domain.model.HistoriaClinicaTipoAtencion;
+import com.akine_api.domain.model.AtencionInicialTipoIngreso;
 import com.akine_api.domain.model.Paciente;
+import com.akine_api.domain.model.PlanTratamientoCaracter;
+import com.akine_api.domain.model.PlanTratamientoDetalle;
 import com.akine_api.domain.model.Profesional;
 import com.akine_api.domain.model.ProfesionalConsultorio;
 import com.akine_api.domain.model.SesionClinica;
@@ -52,6 +59,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.quality.Strictness;
@@ -70,6 +78,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -94,6 +103,8 @@ class HistoriaClinicaServiceTest {
     @Mock TurnoRepositoryPort turnoRepo;
     @Mock UserRepositoryPort userRepo;
     @Mock BoxRepositoryPort boxRepo;
+    @Mock ConsultorioDiagnosticosMedicosService diagnosticosMedicosService;
+    @Mock ConsultorioTratamientoCatalogService tratamientoCatalogService;
 
     private HistoriaClinicaService service;
 
@@ -129,13 +140,18 @@ class HistoriaClinicaServiceTest {
                 profesionalConsultorioRepo,
                 turnoRepo,
                 userRepo,
-                boxRepo
+                boxRepo,
+                diagnosticosMedicosService,
+                tratamientoCatalogService
         );
         mockAccessBase();
         when(sesionRepo.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(diagnosticoRepo.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(legajoRepo.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(antecedenteRepo.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(atencionInicialRepo.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(planTerapeuticoRepo.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(planDetalleRepo.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
     }
 
     @Test
@@ -418,6 +434,116 @@ class HistoriaClinicaServiceTest {
     }
 
     @Test
+    void createAtencionInicial_persistsTreatmentSnapshotFromCatalog() {
+        when(tratamientoCatalogService.requireActiveTreatment(CONSULTORIO_ID, "TMN001"))
+                .thenReturn(new ConsultorioTratamientoCatalogService.TratamientoSnapshot(
+                        "TMN001",
+                        "Terapia manual",
+                        "TERAPIA_MANUAL",
+                        "Terapia manual",
+                        "TECNICA",
+                        true,
+                        false,
+                        20
+                ));
+
+        service.createAtencionInicial(
+                new CreateAtencionInicialCommand(
+                        CONSULTORIO_ID,
+                        PACIENTE_ID,
+                        PROFESIONAL_ID,
+                        LocalDateTime.now(),
+                        AtencionInicialTipoIngreso.CONSULTA_PARTICULAR,
+                        "Dolor lumbar",
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        List.of(),
+                        "Plan inicial",
+                        List.of(new PlanTratamientoDetalleCommand(
+                                "TMN001",
+                                10,
+                                "2 veces por semana",
+                                PlanTratamientoCaracter.PARCIAL,
+                                LocalDate.now().plusDays(1),
+                                true,
+                                "Observacion",
+                                "Administrativa"
+                        )),
+                        USER_ID
+                ),
+                "admin@test.com",
+                Set.of("ROLE_ADMIN")
+        );
+
+        ArgumentCaptor<List<PlanTratamientoDetalle>> captor = ArgumentCaptor.forClass(List.class);
+        verify(planDetalleRepo).saveAll(captor.capture());
+        PlanTratamientoDetalle detalle = captor.getValue().get(0);
+
+        assertThat(detalle.getTratamientoNombreSnapshot()).isEqualTo("Terapia manual");
+        assertThat(detalle.getTratamientoCategoriaCodigoSnapshot()).isEqualTo("TERAPIA_MANUAL");
+        assertThat(detalle.getTratamientoCategoriaNombreSnapshot()).isEqualTo("Terapia manual");
+        assertThat(detalle.getTratamientoTipoSnapshot()).isEqualTo("TECNICA");
+        assertThat(detalle.isTratamientoRequiereAutorizacionSnapshot()).isTrue();
+        assertThat(detalle.isTratamientoRequierePrescripcionMedicaSnapshot()).isFalse();
+        assertThat(detalle.getTratamientoDuracionSugeridaMinutosSnapshot()).isEqualTo(20);
+    }
+
+    @Test
+    void createAtencionInicial_whenTreatmentIsInactive_throws() {
+        when(tratamientoCatalogService.requireActiveTreatment(CONSULTORIO_ID, "TMN001"))
+                .thenThrow(new IllegalArgumentException("El tratamiento seleccionado esta inactivo"));
+
+        assertThatThrownBy(() -> service.createAtencionInicial(
+                new CreateAtencionInicialCommand(
+                        CONSULTORIO_ID,
+                        PACIENTE_ID,
+                        PROFESIONAL_ID,
+                        LocalDateTime.now(),
+                        AtencionInicialTipoIngreso.CONSULTA_PARTICULAR,
+                        "Dolor lumbar",
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        List.of(),
+                        "Plan inicial",
+                        List.of(new PlanTratamientoDetalleCommand(
+                                "TMN001",
+                                10,
+                                null,
+                                PlanTratamientoCaracter.PARCIAL,
+                                null,
+                                false,
+                                null,
+                                null
+                        )),
+                        USER_ID
+                ),
+                "admin@test.com",
+                Set.of("ROLE_ADMIN")
+        )).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("inactivo");
+    }
+
+    @Test
     void createLegajo_persistsLegajoAntecedentesAndInitialContext() {
         HistoriaClinicaLegajo legajo = sampleLegajo();
         when(legajoRepo.findByConsultorioIdAndPacienteId(CONSULTORIO_ID, PACIENTE_ID))
@@ -693,6 +819,11 @@ class HistoriaClinicaServiceTest {
                 null,
                 "A01",
                 "Diagnostico de prueba",
+                "DIAGNOSTICO_MEDICO",
+                "OSTEO",
+                "Osteomuscular",
+                "Columna lumbar",
+                "Lumbar",
                 estado,
                 LocalDate.now().minusDays(5),
                 null,

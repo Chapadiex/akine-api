@@ -122,6 +122,8 @@ public class HistoriaClinicaService {
     private final TurnoRepositoryPort turnoRepo;
     private final UserRepositoryPort userRepo;
     private final BoxRepositoryPort boxRepo;
+    private final ConsultorioDiagnosticosMedicosService diagnosticosMedicosService;
+    private final ConsultorioTratamientoCatalogService tratamientoCatalogService;
 
     public HistoriaClinicaService(SesionClinicaRepositoryPort sesionRepo,
                                   DiagnosticoClinicoRepositoryPort diagnosticoRepo,
@@ -140,7 +142,9 @@ public class HistoriaClinicaService {
                                   ProfesionalConsultorioRepositoryPort profesionalConsultorioRepo,
                                   TurnoRepositoryPort turnoRepo,
                                   UserRepositoryPort userRepo,
-                                  BoxRepositoryPort boxRepo) {
+                                  BoxRepositoryPort boxRepo,
+                                  ConsultorioDiagnosticosMedicosService diagnosticosMedicosService,
+                                  ConsultorioTratamientoCatalogService tratamientoCatalogService) {
         this.sesionRepo = sesionRepo;
         this.diagnosticoRepo = diagnosticoRepo;
         this.adjuntoRepo = adjuntoRepo;
@@ -159,6 +163,8 @@ public class HistoriaClinicaService {
         this.turnoRepo = turnoRepo;
         this.userRepo = userRepo;
         this.boxRepo = boxRepo;
+        this.diagnosticosMedicosService = diagnosticosMedicosService;
+        this.tratamientoCatalogService = tratamientoCatalogService;
     }
 
     @Transactional(readOnly = true)
@@ -326,6 +332,9 @@ public class HistoriaClinicaService {
                         Instant.now()
                 )));
 
+        ConsultorioDiagnosticosMedicosService.DiagnosticoMedicoSnapshot diagnosticoSeleccionado =
+                resolveAtencionInicialDiagnostico(command);
+
         AtencionInicial atencionInicial = atencionInicialRepo.save(new AtencionInicial(
                 UUID.randomUUID(),
                 legajo.getId(),
@@ -341,7 +350,14 @@ public class HistoriaClinicaService {
                 trimToNull(command.especialidadDerivante()),
                 trimToNull(command.profesionalDerivante()),
                 command.fechaPrescripcion(),
-                trimToNull(command.diagnosticoTexto()),
+                diagnosticoSeleccionado != null ? diagnosticoSeleccionado.codigo() : null,
+                diagnosticoSeleccionado != null ? diagnosticoSeleccionado.nombre() : null,
+                diagnosticoSeleccionado != null ? diagnosticoSeleccionado.tipo() : null,
+                diagnosticoSeleccionado != null ? diagnosticoSeleccionado.categoriaCodigo() : null,
+                diagnosticoSeleccionado != null ? diagnosticoSeleccionado.categoriaNombre() : null,
+                diagnosticoSeleccionado != null ? diagnosticoSeleccionado.subcategoria() : null,
+                diagnosticoSeleccionado != null ? diagnosticoSeleccionado.regionAnatomica() : null,
+                trimToNull(command.diagnosticoObservacion()),
                 trimToNull(command.observacionesPrescripcion()),
                 trimToNull(command.resumenClinicoInicial()),
                 trimToNull(command.hallazgosRelevantes()),
@@ -387,11 +403,19 @@ public class HistoriaClinicaService {
         List<PlanTratamientoDetalle> detalles = new ArrayList<>();
         for (int index = 0; index < command.tratamientos().size(); index++) {
             PlanTratamientoDetalleCommand tratamiento = command.tratamientos().get(index);
+            ConsultorioTratamientoCatalogService.TratamientoSnapshot tratamientoSeleccionado =
+                    tratamientoCatalogService.requireActiveTreatment(command.consultorioId(), tratamiento.tratamientoId());
             detalles.add(new PlanTratamientoDetalle(
                     UUID.randomUUID(),
                     planTerapeutico.getId(),
                     tratamiento.tratamientoId().trim(),
-                    resolveTreatmentSnapshot(tratamiento.tratamientoId()),
+                    tratamientoSeleccionado.nombre(),
+                    tratamientoSeleccionado.categoriaCodigo(),
+                    tratamientoSeleccionado.categoriaNombre(),
+                    tratamientoSeleccionado.tipo(),
+                    tratamientoSeleccionado.requiereAutorizacion(),
+                    tratamientoSeleccionado.requierePrescripcionMedica(),
+                    tratamientoSeleccionado.duracionSugeridaMinutos(),
                     tratamiento.cantidadSesiones(),
                     trimToNull(tratamiento.frecuenciaSugerida()),
                     tratamiento.caracterCaso(),
@@ -411,8 +435,13 @@ public class HistoriaClinicaService {
                 command.pacienteId(),
                 command.profesionalId(),
                 null,
-                null,
-                buildInitialCaseDescription(detalles, command),
+                diagnosticoSeleccionado != null ? diagnosticoSeleccionado.codigo() : null,
+                buildInitialCaseDescription(detalles, command, diagnosticoSeleccionado),
+                diagnosticoSeleccionado != null ? diagnosticoSeleccionado.tipo() : null,
+                diagnosticoSeleccionado != null ? diagnosticoSeleccionado.categoriaCodigo() : null,
+                diagnosticoSeleccionado != null ? diagnosticoSeleccionado.categoriaNombre() : null,
+                diagnosticoSeleccionado != null ? diagnosticoSeleccionado.subcategoria() : null,
+                diagnosticoSeleccionado != null ? diagnosticoSeleccionado.regionAnatomica() : null,
                 DiagnosticoClinicoEstado.ACTIVO,
                 command.fechaHora().toLocalDate(),
                 null,
@@ -503,6 +532,11 @@ public class HistoriaClinicaService {
                     sesionInicial != null ? sesionInicial.getId() : null,
                     trimToNull(command.casoCodigo()),
                     trimToNull(command.casoDescripcion()),
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
                     DiagnosticoClinicoEstado.ACTIVO,
                     command.casoFechaInicio() != null
                             ? command.casoFechaInicio()
@@ -586,7 +620,7 @@ public class HistoriaClinicaService {
                     atencion.getProfesionalId(),
                     fullName(profesional),
                     "Atencion inicial registrada",
-                    firstNonBlank(atencion.getMotivoConsultaBreve(), atencion.getDiagnosticoTexto(), "Base clinica inicial"),
+                    firstNonBlank(atencion.getMotivoConsultaBreve(), atencion.getDiagnosticoNombre(), "Base clinica inicial"),
                     atencion.getTipoIngreso().name(),
                     atencion.getId()
             ));
@@ -847,14 +881,21 @@ public class HistoriaClinicaService {
                 throw new HistoriaClinicaValidationException("El diagnostico debe pertenecer al mismo profesional de la sesion");
             }
         }
+        ConsultorioDiagnosticosMedicosService.DiagnosticoMedicoSnapshot diagnosticoSeleccionado =
+                diagnosticosMedicosService.requireActiveDiagnostico(command.consultorioId(), trimToNull(command.diagnosticoCodigo()));
         DiagnosticoClinico diagnostico = new DiagnosticoClinico(
                 UUID.randomUUID(),
                 command.consultorioId(),
                 command.pacienteId(),
                 command.profesionalId(),
                 command.sesionId(),
-                trimToNull(command.codigo()),
-                trimToNull(command.descripcion()),
+                diagnosticoSeleccionado.codigo(),
+                diagnosticoSeleccionado.nombre(),
+                diagnosticoSeleccionado.tipo(),
+                diagnosticoSeleccionado.categoriaCodigo(),
+                diagnosticoSeleccionado.categoriaNombre(),
+                diagnosticoSeleccionado.subcategoria(),
+                diagnosticoSeleccionado.regionAnatomica(),
                 DiagnosticoClinicoEstado.ACTIVO,
                 command.fechaInicio(),
                 null,
@@ -881,11 +922,18 @@ public class HistoriaClinicaService {
                 throw new HistoriaClinicaValidationException("El diagnostico debe pertenecer al mismo profesional de la sesion");
             }
         }
+        ConsultorioDiagnosticosMedicosService.DiagnosticoMedicoSnapshot diagnosticoSeleccionado =
+                diagnosticosMedicosService.requireActiveDiagnostico(command.consultorioId(), trimToNull(command.diagnosticoCodigo()));
         diagnostico.update(
                 command.profesionalId(),
                 command.sesionId(),
-                trimToNull(command.codigo()),
-                trimToNull(command.descripcion()),
+                diagnosticoSeleccionado.codigo(),
+                diagnosticoSeleccionado.nombre(),
+                diagnosticoSeleccionado.tipo(),
+                diagnosticoSeleccionado.categoriaCodigo(),
+                diagnosticoSeleccionado.categoriaNombre(),
+                diagnosticoSeleccionado.subcategoria(),
+                diagnosticoSeleccionado.regionAnatomica(),
                 command.fechaInicio(),
                 trimToNull(command.notas()),
                 actorUserId
@@ -1274,6 +1322,11 @@ public class HistoriaClinicaService {
                 diagnostico.getSesionId(),
                 diagnostico.getCodigo(),
                 diagnostico.getDescripcion(),
+                diagnostico.getDiagnosticoTipo(),
+                diagnostico.getDiagnosticoCategoriaCodigo(),
+                diagnostico.getDiagnosticoCategoriaNombre(),
+                diagnostico.getDiagnosticoSubcategoria(),
+                diagnostico.getDiagnosticoRegionAnatomica(),
                 diagnostico.getEstado(),
                 diagnostico.getFechaInicio(),
                 diagnostico.getFechaFin(),
@@ -1375,7 +1428,14 @@ public class HistoriaClinicaService {
                 atencionInicial.getEspecialidadDerivante(),
                 atencionInicial.getProfesionalDerivante(),
                 atencionInicial.getFechaPrescripcion(),
-                atencionInicial.getDiagnosticoTexto(),
+                atencionInicial.getDiagnosticoCodigo(),
+                atencionInicial.getDiagnosticoNombre(),
+                atencionInicial.getDiagnosticoTipo(),
+                atencionInicial.getDiagnosticoCategoriaCodigo(),
+                atencionInicial.getDiagnosticoCategoriaNombre(),
+                atencionInicial.getDiagnosticoSubcategoria(),
+                atencionInicial.getDiagnosticoRegionAnatomica(),
+                atencionInicial.getDiagnosticoObservacion(),
                 atencionInicial.getObservacionesPrescripcion(),
                 atencionInicial.getResumenClinicoInicial(),
                 atencionInicial.getHallazgosRelevantes()
@@ -1411,6 +1471,12 @@ public class HistoriaClinicaService {
                         detalle.getId(),
                         detalle.getTratamientoId(),
                         detalle.getTratamientoNombreSnapshot(),
+                        detalle.getTratamientoCategoriaCodigoSnapshot(),
+                        detalle.getTratamientoCategoriaNombreSnapshot(),
+                        detalle.getTratamientoTipoSnapshot(),
+                        detalle.isTratamientoRequiereAutorizacionSnapshot(),
+                        detalle.isTratamientoRequierePrescripcionMedicaSnapshot(),
+                        detalle.getTratamientoDuracionSugeridaMinutosSnapshot(),
                         detalle.getCantidadSesiones(),
                         detalle.getFrecuenciaSugerida(),
                         detalle.getCaracterCaso(),
@@ -1560,7 +1626,8 @@ public class HistoriaClinicaService {
         return hasText(command.especialidadDerivante())
                 || hasText(command.profesionalDerivante())
                 || command.fechaPrescripcion() != null
-                || hasText(command.diagnosticoTexto())
+                || hasText(command.diagnosticoCodigo())
+                || hasText(command.diagnosticoObservacion())
                 || hasText(command.observacionesPrescripcion());
     }
 
@@ -1590,33 +1657,29 @@ public class HistoriaClinicaService {
         return divisor.compareTo(BigDecimal.ZERO) == 0 ? null : peso.divide(divisor, 2, java.math.RoundingMode.HALF_UP);
     }
 
-    private String resolveTreatmentSnapshot(String tratamientoId) {
-        if (tratamientoId == null) {
-            return "Tratamiento";
-        }
-        String normalized = tratamientoId.trim().replace('-', ' ').replace('_', ' ').toLowerCase(Locale.ROOT);
-        if (normalized.isBlank()) {
-            return "Tratamiento";
-        }
-        String[] parts = normalized.split("\\s+");
-        StringBuilder out = new StringBuilder();
-        for (String part : parts) {
-            if (part.isBlank()) {
-                continue;
-            }
-            if (!out.isEmpty()) {
-                out.append(' ');
-            }
-            out.append(Character.toUpperCase(part.charAt(0))).append(part.substring(1));
-        }
-        return out.toString();
-    }
-
-    private String buildInitialCaseDescription(List<PlanTratamientoDetalle> detalles, CreateAtencionInicialCommand command) {
+    private String buildInitialCaseDescription(List<PlanTratamientoDetalle> detalles,
+                                               CreateAtencionInicialCommand command,
+                                               ConsultorioDiagnosticosMedicosService.DiagnosticoMedicoSnapshot diagnosticoSeleccionado) {
         if (detalles != null && !detalles.isEmpty()) {
             return summarizePlanTratamientos(detalles);
         }
-        return firstNonBlank(command.motivoConsultaBreve(), command.diagnosticoTexto(), "Plan terapeutico inicial");
+        return firstNonBlank(
+                diagnosticoSeleccionado != null ? diagnosticoSeleccionado.nombre() : null,
+                command.motivoConsultaBreve(),
+                "Plan terapeutico inicial"
+        );
+    }
+
+    private ConsultorioDiagnosticosMedicosService.DiagnosticoMedicoSnapshot resolveAtencionInicialDiagnostico(
+            CreateAtencionInicialCommand command) {
+        String diagnosticoCodigo = trimToNull(command.diagnosticoCodigo());
+        if (command.tipoIngreso() == AtencionInicialTipoIngreso.CON_PRESCRIPCION && diagnosticoCodigo == null) {
+            throw new HistoriaClinicaValidationException("Debe seleccionar un diagnostico medico para la prescripcion");
+        }
+        if (diagnosticoCodigo == null) {
+            return null;
+        }
+        return diagnosticosMedicosService.requireActiveDiagnostico(command.consultorioId(), diagnosticoCodigo);
     }
 
     private String summarizePlanTratamientos(List<PlanTratamientoDetalle> detalles) {

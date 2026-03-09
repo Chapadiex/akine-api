@@ -34,6 +34,24 @@ public class PlanTratamientoDetalleEntity {
     @Column(name = "tratamiento_nombre_snapshot", nullable = false, length = 255)
     private String tratamientoNombreSnapshot;
 
+    @Column(name = "tratamiento_categoria_codigo_snapshot", length = 100)
+    private String tratamientoCategoriaCodigoSnapshot;
+
+    @Column(name = "tratamiento_categoria_nombre_snapshot", length = 120)
+    private String tratamientoCategoriaNombreSnapshot;
+
+    @Column(name = "tratamiento_tipo_snapshot", length = 30)
+    private String tratamientoTipoSnapshot;
+
+    @Column(name = "tratamiento_requiere_autorizacion_snapshot")
+    private Boolean tratamientoRequiereAutorizacionSnapshot;
+
+    @Column(name = "tratamiento_requiere_prescripcion_medica_snapshot")
+    private Boolean tratamientoRequierePrescripcionMedicaSnapshot;
+
+    @Column(name = "tratamiento_duracion_sugerida_minutos_snapshot")
+    private Integer tratamientoDuracionSugeridaMinutosSnapshot;
+
     @Column(name = "cantidad_sesiones", nullable = false)
     private int cantidadSesiones;
 

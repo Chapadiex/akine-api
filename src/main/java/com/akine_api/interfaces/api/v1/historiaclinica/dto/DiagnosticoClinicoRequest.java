@@ -10,8 +10,7 @@ import java.util.UUID;
 public record DiagnosticoClinicoRequest(
         @NotNull UUID profesionalId,
         UUID sesionId,
-        @Size(max = 100) String codigo,
-        @NotBlank @Size(max = 500) String descripcion,
+        @NotBlank @Size(max = 100) String diagnosticoCodigo,
         @NotNull LocalDate fechaInicio,
         @Size(max = 1000) String notas
 ) {}

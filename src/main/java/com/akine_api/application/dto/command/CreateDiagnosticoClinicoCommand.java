@@ -8,8 +8,7 @@ public record CreateDiagnosticoClinicoCommand(
         UUID pacienteId,
         UUID profesionalId,
         UUID sesionId,
-        String codigo,
-        String descripcion,
+        String diagnosticoCodigo,
         LocalDate fechaInicio,
         String notas,
         UUID actorUserId

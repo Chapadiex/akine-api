@@ -24,7 +24,14 @@ public interface AtencionInicialEntityMapper {
                 entity.getEspecialidadDerivante(),
                 entity.getProfesionalDerivante(),
                 entity.getFechaPrescripcion(),
-                entity.getDiagnosticoTexto(),
+                entity.getDiagnosticoCodigo(),
+                entity.getDiagnosticoNombre(),
+                entity.getDiagnosticoTipo(),
+                entity.getDiagnosticoCategoriaCodigo(),
+                entity.getDiagnosticoCategoriaNombre(),
+                entity.getDiagnosticoSubcategoria(),
+                entity.getDiagnosticoRegionAnatomica(),
+                entity.getDiagnosticoObservacion(),
                 entity.getObservacionesPrescripcion(),
                 entity.getResumenClinicoInicial(),
                 entity.getHallazgosRelevantes(),
@@ -52,7 +59,14 @@ public interface AtencionInicialEntityMapper {
         entity.setEspecialidadDerivante(domain.getEspecialidadDerivante());
         entity.setProfesionalDerivante(domain.getProfesionalDerivante());
         entity.setFechaPrescripcion(domain.getFechaPrescripcion());
-        entity.setDiagnosticoTexto(domain.getDiagnosticoTexto());
+        entity.setDiagnosticoCodigo(domain.getDiagnosticoCodigo());
+        entity.setDiagnosticoNombre(domain.getDiagnosticoNombre());
+        entity.setDiagnosticoTipo(domain.getDiagnosticoTipo());
+        entity.setDiagnosticoCategoriaCodigo(domain.getDiagnosticoCategoriaCodigo());
+        entity.setDiagnosticoCategoriaNombre(domain.getDiagnosticoCategoriaNombre());
+        entity.setDiagnosticoSubcategoria(domain.getDiagnosticoSubcategoria());
+        entity.setDiagnosticoRegionAnatomica(domain.getDiagnosticoRegionAnatomica());
+        entity.setDiagnosticoObservacion(domain.getDiagnosticoObservacion());
         entity.setObservacionesPrescripcion(domain.getObservacionesPrescripcion());
         entity.setResumenClinicoInicial(domain.getResumenClinicoInicial());
         entity.setHallazgosRelevantes(domain.getHallazgosRelevantes());

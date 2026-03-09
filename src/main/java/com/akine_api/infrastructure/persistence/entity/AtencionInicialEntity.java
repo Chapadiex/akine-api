@@ -66,8 +66,29 @@ public class AtencionInicialEntity {
     @Column(name = "fecha_prescripcion")
     private LocalDate fechaPrescripcion;
 
-    @Column(name = "diagnostico_texto", length = 1000)
-    private String diagnosticoTexto;
+    @Column(name = "diagnostico_codigo", length = 100)
+    private String diagnosticoCodigo;
+
+    @Column(name = "diagnostico_nombre", length = 255)
+    private String diagnosticoNombre;
+
+    @Column(name = "diagnostico_tipo", length = 40)
+    private String diagnosticoTipo;
+
+    @Column(name = "diagnostico_categoria_codigo", length = 100)
+    private String diagnosticoCategoriaCodigo;
+
+    @Column(name = "diagnostico_categoria_nombre", length = 120)
+    private String diagnosticoCategoriaNombre;
+
+    @Column(name = "diagnostico_subcategoria", length = 120)
+    private String diagnosticoSubcategoria;
+
+    @Column(name = "diagnostico_region_anatomica", length = 120)
+    private String diagnosticoRegionAnatomica;
+
+    @Column(name = "diagnostico_observacion", length = 1000)
+    private String diagnosticoObservacion;
 
     @Column(name = "observaciones_prescripcion", length = 1000)
     private String observacionesPrescripcion;

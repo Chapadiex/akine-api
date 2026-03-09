@@ -1,135 +1,437 @@
+# AGENTS.md
+
+## Purpose
+
+This file defines the backend-specific rules for `akine-api`.
+
+It complements the root `AGENTS.md`.  
+If there is any conflict:
+1. security and privacy rules from the root file always win
+2. this file wins over the root file for backend-local decisions
+
 ---
-agent:
-  name: "AKINE-Backend-Agent"
-  version: "1.0.0"
-  purpose: "Reglas especificas para Spring Boot en akine-api."
-  temperature: 0.2
-  scope: "backend"
-  target_path: "akine-api"
+
+## Scope
+
+These instructions apply only to the backend project located at:
+
+```text
+akine-api/
+```
+
+They govern:
+- Java code
+- Spring Boot configuration
+- REST API design
+- services and business rules
+- persistence and repositories
+- Flyway migrations
+- validation
+- backend security
+- backend tests
+- backend change verification
+
 ---
 
-# AGENTS.md - Backend Spring Boot
+## Stack
 
-## 1. Alcance
-Este archivo aplica solo al proyecto backend `akine-api`.
-
-Complementa al `AGENTS.md` de la raiz. Si hay conflicto, la seguridad global de la raiz manda.
-
-## 2. Stack y lineamientos base
+Backend stack:
 - Java 21
 - Spring Boot
 - Maven
 - PostgreSQL 15
 - Flyway
 - MapStruct
-- REST + JWT
+- REST API
+- JWT-based security model
 
-## 3. Estructura esperada
+General backend principles:
+- clarity over magic
+- explicit contracts over implicit behavior
+- service-driven business rules
+- safe multi-tenant isolation
+- small, verifiable changes
+
+---
+
+## Expected package structure
+
+Expected backend structure:
+
 ```text
 src/main/java/.../
+  config/
   controller/
   service/
   repository/
   mapper/
   dto/
   domain/
-  config/
   exception/
 ```
 
-## 4. Reglas de arquitectura
-### 4.1 Controllers
-- solo orquestan request y response
-- sin logica de negocio
-- usar DTOs de entrada y salida
-- validar con `@Valid`
+Preferred responsibility by package:
+- `config/` -> framework/security/cors/application config
+- `controller/` -> request/response orchestration only
+- `service/` -> business rules and transactional use cases
+- `repository/` -> persistence access
+- `mapper/` -> MapStruct conversions
+- `dto/` -> request/response contracts
+- `domain/` -> entities and value objects
+- `exception/` -> global error handling and custom exceptions
 
-### 4.2 Services
-- concentran logica de negocio
-- ubicar aqui transacciones con `@Transactional` cuando corresponda
-- no mezclar reglas de negocio con detalles HTTP
+Do not blur these boundaries without explicit reason.
 
-### 4.3 Repositories
-- consultas claras y eficientes
-- evitar N+1
-- usar paginacion cuando el volumen lo requiera
-- revisar indexes si una query se vuelve critica
+---
 
-### 4.4 Entities y dominio
-- no exponer entidades por API
-- las entities pueden contener invariantes simples
-- no acoplar entities a infraestructura externa
+## Working mode before changing backend code
 
-## 5. Contratos y mapping
-- obligatorio usar DTOs
-- conversion DTO <-> Entity con MapStruct
-- recomendado `unmappedTargetPolicy = ReportingPolicy.ERROR`
-- si cambia contrato, actualizar pruebas y documentacion
+Before making changes:
+1. Restate the backend goal briefly.
+2. Identify assumptions, risks, blockers, and cross-module impact.
+3. Propose a short implementation plan.
+4. Mention the likely packages/files to touch.
+5. Only then implement.
 
-## 6. Seguridad backend
-- validar autenticacion y autorizacion en toda operacion sensible
-- chequear pertenencia a `consultorio_id`
-- prevenir IDOR y accesos cruzados
-- no devolver mensajes que filtren informacion sensible innecesaria
-- no loguear PII
+If key information is missing and it affects security, data integrity, contracts, or tenant isolation, stop and ask for clarification.
 
-## 7. Manejo de errores
-- usar `@ControllerAdvice`
-- diferenciar 4xx de 5xx correctamente
-- responder con formato uniforme
+---
 
-Ejemplo:
+## Architecture rules
+
+### Controllers
+Controllers must:
+- orchestrate HTTP request and response only
+- use DTOs for input and output
+- validate input with `@Valid` when applicable
+- delegate business behavior to services
+- avoid persistence logic
+- avoid business rules
+- avoid infrastructure leakage in responses
+
+Controllers must not:
+- contain business logic
+- access repositories directly unless explicitly justified and very limited
+- return JPA entities as public API responses
+- implement authorization shortcuts by assumption
+
+### Services
+Services must:
+- contain business rules and use-case orchestration
+- define transactional boundaries with `@Transactional` where appropriate
+- enforce domain behavior explicitly
+- keep HTTP concerns out of service logic
+- coordinate repositories, mappers, and validators cleanly
+
+Services must not:
+- depend on controller-layer concepts
+- hide critical side effects
+- silently bypass validation or permission checks
+
+### Repositories
+Repositories must:
+- focus on persistence access
+- keep queries clear and reviewable
+- avoid N+1 problems
+- use pagination for large result sets
+- be reviewed carefully when adding non-trivial joins or filters
+
+Repositories must not:
+- contain business policy
+- become a dumping ground for workflow logic
+- return more data than needed for the use case
+
+### Domain / Entities
+Entities and domain objects:
+- must not be exposed directly through public API contracts
+- may contain simple local invariants
+- must not be tightly coupled to HTTP or external transport concerns
+- should preserve data integrity and consistency
+
+Avoid putting application workflow logic inside entities unless that rule clearly belongs to the domain model.
+
+---
+
+## DTO and mapping rules
+
+DTOs are mandatory for API boundaries.
+
+Rules:
+- use request DTOs for input
+- use response DTOs for output
+- never expose entities directly from controllers
+- use MapStruct for DTO ↔ Entity conversion
+- prefer explicit mappings over implicit surprises
+- recommended: `unmappedTargetPolicy = ReportingPolicy.ERROR`
+- if a contract changes, update tests and documentation
+- if a field has business meaning, do not hide default behavior inside mappers without documenting it
+
+When modifying a contract, review all affected layers:
+- controller
+- service
+- mapper
+- dto
+- frontend consumers
+- validation
+- docs
+- tests
+
+Do not change API behavior silently.
+
+---
+
+## Validation rules
+
+Validate as early as possible at the correct boundary.
+
+Rules:
+- validate request payloads at controller boundary
+- enforce business validation in service layer
+- do not rely only on database exceptions for predictable validation cases
+- return friendly and consistent validation errors
+- make validation rules explicit and testable
+
+Do not:
+- accept invalid data and “fix it later”
+- mix transport validation with business rule validation without clarity
+- return vague validation failures when a precise error is possible
+
+---
+
+## Security rules
+
+This backend handles sensitive healthcare and personal data.
+
+Mandatory:
+- validate authentication and authorization on every sensitive operation
+- enforce consultorio isolation in every read/write
+- prevent cross-consultorio access
+- prevent IDOR-style access patterns
+- validate ownership/visibility server-side
+- treat frontend checks as UX only, never as security
+
+Never:
+- bypass tenant checks for convenience
+- trust IDs sent by the client without authorization validation
+- expose sensitive information in error messages
+- log PII or clinical content
+- weaken security configuration “just for testing” unless explicitly requested and clearly isolated
+
+If JWT/security is still evolving:
+- do not redesign it implicitly
+- do not loosen rules without explicit instruction
+- do not assume a permissive config is acceptable beyond setup needs
+
+---
+
+## Error handling
+
+Use centralized error handling.
+
+Rules:
+- use `@ControllerAdvice`
+- differentiate 4xx vs 5xx correctly
+- return a consistent error payload
+- keep messages friendly and safe
+- avoid exposing internal implementation details
+
+Preferred error shape:
 
 ```json
 {
   "code": "ERROR_CODE",
-  "message": "Mensaje amigable",
+  "message": "Friendly message",
   "details": {}
 }
 ```
 
-## 8. Base de datos y migraciones
-- cambios de schema solo por Flyway
-- no usar `ddl-auto=update`
-- usar `validate` cuando aplique
-- scripts SQL claros, versionados y seguros
-- no hacer cambios destructivos sin validacion explicita
+Do not expose:
+- stack traces
+- SQL statements
+- entity internals
+- security details
+- sensitive identifiers
+- raw exception messages when they leak internal details
 
-## 9. Observabilidad
-- logs estructurados en JSON
-- incluir `traceId`
-- no registrar datos clinicos ni PII
-- loggear eventos utiles, no ruido ornamental
+---
 
-## 10. Testing
-Cambios relevantes deben incluir cuando aplique:
-- tests unitarios de service
-- tests de integracion
-- tests de autorizacion
-- tests de validacion
-- tests de repository si hay queries complejas
+## Database and Flyway rules
 
-## 11. No hacer
-Queda prohibido sin pedido explicito:
-- meter logica en controller
-- exponer entities en endpoints
-- agregar dependencias grandes sin justificacion
-- cambiar seguridad base por intuicion
-- tocar migraciones viejas ya aplicadas en entornos compartidos
+Schema changes must be migration-based.
 
-## 12. Verificacion minima
-Ejecutar segun corresponda:
+Mandatory:
+- all schema changes go through Flyway
+- create new migration files only
+- never edit old migrations already applied in shared environments
+- keep SQL scripts clear, explicit, and reviewable
+- prefer deterministic migrations
+- review indexes and constraints when use cases require them
+
+Do not:
+- use `ddl-auto=update`
+- hide schema changes outside migration files
+- make destructive changes without explicit validation and impact awareness
+- introduce ambiguous migration names
+
+Migration practices:
+- use clear versioned migration names
+- keep migrations focused
+- ensure startup/migration behavior remains understandable
+- validate Flyway when schema changes are introduced
+
+---
+
+## Performance and query discipline
+
+Backend changes must consider operational performance.
+
+Rules:
+- avoid N+1 queries
+- paginate large list endpoints
+- fetch only what is needed
+- avoid uncontrolled serialization depth
+- review filter-heavy endpoints carefully
+- be careful with dashboard, patient, appointments, and history-heavy flows
+- evaluate query complexity when adding joins, aggregates, or computed filters
+
+If a query becomes critical:
+- review indexing
+- review projection strategy
+- review payload size
+- review transaction boundaries
+
+Do not optimize blindly, but do not ignore obvious hot paths either.
+
+---
+
+## Observability and logging
+
+Logs must be useful without leaking sensitive data.
+
+Rules:
+- prefer structured logs in JSON
+- include `traceId` when available
+- log operationally relevant events
+- keep logs concise and intentional
+- avoid ornamental noise
+
+Never log:
+- DNI
+- diagnoses
+- clinical notes
+- prescriptions
+- patient-identifiable medical text
+- tokens, passwords, secrets, raw credentials
+
+Do not log full payloads if they may contain PII or clinical content.
+
+Recommended structured fields:
+- timestamp
+- level
+- service
+- traceId
+- message
+
+Optional extra fields must be sanitized.
+
+---
+
+## Testing rules
+
+Relevant backend changes should include appropriate verification.
+
+When applicable, cover:
+- service unit tests
+- integration tests
+- authorization tests
+- validation tests
+- repository tests for complex queries
+- mapper tests when mappings are non-trivial
+
+Minimum expectation by type of change:
+- business rule change -> service tests
+- endpoint/contract change -> controller/integration verification
+- security change -> auth/authorization verification
+- query change -> repository verification when complexity justifies it
+- migration change -> Flyway validation and startup sanity check
+
+If tests do not exist:
+- do not pretend full confidence
+- provide manual verification steps
+- mention residual risk explicitly
+
+---
+
+## Backend verification commands
+
+Run from:
+
+```text
+akine-api/
+```
+
+Use the commands that match the scope of the change:
 
 ```bash
-mvn clean package -DskipTests
 mvn test
+mvn test -Dtest=ClassName
+mvn clean package -DskipTests
+mvn spring-boot:run
 mvn jacoco:report
 mvn flyway:validate
 ```
 
-## 13. Formato de respuesta del agente en backend
-Siempre indicar:
-- endpoint, service y repositorio afectados
-- impacto en contrato, seguridad y DB
-- como verificar con comandos exactos
-- riesgos funcionales y edge cases
+Verification should be honest:
+- do not claim tests passed if they were not run
+- do not claim Flyway is valid if schema changed and validation was skipped
+- do not claim the API contract is safe if it changed and was not reviewed
+
+---
+
+## Backend definition of done
+
+A backend task is done only if all applicable conditions are met:
+
+- requested behavior is implemented
+- architecture boundaries were respected
+- security and tenant isolation were preserved
+- relevant tests pass
+- build passes
+- Flyway validates if schema changed
+- contract changes are reflected in DTOs/docs/tests
+- no secrets or sensitive data leaked
+- risks and edge cases are explicitly stated
+
+---
+
+## Forbidden without explicit request
+
+Do not do any of the following unless explicitly requested:
+- put business logic in controllers
+- expose entities in endpoints
+- add large dependencies without strong justification
+- change security base by intuition
+- rewrite old applied migrations
+- refactor unrelated modules
+- silently change API contracts
+- weaken validation rules for convenience
+- bypass consultorio isolation
+- hide breaking changes behind partial compatibility tricks
+
+---
+
+## Required response format for backend tasks
+
+When reporting a backend change, always state:
+
+- goal understood
+- files/packages affected
+- endpoint/service/repository impact
+- contract impact
+- security/tenant impact
+- database impact
+- commands used for verification
+- remaining risks, assumptions, or edge cases
+
+Be explicit.  
+Do not present backend work as complete if validation is partial.

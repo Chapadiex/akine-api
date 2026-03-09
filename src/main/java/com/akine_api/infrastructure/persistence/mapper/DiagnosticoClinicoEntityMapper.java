@@ -17,6 +17,11 @@ public interface DiagnosticoClinicoEntityMapper {
                 entity.getSesionId(),
                 entity.getCodigo(),
                 entity.getDescripcion(),
+                entity.getDiagnosticoTipo(),
+                entity.getDiagnosticoCategoriaCodigo(),
+                entity.getDiagnosticoCategoriaNombre(),
+                entity.getDiagnosticoSubcategoria(),
+                entity.getDiagnosticoRegionAnatomica(),
                 entity.getEstado(),
                 entity.getFechaInicio(),
                 entity.getFechaFin(),
@@ -38,6 +43,11 @@ public interface DiagnosticoClinicoEntityMapper {
         entity.setSesionId(domain.getSesionId());
         entity.setCodigo(domain.getCodigo());
         entity.setDescripcion(domain.getDescripcion());
+        entity.setDiagnosticoTipo(domain.getDiagnosticoTipo());
+        entity.setDiagnosticoCategoriaCodigo(domain.getDiagnosticoCategoriaCodigo());
+        entity.setDiagnosticoCategoriaNombre(domain.getDiagnosticoCategoriaNombre());
+        entity.setDiagnosticoSubcategoria(domain.getDiagnosticoSubcategoria());
+        entity.setDiagnosticoRegionAnatomica(domain.getDiagnosticoRegionAnatomica());
         entity.setEstado(domain.getEstado());
         entity.setFechaInicio(domain.getFechaInicio());
         entity.setFechaFin(domain.getFechaFin());
