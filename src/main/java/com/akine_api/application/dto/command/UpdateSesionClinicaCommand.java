@@ -21,8 +21,5 @@ public record UpdateSesionClinicaCommand(
         String objetivo,
         String evaluacion,
         String plan,
-        SesionEvaluacionDTO evaluacionEstructurada,
-        SesionExamenFisicoDTO examenFisico,
-        List<SesionIntervencionDTO> intervenciones,
         UUID actorUserId
 ) {}

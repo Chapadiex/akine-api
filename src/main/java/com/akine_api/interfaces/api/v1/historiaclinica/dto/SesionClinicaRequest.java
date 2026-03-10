@@ -16,8 +16,5 @@ public record SesionClinicaRequest(
         String subjetivo,
         String objetivo,
         String evaluacion,
-        String plan,
-        SesionEvaluacionRequest evaluacionEstructurada,
-        SesionExamenFisicoRequest examenFisico,
-        List<SesionIntervencionRequest> intervenciones
+        String plan
 ) {}
