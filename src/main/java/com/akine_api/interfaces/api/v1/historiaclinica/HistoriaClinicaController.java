@@ -262,6 +262,9 @@ public class HistoriaClinicaController {
                         request.objetivo(),
                         request.evaluacion(),
                         request.plan(),
+                        toEvaluacionDTO(request.evaluacionEstructurada()),
+                        toExamenDTO(request.examenFisico()),
+                        toIntervencionDTOs(request.intervenciones()),
                         null
                 ),
                 principal.getUsername(),
@@ -292,6 +295,9 @@ public class HistoriaClinicaController {
                         request.objetivo(),
                         request.evaluacion(),
                         request.plan(),
+                        toEvaluacionDTO(request.evaluacionEstructurada()),
+                        toExamenDTO(request.examenFisico()),
+                        toIntervencionDTOs(request.intervenciones()),
                         null
                 ),
                 principal.getUsername(),
@@ -527,6 +533,56 @@ public class HistoriaClinicaController {
                         request.requiereAutorizacion(),
                         request.observaciones(),
                         request.observacionesAdministrativas()
+                ))
+                .toList();
+    }
+
+    private com.akine_api.application.dto.command.SesionEvaluacionDTO toEvaluacionDTO(com.akine_api.interfaces.api.v1.historiaclinica.dto.SesionEvaluacionRequest request) {
+        if (request == null) return null;
+        return new com.akine_api.application.dto.command.SesionEvaluacionDTO(
+                request.dolorIntensidad(),
+                request.dolorZona(),
+                request.dolorLateralidad(),
+                request.dolorTipo(),
+                request.dolorComportamiento(),
+                request.evolucionEstado(),
+                request.evolucionNota(),
+                request.objetivoSesion(),
+                request.limitacionFuncional(),
+                request.respuestaPaciente(),
+                request.tolerancia(),
+                request.indicacionesDomiciliarias(),
+                request.proximaConducta()
+        );
+    }
+
+    private com.akine_api.application.dto.command.SesionExamenFisicoDTO toExamenDTO(com.akine_api.interfaces.api.v1.historiaclinica.dto.SesionExamenFisicoRequest request) {
+        if (request == null) return null;
+        return new com.akine_api.application.dto.command.SesionExamenFisicoDTO(
+                request.rangoMovimientoJson(),
+                request.fuerzaMuscularJson(),
+                request.funcionalidadNota(),
+                request.marchaBalanceNota(),
+                request.signosInflamatorios(),
+                request.observacionesNeuroResp(),
+                request.testsMedidasJson()
+        );
+    }
+
+    private List<com.akine_api.application.dto.command.SesionIntervencionDTO> toIntervencionDTOs(List<com.akine_api.interfaces.api.v1.historiaclinica.dto.SesionIntervencionRequest> requests) {
+        if (requests == null) return List.of();
+        return requests.stream()
+                .filter(Objects::nonNull)
+                .map(request -> new com.akine_api.application.dto.command.SesionIntervencionDTO(
+                        request.tratamientoId(),
+                        request.tratamientoNombre(),
+                        request.técnica(),
+                        request.zona(),
+                        request.parametrosJson(),
+                        request.duracionMinutos(),
+                        request.profesionalId(),
+                        request.observaciones(),
+                        request.orderIndex()
                 ))
                 .toList();
     }

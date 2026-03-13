@@ -9,6 +9,9 @@ import com.akine_api.application.dto.command.DiscardDiagnosticoClinicoCommand;
 import com.akine_api.application.dto.command.HistoriaClinicaAntecedenteItemCommand;
 import com.akine_api.application.dto.command.PlanTratamientoDetalleCommand;
 import com.akine_api.application.dto.command.ResolveDiagnosticoClinicoCommand;
+import com.akine_api.application.dto.command.SesionEvaluacionDTO;
+import com.akine_api.application.dto.command.SesionExamenFisicoDTO;
+import com.akine_api.application.dto.command.SesionIntervencionDTO;
 import com.akine_api.application.dto.command.UpdateHistoriaClinicaAntecedentesCommand;
 import com.akine_api.application.dto.command.UpdateDiagnosticoClinicoCommand;
 import com.akine_api.application.dto.command.UpdateSesionClinicaCommand;
@@ -45,6 +48,9 @@ import com.akine_api.application.port.output.PlanTratamientoDetalleRepositoryPor
 import com.akine_api.application.port.output.ProfesionalConsultorioRepositoryPort;
 import com.akine_api.application.port.output.ProfesionalRepositoryPort;
 import com.akine_api.application.port.output.SesionClinicaRepositoryPort;
+import com.akine_api.application.port.output.SesionEvaluacionRepositoryPort;
+import com.akine_api.application.port.output.SesionExamenFisicoRepositoryPort;
+import com.akine_api.application.port.output.SesionIntervencionRepositoryPort;
 import com.akine_api.application.port.output.TurnoRepositoryPort;
 import com.akine_api.application.port.output.UserRepositoryPort;
 import com.akine_api.domain.exception.AdjuntoClinicoNotFoundException;
@@ -73,6 +79,9 @@ import com.akine_api.domain.model.PlanTratamientoDetalle;
 import com.akine_api.domain.model.Profesional;
 import com.akine_api.domain.model.ProfesionalConsultorio;
 import com.akine_api.domain.model.SesionClinica;
+import com.akine_api.domain.model.SesionEvaluacion;
+import com.akine_api.domain.model.SesionExamenFisico;
+import com.akine_api.domain.model.SesionIntervencion;
 import com.akine_api.domain.model.Turno;
 import com.akine_api.domain.model.User;
 import org.springframework.security.access.AccessDeniedException;
@@ -105,6 +114,9 @@ public class HistoriaClinicaService {
     private static final Set<String> ALLOWED_ATTACHMENT_EXTENSIONS = Set.of(".pdf", ".jpg", ".jpeg", ".png");
 
     private final SesionClinicaRepositoryPort sesionRepo;
+    private final SesionEvaluacionRepositoryPort sesionEvaluacionRepo;
+    private final SesionExamenFisicoRepositoryPort sesionExamenFisicoRepo;
+    private final SesionIntervencionRepositoryPort sesionIntervencionRepo;
     private final DiagnosticoClinicoRepositoryPort diagnosticoRepo;
     private final AdjuntoClinicoRepositoryPort adjuntoRepo;
     private final AtencionInicialRepositoryPort atencionInicialRepo;
@@ -126,6 +138,9 @@ public class HistoriaClinicaService {
     private final ConsultorioTratamientoCatalogService tratamientoCatalogService;
 
     public HistoriaClinicaService(SesionClinicaRepositoryPort sesionRepo,
+                                  SesionEvaluacionRepositoryPort sesionEvaluacionRepo,
+                                  SesionExamenFisicoRepositoryPort sesionExamenFisicoRepo,
+                                  SesionIntervencionRepositoryPort sesionIntervencionRepo,
                                   DiagnosticoClinicoRepositoryPort diagnosticoRepo,
                                   AdjuntoClinicoRepositoryPort adjuntoRepo,
                                   AtencionInicialRepositoryPort atencionInicialRepo,
@@ -146,6 +161,9 @@ public class HistoriaClinicaService {
                                   ConsultorioDiagnosticosMedicosService diagnosticosMedicosService,
                                   ConsultorioTratamientoCatalogService tratamientoCatalogService) {
         this.sesionRepo = sesionRepo;
+        this.sesionEvaluacionRepo = sesionEvaluacionRepo;
+        this.sesionExamenFisicoRepo = sesionExamenFisicoRepo;
+        this.sesionIntervencionRepo = sesionIntervencionRepo;
         this.diagnosticoRepo = diagnosticoRepo;
         this.adjuntoRepo = adjuntoRepo;
         this.atencionInicialRepo = atencionInicialRepo;
@@ -798,6 +816,12 @@ public class HistoriaClinicaService {
                 null
         );
         SesionClinica savedSesion = sesionRepo.save(sesion);
+        saveStructuredSesionData(
+                savedSesion.getId(),
+                command.evaluacionEstructurada(),
+                command.examenFisico(),
+                command.intervenciones()
+        );
         return toSesionResult(savedSesion, List.of());
     }
 
@@ -832,6 +856,12 @@ public class HistoriaClinicaService {
                 actorUserId
         );
         SesionClinica savedSesion = sesionRepo.save(sesion);
+        saveStructuredSesionData(
+                savedSesion.getId(),
+                command.evaluacionEstructurada(),
+                command.examenFisico(),
+                command.intervenciones()
+        );
         return toSesionResult(savedSesion, adjuntoRepo.findBySesionId(sesion.getId()));
     }
 
@@ -1288,6 +1318,18 @@ public class HistoriaClinicaService {
     }
 
     private SesionClinicaResult toSesionResult(SesionClinica sesion, List<AdjuntoClinico> adjuntos) {
+        SesionEvaluacionDTO evaluacionEstructurada = sesionEvaluacionRepo.findBySesionId(sesion.getId())
+                .map(this::toEvaluacionDTO)
+                .orElse(null);
+        
+        SesionExamenFisicoDTO examenFisico = sesionExamenFisicoRepo.findBySesionId(sesion.getId())
+                .map(this::toExamenFisicoDTO)
+                .orElse(null);
+        
+        List<SesionIntervencionDTO> intervenciones = sesionIntervencionRepo.findBySesionId(sesion.getId()).stream()
+                .map(this::toIntervencionDTO)
+                .toList();
+
         return new SesionClinicaResult(
                 sesion.getId(),
                 sesion.getConsultorioId(),
@@ -1304,6 +1346,9 @@ public class HistoriaClinicaService {
                 sesion.getObjetivo(),
                 sesion.getEvaluacion(),
                 sesion.getPlan(),
+                evaluacionEstructurada,
+                examenFisico,
+                intervenciones,
                 sesion.getOrigenRegistro(),
                 sesion.getCreatedByUserId(),
                 sesion.getUpdatedByUserId(),
@@ -1313,6 +1358,112 @@ public class HistoriaClinicaService {
                 sesion.getClosedAt(),
                 adjuntos.stream().map(this::toAdjuntoResult).toList()
         );
+    }
+
+    private SesionEvaluacionDTO toEvaluacionDTO(SesionEvaluacion domain) {
+        return new SesionEvaluacionDTO(
+                domain.getDolorIntensidad(),
+                domain.getDolorZona(),
+                domain.getDolorLateralidad(),
+                domain.getDolorTipo(),
+                domain.getDolorComportamiento(),
+                domain.getEvolucionEstado(),
+                domain.getEvolucionNota(),
+                domain.getObjetivoSesion(),
+                domain.getLimitacionFuncional(),
+                domain.getRespuestaPaciente(),
+                domain.getTolerancia(),
+                domain.getIndicacionesDomiciliarias(),
+                domain.getProximaConducta()
+        );
+    }
+
+    private SesionExamenFisicoDTO toExamenFisicoDTO(SesionExamenFisico domain) {
+        return new SesionExamenFisicoDTO(
+                domain.getRangoMovimientoJson(),
+                domain.getFuerzaMuscularJson(),
+                domain.getFuncionalidadNota(),
+                domain.getMarchaBalanceNota(),
+                domain.getSignosInflamatorios(),
+                domain.getObservacionesNeuroResp(),
+                domain.getTestsMedidasJson()
+        );
+    }
+
+    private SesionIntervencionDTO toIntervencionDTO(SesionIntervencion domain) {
+        return new SesionIntervencionDTO(
+                domain.getTratamientoId(),
+                domain.getTratamientoNombre(),
+                domain.getTécnica(),
+                domain.getZona(),
+                domain.getParametrosJson(),
+                domain.getDuracionMinutos(),
+                domain.getProfesionalId(),
+                domain.getObservaciones(),
+                domain.getOrderIndex()
+        );
+    }
+
+    private void saveStructuredSesionData(UUID sesionId,
+                                          SesionEvaluacionDTO evalDTO,
+                                          SesionExamenFisicoDTO examenDTO,
+                                          List<SesionIntervencionDTO> intervencionesDTO) {
+        if (evalDTO != null) {
+            SesionEvaluacion eval = sesionEvaluacionRepo.findBySesionId(sesionId)
+                    .orElse(new SesionEvaluacion(UUID.randomUUID(), sesionId));
+            eval.update(
+                    evalDTO.dolorIntensidad(),
+                    evalDTO.dolorZona(),
+                    evalDTO.dolorLateralidad(),
+                    evalDTO.dolorTipo(),
+                    evalDTO.dolorComportamiento(),
+                    evalDTO.evolucionEstado(),
+                    evalDTO.evolucionNota(),
+                    evalDTO.objetivoSesion(),
+                    evalDTO.limitacionFuncional(),
+                    evalDTO.respuestaPaciente(),
+                    evalDTO.tolerancia(),
+                    evalDTO.indicacionesDomiciliarias(),
+                    evalDTO.proximaConducta()
+            );
+            sesionEvaluacionRepo.save(eval);
+        }
+
+        if (examenDTO != null) {
+            SesionExamenFisico examen = sesionExamenFisicoRepo.findBySesionId(sesionId)
+                    .orElse(new SesionExamenFisico(UUID.randomUUID(), sesionId));
+            examen.update(
+                    examenDTO.rangoMovimientoJson(),
+                    examenDTO.fuerzaMuscularJson(),
+                    examenDTO.funcionalidadNota(),
+                    examenDTO.marchaBalanceNota(),
+                    examenDTO.signosInflamatorios(),
+                    examenDTO.observacionesNeuroResp(),
+                    examenDTO.testsMedidasJson()
+            );
+            sesionExamenFisicoRepo.save(examen);
+        }
+
+        if (intervencionesDTO != null) {
+            sesionIntervencionRepo.deleteBySesionId(sesionId);
+            List<SesionIntervencion> domainIntervenciones = intervencionesDTO.stream()
+                    .map(dto -> new SesionIntervencion(
+                            UUID.randomUUID(),
+                            sesionId,
+                            dto.tratamientoId(),
+                            dto.tratamientoNombre(),
+                            dto.técnica(),
+                            dto.zona(),
+                            dto.parametrosJson(),
+                            dto.duracionMinutos(),
+                            dto.profesionalId(),
+                            dto.observaciones(),
+                            dto.orderIndex(),
+                            Instant.now()
+                    ))
+                    .toList();
+            sesionIntervencionRepo.saveAll(domainIntervenciones);
+        }
     }
 
     private DiagnosticoClinicoResult toDiagnosticoResult(DiagnosticoClinico diagnostico) {
