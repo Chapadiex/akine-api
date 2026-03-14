@@ -118,7 +118,7 @@ public class Paciente360Service {
                 paciente.getDomicilio(),
                 paciente.getNacionalidad(),
                 paciente.getEstadoCivil(),
-                paciente.getProfesion(),
+                paciente.getProfesiones(),
                 paciente.getObraSocialNombre(),
                 paciente.getObraSocialPlan(),
                 paciente.getObraSocialNroAfiliado(),

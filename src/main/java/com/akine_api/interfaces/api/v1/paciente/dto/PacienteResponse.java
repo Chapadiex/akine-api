@@ -2,6 +2,7 @@ package com.akine_api.interfaces.api.v1.paciente.dto;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 public record PacienteResponse(
@@ -16,7 +17,7 @@ public record PacienteResponse(
         String domicilio,
         String nacionalidad,
         String estadoCivil,
-        String profesion,
+        List<String> profesiones,
         String obraSocialNombre,
         String obraSocialPlan,
         String obraSocialNroAfiliado,

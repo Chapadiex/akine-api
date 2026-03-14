@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public record PacienteAdminCreateRequest(
         @NotBlank @Pattern(regexp = "^[0-9]{7,10}$") String dni,
@@ -18,7 +19,7 @@ public record PacienteAdminCreateRequest(
         @Size(max = 255) String domicilio,
         @Size(max = 100) String nacionalidad,
         @Size(max = 50) String estadoCivil,
-        @Size(max = 100) String profesion,
+        List<String> profesiones,
         @Size(max = 150) String obraSocialNombre,
         @Size(max = 100) String obraSocialPlan,
         @Size(max = 100) String obraSocialNroAfiliado

@@ -24,6 +24,9 @@ import com.akine_api.application.port.output.PlanTratamientoDetalleRepositoryPor
 import com.akine_api.application.port.output.ProfesionalConsultorioRepositoryPort;
 import com.akine_api.application.port.output.ProfesionalRepositoryPort;
 import com.akine_api.application.port.output.SesionClinicaRepositoryPort;
+import com.akine_api.application.port.output.SesionEvaluacionRepositoryPort;
+import com.akine_api.application.port.output.SesionExamenFisicoRepositoryPort;
+import com.akine_api.application.port.output.SesionIntervencionRepositoryPort;
 import com.akine_api.application.port.output.TurnoRepositoryPort;
 import com.akine_api.application.port.output.UserRepositoryPort;
 import com.akine_api.application.service.HistoriaClinicaService;
@@ -103,6 +106,9 @@ class HistoriaClinicaServiceTest {
     @Mock TurnoRepositoryPort turnoRepo;
     @Mock UserRepositoryPort userRepo;
     @Mock BoxRepositoryPort boxRepo;
+    @Mock SesionEvaluacionRepositoryPort sesionEvaluacionRepo;
+    @Mock SesionExamenFisicoRepositoryPort sesionExamenFisicoRepo;
+    @Mock SesionIntervencionRepositoryPort sesionIntervencionRepo;
     @Mock ConsultorioDiagnosticosMedicosService diagnosticosMedicosService;
     @Mock ConsultorioTratamientoCatalogService tratamientoCatalogService;
 
@@ -124,6 +130,9 @@ class HistoriaClinicaServiceTest {
     void setUp() {
         service = new HistoriaClinicaService(
                 sesionRepo,
+                sesionEvaluacionRepo,
+                sesionExamenFisicoRepo,
+                sesionIntervencionRepo,
                 diagnosticoRepo,
                 adjuntoRepo,
                 atencionInicialRepo,
@@ -171,6 +180,9 @@ class HistoriaClinicaServiceTest {
                         "Objetivo",
                         "Evaluacion",
                         "Plan",
+                        null,
+                        null,
+                        null,
                         null
                 ),
                 "admin@test.com",
@@ -202,6 +214,9 @@ class HistoriaClinicaServiceTest {
                         null,
                         null,
                         null,
+                        null,
+                        null,
+                        null,
                         null
                 ),
                 "prof@test.com",
@@ -217,14 +232,17 @@ class HistoriaClinicaServiceTest {
                 new UpdateSesionClinicaCommand(
                         CONSULTORIO_ID,
                         PACIENTE_ID,
-                        SESION_ID,
                         PROFESIONAL_ID,
+                        SESION_ID,
                         null,
                         null,
                         LocalDateTime.now(),
                         HistoriaClinicaTipoAtencion.TRATAMIENTO,
                         "Motivo",
                         "Resumen",
+                        null,
+                        null,
+                        null,
                         null,
                         null,
                         null,
@@ -323,6 +341,9 @@ class HistoriaClinicaServiceTest {
                         null,
                         null,
                         null,
+                        null,
+                        null,
+                        null,
                         null
                 ),
                 "admin@test.com",
@@ -356,6 +377,9 @@ class HistoriaClinicaServiceTest {
                         HistoriaClinicaTipoAtencion.SEGUIMIENTO,
                         "Motivo",
                         "Resumen",
+                        null,
+                        null,
+                        null,
                         null,
                         null,
                         null,

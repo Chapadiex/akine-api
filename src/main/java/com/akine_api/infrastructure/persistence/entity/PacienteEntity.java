@@ -52,8 +52,8 @@ public class PacienteEntity {
     @Column(name = "estado_civil", length = 50)
     private String estadoCivil;
 
-    @Column(length = 100)
-    private String profesion;
+    @Column(length = 500)
+    private String profesiones;
 
     @Column(name = "obra_social_nombre", length = 150)
     private String obraSocialNombre;

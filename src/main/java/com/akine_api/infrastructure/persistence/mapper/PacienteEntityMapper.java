@@ -4,6 +4,11 @@ import com.akine_api.domain.model.Paciente;
 import com.akine_api.infrastructure.persistence.entity.PacienteEntity;
 import org.mapstruct.Mapper;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Mapper(componentModel = "spring")
 public interface PacienteEntityMapper {
 
@@ -21,7 +26,7 @@ public interface PacienteEntityMapper {
                 entity.getDomicilio(),
                 entity.getNacionalidad(),
                 entity.getEstadoCivil(),
-                entity.getProfesion(),
+                csvToList(entity.getProfesiones()),
                 entity.getObraSocialNombre(),
                 entity.getObraSocialPlan(),
                 entity.getObraSocialNroAfiliado(),
@@ -47,7 +52,7 @@ public interface PacienteEntityMapper {
         entity.setDomicilio(domain.getDomicilio());
         entity.setNacionalidad(domain.getNacionalidad());
         entity.setEstadoCivil(domain.getEstadoCivil());
-        entity.setProfesion(domain.getProfesion());
+        entity.setProfesiones(listToCsv(domain.getProfesiones()));
         entity.setObraSocialNombre(domain.getObraSocialNombre());
         entity.setObraSocialPlan(domain.getObraSocialPlan());
         entity.setObraSocialNroAfiliado(domain.getObraSocialNroAfiliado());
@@ -57,5 +62,21 @@ public interface PacienteEntityMapper {
         entity.setCreatedAt(domain.getCreatedAt());
         entity.setUpdatedAt(domain.getUpdatedAt());
         return entity;
+    }
+
+    private static List<String> csvToList(String csv) {
+        if (csv == null || csv.isBlank()) return Collections.emptyList();
+        return Arrays.stream(csv.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toList();
+    }
+
+    private static String listToCsv(List<String> list) {
+        if (list == null || list.isEmpty()) return null;
+        return list.stream()
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.joining(","));
     }
 }

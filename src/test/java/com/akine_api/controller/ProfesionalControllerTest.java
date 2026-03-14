@@ -101,7 +101,7 @@ class ProfesionalControllerTest {
 
         mvc.perform(post(baseUrl())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"nombre\":\"Juan\",\"apellido\":\"Perez\",\"matricula\":\"MP-1234\",\"especialidades\":\"Kinesiologia\"}"))
+                        .content("{\"nombre\":\"Juan\",\"apellido\":\"Perez\",\"nroDocumento\":\"12345678\",\"email\":\"juan@mail.com\",\"matricula\":\"MP-1234\",\"especialidades\":\"Kinesiologia\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.matricula").value("MP-1234"));
     }
@@ -114,7 +114,7 @@ class ProfesionalControllerTest {
 
         mvc.perform(post(baseUrl())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"nombre\":\"X\",\"apellido\":\"Y\",\"matricula\":\"MP-0001\",\"especialidades\":\"Kinesiologia\"}"))
+                        .content("{\"nombre\":\"X\",\"apellido\":\"Y\",\"nroDocumento\":\"12345678\",\"email\":\"x@mail.com\",\"matricula\":\"MP-0001\",\"especialidades\":\"Kinesiologia\"}"))
                 .andExpect(status().isForbidden());
     }
 

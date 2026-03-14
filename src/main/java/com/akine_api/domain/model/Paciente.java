@@ -2,6 +2,7 @@ package com.akine_api.domain.model;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 public class Paciente {
@@ -20,7 +21,7 @@ public class Paciente {
     private String domicilio;
     private String nacionalidad;
     private String estadoCivil;
-    private String profesion;
+    private List<String> profesiones;
     private String obraSocialNombre;
     private String obraSocialPlan;
     private String obraSocialNroAfiliado;
@@ -38,7 +39,7 @@ public class Paciente {
                     String domicilio,
                     String nacionalidad,
                     String estadoCivil,
-                    String profesion,
+                    List<String> profesiones,
                     String obraSocialNombre,
                     String obraSocialPlan,
                     String obraSocialNroAfiliado,
@@ -58,7 +59,7 @@ public class Paciente {
         this.domicilio = domicilio;
         this.nacionalidad = nacionalidad;
         this.estadoCivil = estadoCivil;
-        this.profesion = profesion;
+        this.profesiones = profesiones;
         this.obraSocialNombre = obraSocialNombre;
         this.obraSocialPlan = obraSocialPlan;
         this.obraSocialNroAfiliado = obraSocialNroAfiliado;
@@ -86,7 +87,7 @@ public class Paciente {
                               String domicilio,
                               String nacionalidad,
                               String estadoCivil,
-                              String profesion,
+                              List<String> profesiones,
                               String obraSocialNombre,
                               String obraSocialPlan,
                               String obraSocialNroAfiliado) {
@@ -99,7 +100,7 @@ public class Paciente {
         this.domicilio = domicilio;
         this.nacionalidad = nacionalidad;
         this.estadoCivil = estadoCivil;
-        this.profesion = profesion;
+        this.profesiones = profesiones;
         this.obraSocialNombre = obraSocialNombre;
         this.obraSocialPlan = obraSocialPlan;
         this.obraSocialNroAfiliado = obraSocialNroAfiliado;
@@ -117,7 +118,7 @@ public class Paciente {
     public String getDomicilio() { return domicilio; }
     public String getNacionalidad() { return nacionalidad; }
     public String getEstadoCivil() { return estadoCivil; }
-    public String getProfesion() { return profesion; }
+    public List<String> getProfesiones() { return profesiones; }
     public String getObraSocialNombre() { return obraSocialNombre; }
     public String getObraSocialPlan() { return obraSocialPlan; }
     public String getObraSocialNroAfiliado() { return obraSocialNroAfiliado; }

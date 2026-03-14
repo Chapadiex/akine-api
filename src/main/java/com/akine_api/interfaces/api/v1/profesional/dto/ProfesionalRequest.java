@@ -1,22 +1,23 @@
 package com.akine_api.interfaces.api.v1.profesional.dto;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public record ProfesionalRequest(
-        @NotBlank(message = "El nombre es obligatorio")
+        @NotBlank
         @Size(max = 100)
         String nombre,
 
-        @NotBlank(message = "El apellido es obligatorio")
+        @NotBlank
         @Size(max = 100)
         String apellido,
 
-        @Pattern(regexp = "^$|^[0-9]{7,10}$", message = "Formato de DNI invalido")
+        @NotBlank
+        @Pattern(regexp = "^[0-9]{7,10}$", message = "El DNI debe tener entre 7 y 10 dígitos")
         String nroDocumento,
 
-        @NotBlank(message = "La matricula es obligatoria")
         @Size(max = 50)
         String matricula,
 
@@ -26,6 +27,8 @@ public record ProfesionalRequest(
         @Size(max = 1000)
         String especialidades,
 
+        @NotBlank
+        @Email
         @Size(max = 255)
         String email,
 

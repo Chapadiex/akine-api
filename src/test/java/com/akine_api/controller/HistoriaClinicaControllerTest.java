@@ -311,7 +311,7 @@ class HistoriaClinicaControllerTest {
                         .content("""
                                 {
                                   "profesionalId": "%s",
-                                  "descripcion": "Ansiedad",
+                                  "diagnosticoCodigo": "A01",
                                   "fechaInicio": "2026-03-01"
                                 }
                                 """.formatted(PROFESIONAL_ID)))
@@ -331,7 +331,7 @@ class HistoriaClinicaControllerTest {
                         .content("""
                                 {
                                   "profesionalId": "%s",
-                                  "descripcion": "Ansiedad",
+                                  "diagnosticoCodigo": "A01",
                                   "fechaInicio": "2026-03-01"
                                 }
                                 """.formatted(PROFESIONAL_ID)))
@@ -551,6 +551,9 @@ class HistoriaClinicaControllerTest {
                 "Objetivo",
                 "Evaluacion",
                 "Plan",
+                null,
+                null,
+                null,
                 HistoriaClinicaOrigenRegistro.MANUAL,
                 USER_ID,
                 USER_ID,
@@ -571,6 +574,11 @@ class HistoriaClinicaControllerTest {
                 SESION_ID,
                 "A01",
                 "Diagnostico de prueba",
+                null,
+                null,
+                null,
+                null,
+                null,
                 estado,
                 LocalDate.of(2026, 3, 1),
                 estado == DiagnosticoClinicoEstado.ACTIVO ? null : LocalDate.of(2026, 3, 15),

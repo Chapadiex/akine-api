@@ -163,7 +163,8 @@ public class ProfesionalService {
     }
 
     private void validateUniqueCreate(CreateProfesionalCommand cmd) {
-        if (profesionalRepo.existsByMatriculaAndConsultorioId(cmd.matricula(), cmd.consultorioId())) {
+        if (cmd.matricula() != null && !cmd.matricula().isBlank()
+                && profesionalRepo.existsByMatriculaAndConsultorioId(cmd.matricula(), cmd.consultorioId())) {
             throw new IllegalArgumentException("La matricula ya esta registrada.");
         }
         String nroDocumento = normalize(cmd.nroDocumento());
@@ -173,7 +174,8 @@ public class ProfesionalService {
     }
 
     private void validateUniqueUpdate(UpdateProfesionalCommand cmd, Profesional current) {
-        if (!current.getMatricula().equals(cmd.matricula())
+        if (cmd.matricula() != null && !cmd.matricula().isBlank()
+                && !cmd.matricula().equals(current.getMatricula())
                 && profesionalRepo.existsByMatriculaAndConsultorioIdAndIdNot(
                 cmd.matricula(), cmd.consultorioId(), cmd.id())) {
             throw new IllegalArgumentException("La matricula ya esta registrada.");
@@ -237,9 +239,6 @@ public class ProfesionalService {
         List<String> values = parseEspecialidades(especialidades);
         if (values.isEmpty() && especialidadFallback != null && !especialidadFallback.isBlank()) {
             values = List.of(especialidadFallback.trim());
-        }
-        if (values.isEmpty()) {
-            throw new IllegalArgumentException("Debe seleccionar al menos una especialidad.");
         }
         return values.stream()
                 .map(String::trim)

@@ -1,6 +1,7 @@
 package com.akine_api.application.dto.command;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public record CreatePacienteAdminCommand(
         String dni,
@@ -13,7 +14,7 @@ public record CreatePacienteAdminCommand(
         String domicilio,
         String nacionalidad,
         String estadoCivil,
-        String profesion,
+        List<String> profesiones,
         String obraSocialNombre,
         String obraSocialPlan,
         String obraSocialNroAfiliado

@@ -867,7 +867,7 @@ public class ColaboradorService {
 
     private String normalizeEspecialidades(List<String> especialidades) {
         if (especialidades == null) {
-            throw new IllegalArgumentException("Debe seleccionar al menos una especialidad.");
+            return "";
         }
         List<String> values = especialidades.stream()
                 .filter(Objects::nonNull)
@@ -876,9 +876,6 @@ public class ColaboradorService {
                 .filter(Objects::nonNull)
                 .distinct()
                 .toList();
-        if (values.isEmpty()) {
-            throw new IllegalArgumentException("Debe seleccionar al menos una especialidad.");
-        }
         return String.join("|", values);
     }
 

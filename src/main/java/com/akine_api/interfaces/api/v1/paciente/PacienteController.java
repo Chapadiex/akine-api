@@ -36,7 +36,7 @@ public class PacienteController {
                 new CreateMyPacienteCommand(
                         req.dni(), req.nombre(), req.apellido(), req.telefono(), req.email(),
                         req.fechaNacimiento(), req.sexo(), req.domicilio(), req.nacionalidad(),
-                        req.estadoCivil(), req.profesion(), req.obraSocialNombre(),
+                        req.estadoCivil(), req.profesiones(), req.obraSocialNombre(),
                         req.obraSocialPlan(), req.obraSocialNroAfiliado()
                 ),
                 principal.getUsername(),
@@ -59,7 +59,7 @@ public class PacienteController {
                 new CreatePacienteAdminCommand(
                         req.dni(), req.nombre(), req.apellido(), req.telefono(), req.email(),
                         req.fechaNacimiento(), req.sexo(), req.domicilio(), req.nacionalidad(),
-                        req.estadoCivil(), req.profesion(), req.obraSocialNombre(),
+                        req.estadoCivil(), req.profesiones(), req.obraSocialNombre(),
                         req.obraSocialPlan(), req.obraSocialNroAfiliado()
                 ),
                 principal.getUsername(),
@@ -107,7 +107,7 @@ public class PacienteController {
                 new UpdatePacienteAdminCommand(
                         req.nombre(), req.apellido(), req.telefono(), req.email(),
                         req.fechaNacimiento(), req.sexo(), req.domicilio(), req.nacionalidad(),
-                        req.estadoCivil(), req.profesion(), req.obraSocialNombre(),
+                        req.estadoCivil(), req.profesiones(), req.obraSocialNombre(),
                         req.obraSocialPlan(), req.obraSocialNroAfiliado()
                 ),
                 principal.getUsername(),
@@ -126,7 +126,7 @@ public class PacienteController {
         return new PacienteResponse(
                 r.id(), r.dni(), r.nombre(), r.apellido(), r.telefono(), r.email(),
                 r.fechaNacimiento(), r.sexo(), r.domicilio(), r.nacionalidad(), r.estadoCivil(),
-                r.profesion(), r.obraSocialNombre(), r.obraSocialPlan(), r.obraSocialNroAfiliado(),
+                r.profesiones(), r.obraSocialNombre(), r.obraSocialPlan(), r.obraSocialNroAfiliado(),
                 r.userId(), r.activo(), r.createdAt(), r.updatedAt()
         );
     }
