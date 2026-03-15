@@ -11,7 +11,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Set;
@@ -33,7 +41,9 @@ public class ConsultorioController {
             @AuthenticationPrincipal UserDetails principal) {
         List<ConsultorioResponse> result = service
                 .list(principal.getUsername(), roles(principal))
-                .stream().map(this::toResponse).toList();
+                .stream()
+                .map(this::toResponse)
+                .toList();
         return ResponseEntity.ok(result);
     }
 
@@ -42,8 +52,40 @@ public class ConsultorioController {
             @Valid @RequestBody ConsultorioRequest req,
             @AuthenticationPrincipal UserDetails principal) {
         CreateConsultorioCommand cmd = new CreateConsultorioCommand(
-                req.name(), req.cuit(), req.address(), req.phone(), req.email(),
-                req.mapLatitude(), req.mapLongitude(), req.googleMapsUrl());
+                req.name(),
+                req.description(),
+                req.logoUrl(),
+                req.cuit(),
+                req.legalName(),
+                req.address(),
+                req.accessReference(),
+                req.floorUnit(),
+                req.phone(),
+                req.email(),
+                req.administrativeContact(),
+                req.internalNotes(),
+                req.mapLatitude(),
+                req.mapLongitude(),
+                req.googleMapsUrl(),
+                req.documentDisplayName(),
+                req.documentSubtitle(),
+                req.documentLogoUrl(),
+                req.documentFooter(),
+                req.documentShowAddress(),
+                req.documentShowPhone(),
+                req.documentShowEmail(),
+                req.documentShowCuit(),
+                req.documentShowLegalName(),
+                req.documentShowLogo(),
+                req.licenseNumber(),
+                req.licenseType(),
+                req.licenseExpirationDate(),
+                req.professionalDirectorName(),
+                req.professionalDirectorLicense(),
+                req.legalDocumentSummary(),
+                req.legalNotes(),
+                req.status()
+        );
         ConsultorioResponse response = toResponse(service.create(cmd, roles(principal)));
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -62,8 +104,41 @@ public class ConsultorioController {
             @Valid @RequestBody ConsultorioRequest req,
             @AuthenticationPrincipal UserDetails principal) {
         UpdateConsultorioCommand cmd = new UpdateConsultorioCommand(
-                id, req.name(), req.cuit(), req.address(), req.phone(), req.email(),
-                req.mapLatitude(), req.mapLongitude(), req.googleMapsUrl());
+                id,
+                req.name(),
+                req.description(),
+                req.logoUrl(),
+                req.cuit(),
+                req.legalName(),
+                req.address(),
+                req.accessReference(),
+                req.floorUnit(),
+                req.phone(),
+                req.email(),
+                req.administrativeContact(),
+                req.internalNotes(),
+                req.mapLatitude(),
+                req.mapLongitude(),
+                req.googleMapsUrl(),
+                req.documentDisplayName(),
+                req.documentSubtitle(),
+                req.documentLogoUrl(),
+                req.documentFooter(),
+                req.documentShowAddress(),
+                req.documentShowPhone(),
+                req.documentShowEmail(),
+                req.documentShowCuit(),
+                req.documentShowLegalName(),
+                req.documentShowLogo(),
+                req.licenseNumber(),
+                req.licenseType(),
+                req.licenseExpirationDate(),
+                req.professionalDirectorName(),
+                req.professionalDirectorLicense(),
+                req.legalDocumentSummary(),
+                req.legalNotes(),
+                req.status()
+        );
         return ResponseEntity.ok(toResponse(
                 service.update(cmd, principal.getUsername(), roles(principal))));
     }
@@ -84,9 +159,44 @@ public class ConsultorioController {
     }
 
     private ConsultorioResponse toResponse(ConsultorioResult r) {
-        return new ConsultorioResponse(r.id(), r.name(), r.cuit(), r.address(),
-                r.phone(), r.email(), r.mapLatitude(), r.mapLongitude(), r.googleMapsUrl(),
-                r.status(), r.createdAt(), r.updatedAt());
+        return new ConsultorioResponse(
+                r.id(),
+                r.name(),
+                r.description(),
+                r.logoUrl(),
+                r.cuit(),
+                r.legalName(),
+                r.address(),
+                r.accessReference(),
+                r.floorUnit(),
+                r.phone(),
+                r.email(),
+                r.administrativeContact(),
+                r.internalNotes(),
+                r.mapLatitude(),
+                r.mapLongitude(),
+                r.googleMapsUrl(),
+                r.documentDisplayName(),
+                r.documentSubtitle(),
+                r.documentLogoUrl(),
+                r.documentFooter(),
+                r.documentShowAddress(),
+                r.documentShowPhone(),
+                r.documentShowEmail(),
+                r.documentShowCuit(),
+                r.documentShowLegalName(),
+                r.documentShowLogo(),
+                r.licenseNumber(),
+                r.licenseType(),
+                r.licenseExpirationDate(),
+                r.professionalDirectorName(),
+                r.professionalDirectorLicense(),
+                r.legalDocumentSummary(),
+                r.legalNotes(),
+                r.status(),
+                r.createdAt(),
+                r.updatedAt()
+        );
     }
 
     private Set<String> roles(UserDetails principal) {

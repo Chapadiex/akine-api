@@ -65,6 +65,12 @@ public class TurnoEntity {
     @Column(name = "cancelado_por_user_id")
     private UUID canceladoPorUserId;
 
+    @Column(name = "fecha_hora_inicio_real", columnDefinition = "TIMESTAMP")
+    private LocalDateTime fechaHoraInicioReal;
+
+    @Column(name = "fecha_hora_fin_real", columnDefinition = "TIMESTAMP")
+    private LocalDateTime fechaHoraFinReal;
+
     @Column(name = "created_at", nullable = false, columnDefinition = "TIMESTAMP")
     private Instant createdAt;
 

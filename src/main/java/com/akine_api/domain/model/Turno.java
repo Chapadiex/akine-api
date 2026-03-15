@@ -23,6 +23,8 @@ public class Turno {
     private UUID creadoPorUserId;
     private String motivoCancelacion;
     private UUID canceladoPorUserId;
+    private LocalDateTime fechaHoraInicioReal;
+    private LocalDateTime fechaHoraFinReal;
     private final Instant createdAt;
     private Instant updatedAt;
 
@@ -30,7 +32,9 @@ public class Turno {
                  UUID pacienteId, LocalDateTime fechaHoraInicio, int duracionMinutos,
                  TurnoEstado estado, String motivoConsulta, String notas,
                  TipoConsulta tipoConsulta, String telefonoContacto, UUID creadoPorUserId,
-                 String motivoCancelacion, UUID canceladoPorUserId, Instant createdAt) {
+                 String motivoCancelacion, UUID canceladoPorUserId,
+                 LocalDateTime fechaHoraInicioReal, LocalDateTime fechaHoraFinReal,
+                 Instant createdAt, Instant updatedAt) {
         if (fechaHoraInicio == null) {
             throw new IllegalArgumentException("La fecha y hora de inicio es obligatoria");
         }
@@ -55,8 +59,10 @@ public class Turno {
         this.creadoPorUserId = creadoPorUserId;
         this.motivoCancelacion = motivoCancelacion;
         this.canceladoPorUserId = canceladoPorUserId;
+        this.fechaHoraInicioReal = fechaHoraInicioReal;
+        this.fechaHoraFinReal = fechaHoraFinReal;
         this.createdAt = createdAt;
-        this.updatedAt = createdAt;
+        this.updatedAt = updatedAt != null ? updatedAt : createdAt;
     }
 
     /** Constructor de compatibilidad (sin campos nuevos) */
@@ -65,7 +71,7 @@ public class Turno {
                  TurnoEstado estado, String motivoConsulta, String notas, Instant createdAt) {
         this(id, consultorioId, profesionalId, boxId, pacienteId, fechaHoraInicio,
                 duracionMinutos, estado, motivoConsulta, notas,
-                TipoConsulta.PARTICULAR, null, null, null, null, createdAt);
+                TipoConsulta.PARTICULAR, null, null, null, null, null, null, createdAt, createdAt);
     }
 
     public void reprogramar(LocalDateTime nuevaFechaHoraInicio) {
@@ -83,6 +89,20 @@ public class Turno {
         }
         this.estado = nuevoEstado;
         this.updatedAt = Instant.now();
+    }
+
+    public void iniciarAtencion(LocalDateTime fechaHoraReal) {
+        cambiarEstado(TurnoEstado.EN_CURSO);
+        this.fechaHoraInicioReal = fechaHoraReal != null ? fechaHoraReal : LocalDateTime.now();
+        this.fechaHoraFinReal = null;
+    }
+
+    public void finalizarAtencion(LocalDateTime fechaHoraReal) {
+        cambiarEstado(TurnoEstado.COMPLETADO);
+        if (this.fechaHoraInicioReal == null) {
+            this.fechaHoraInicioReal = fechaHoraReal != null ? fechaHoraReal : LocalDateTime.now();
+        }
+        this.fechaHoraFinReal = fechaHoraReal != null ? fechaHoraReal : LocalDateTime.now();
     }
 
     public void cancelar() {
@@ -114,6 +134,8 @@ public class Turno {
     public UUID getCreadoPorUserId() { return creadoPorUserId; }
     public String getMotivoCancelacion() { return motivoCancelacion; }
     public UUID getCanceladoPorUserId() { return canceladoPorUserId; }
+    public LocalDateTime getFechaHoraInicioReal() { return fechaHoraInicioReal; }
+    public LocalDateTime getFechaHoraFinReal() { return fechaHoraFinReal; }
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
 }

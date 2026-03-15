@@ -1,16 +1,42 @@
 package com.akine_api.application.dto.command;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.UUID;
 
 public record UpdateConsultorioCommand(
         UUID id,
         String name,
+        String description,
+        String logoUrl,
         String cuit,
+        String legalName,
         String address,
+        String accessReference,
+        String floorUnit,
         String phone,
         String email,
+        String administrativeContact,
+        String internalNotes,
         BigDecimal mapLatitude,
         BigDecimal mapLongitude,
-        String googleMapsUrl
+        String googleMapsUrl,
+        String documentDisplayName,
+        String documentSubtitle,
+        String documentLogoUrl,
+        String documentFooter,
+        Boolean documentShowAddress,
+        Boolean documentShowPhone,
+        Boolean documentShowEmail,
+        Boolean documentShowCuit,
+        Boolean documentShowLegalName,
+        Boolean documentShowLogo,
+        String licenseNumber,
+        String licenseType,
+        LocalDate licenseExpirationDate,
+        String professionalDirectorName,
+        String professionalDirectorLicense,
+        String legalDocumentSummary,
+        String legalNotes,
+        String status
 ) {}

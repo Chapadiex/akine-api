@@ -25,7 +25,10 @@ public interface TurnoEntityMapper {
                 entity.getCreadoPorUserId(),
                 entity.getMotivoCancelacion(),
                 entity.getCanceladoPorUserId(),
-                entity.getCreatedAt()
+                entity.getFechaHoraInicioReal(),
+                entity.getFechaHoraFinReal(),
+                entity.getCreatedAt(),
+                entity.getUpdatedAt()
         );
     }
 
@@ -47,6 +50,8 @@ public interface TurnoEntityMapper {
         e.setCreadoPorUserId(domain.getCreadoPorUserId());
         e.setMotivoCancelacion(domain.getMotivoCancelacion());
         e.setCanceladoPorUserId(domain.getCanceladoPorUserId());
+        e.setFechaHoraInicioReal(domain.getFechaHoraInicioReal());
+        e.setFechaHoraFinReal(domain.getFechaHoraFinReal());
         e.setCreatedAt(domain.getCreatedAt());
         e.setUpdatedAt(domain.getUpdatedAt());
         return e;

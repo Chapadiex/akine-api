@@ -220,10 +220,38 @@ public class SuscripcionService {
                 .orElseThrow(() -> new SubscriptionStateException("Consultorio base de suscripción no encontrado."));
         consultorio.update(
                 normalize(cmd.name()),
-                null,
+                consultorio.getDescription(),
+                consultorio.getLogoUrl(),
+                consultorio.getCuit(),
+                consultorio.getLegalName(),
                 normalize(cmd.address()),
+                consultorio.getAccessReference(),
+                consultorio.getFloorUnit(),
                 normalize(cmd.phone()),
-                normalize(cmd.email())
+                normalize(cmd.email()),
+                consultorio.getAdministrativeContact(),
+                consultorio.getInternalNotes(),
+                consultorio.getMapLatitude(),
+                consultorio.getMapLongitude(),
+                consultorio.getGoogleMapsUrl(),
+                consultorio.getDocumentDisplayName(),
+                consultorio.getDocumentSubtitle(),
+                consultorio.getDocumentLogoUrl(),
+                consultorio.getDocumentFooter(),
+                consultorio.getDocumentShowAddress(),
+                consultorio.getDocumentShowPhone(),
+                consultorio.getDocumentShowEmail(),
+                consultorio.getDocumentShowCuit(),
+                consultorio.getDocumentShowLegalName(),
+                consultorio.getDocumentShowLogo(),
+                consultorio.getLicenseNumber(),
+                consultorio.getLicenseType(),
+                consultorio.getLicenseExpirationDate(),
+                consultorio.getProfessionalDirectorName(),
+                consultorio.getProfessionalDirectorLicense(),
+                consultorio.getLegalDocumentSummary(),
+                consultorio.getLegalNotes(),
+                consultorio.getStatus()
         );
         consultorioRepo.save(consultorio);
 

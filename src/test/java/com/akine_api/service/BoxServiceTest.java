@@ -5,6 +5,7 @@ import com.akine_api.application.dto.command.UpdateBoxCommand;
 import com.akine_api.application.dto.result.BoxResult;
 import com.akine_api.application.port.output.BoxRepositoryPort;
 import com.akine_api.application.port.output.ConsultorioRepositoryPort;
+import com.akine_api.application.port.output.TurnoRepositoryPort;
 import com.akine_api.application.port.output.UserRepositoryPort;
 import com.akine_api.application.service.BoxService;
 import com.akine_api.domain.exception.BoxNotFoundException;
@@ -18,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.access.AccessDeniedException;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -32,6 +34,7 @@ class BoxServiceTest {
 
     @Mock BoxRepositoryPort boxRepo;
     @Mock ConsultorioRepositoryPort consultorioRepo;
+    @Mock TurnoRepositoryPort turnoRepo;
     @Mock UserRepositoryPort userRepo;
 
     BoxService service;
@@ -46,7 +49,7 @@ class BoxServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new BoxService(boxRepo, consultorioRepo, userRepo);
+        service = new BoxService(boxRepo, consultorioRepo, turnoRepo, userRepo);
     }
 
     private Consultorio consultorio() {
@@ -101,7 +104,8 @@ class BoxServiceTest {
         when(boxRepo.existsByCodigoAndConsultorioId(any(), any())).thenReturn(false);
         when(boxRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        CreateBoxCommand cmd = new CreateBoxCommand(CONSULTORIO_ID, "Box 2", "B02", BoxTipo.GIMNASIO);
+        CreateBoxCommand cmd = new CreateBoxCommand(CONSULTORIO_ID, "Box 2", "B02", BoxTipo.GIMNASIO,
+                BoxCapacidadTipo.UNLIMITED, null, true);
         BoxResult result = service.create(cmd, USER_EMAIL, ADMIN_ROLES);
 
         assertThat(result.nombre()).isEqualTo("Box 2");
@@ -113,7 +117,8 @@ class BoxServiceTest {
         when(consultorioRepo.findById(CONSULTORIO_ID)).thenReturn(Optional.of(consultorio()));
         when(boxRepo.existsByCodigoAndConsultorioId("B01", CONSULTORIO_ID)).thenReturn(true);
 
-        CreateBoxCommand cmd = new CreateBoxCommand(CONSULTORIO_ID, "Box X", "B01", BoxTipo.BOX);
+        CreateBoxCommand cmd = new CreateBoxCommand(CONSULTORIO_ID, "Box X", "B01", BoxTipo.BOX,
+                BoxCapacidadTipo.UNLIMITED, null, true);
 
         assertThatThrownBy(() -> service.create(cmd, USER_EMAIL, ADMIN_ROLES))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -124,7 +129,8 @@ class BoxServiceTest {
     void create_asProfesional_throwsAccessDenied() {
         when(consultorioRepo.findById(CONSULTORIO_ID)).thenReturn(Optional.of(consultorio()));
 
-        CreateBoxCommand cmd = new CreateBoxCommand(CONSULTORIO_ID, "Box X", null, BoxTipo.BOX);
+        CreateBoxCommand cmd = new CreateBoxCommand(CONSULTORIO_ID, "Box X", null, BoxTipo.BOX,
+                BoxCapacidadTipo.UNLIMITED, null, true);
 
         assertThatThrownBy(() -> service.create(cmd, USER_EMAIL, PROFESIONAL_ROLES))
                 .isInstanceOf(AccessDeniedException.class);
@@ -151,5 +157,59 @@ class BoxServiceTest {
 
         assertThatThrownBy(() -> service.inactivate(CONSULTORIO_ID, BOX_ID, USER_EMAIL, ADMIN_ROLES))
                 .isInstanceOf(BoxNotFoundException.class);
+    }
+
+    @Test
+    void update_limitedCapacityWithoutQuantity_throwsIllegalArgument() {
+        when(consultorioRepo.findById(CONSULTORIO_ID)).thenReturn(Optional.of(consultorio()));
+        when(boxRepo.findById(BOX_ID)).thenReturn(Optional.of(box()));
+
+        UpdateBoxCommand cmd = new UpdateBoxCommand(BOX_ID, CONSULTORIO_ID, "Box 1", "B01", BoxTipo.BOX,
+                BoxCapacidadTipo.LIMITED, null, true);
+
+        assertThatThrownBy(() -> service.update(cmd, USER_EMAIL, ADMIN_ROLES))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("La capacidad es obligatoria cuando el box es limitado.");
+    }
+
+    @Test
+    void update_reducingCapacityBelowFutureOverlap_throwsIllegalArgument() {
+        Box limitedBox = new Box(BOX_ID, CONSULTORIO_ID, "Box 1", "B01", BoxTipo.BOX,
+                BoxCapacidadTipo.LIMITED, 3, true, Instant.now());
+        Turno turno1 = new Turno(UUID.randomUUID(), CONSULTORIO_ID, null, BOX_ID, null,
+                LocalDateTime.now().plusDays(1).withHour(10).withMinute(0), 60,
+                TurnoEstado.PROGRAMADO, null, null, Instant.now());
+        Turno turno2 = new Turno(UUID.randomUUID(), CONSULTORIO_ID, null, BOX_ID, null,
+                LocalDateTime.now().plusDays(1).withHour(10).withMinute(15), 60,
+                TurnoEstado.CONFIRMADO, null, null, Instant.now());
+
+        when(consultorioRepo.findById(CONSULTORIO_ID)).thenReturn(Optional.of(consultorio()));
+        when(boxRepo.findById(BOX_ID)).thenReturn(Optional.of(limitedBox));
+        when(turnoRepo.findByConsultorioIdAndRange(any(), any(), any())).thenReturn(List.of(turno1, turno2));
+
+        UpdateBoxCommand cmd = new UpdateBoxCommand(BOX_ID, CONSULTORIO_ID, "Box 1", "B01", BoxTipo.BOX,
+                BoxCapacidadTipo.LIMITED, 1, true);
+
+        assertThatThrownBy(() -> service.update(cmd, USER_EMAIL, ADMIN_ROLES))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("No se puede guardar la nueva capacidad porque existen turnos asignados que superan el límite definido para este box.");
+    }
+
+    @Test
+    void update_inactivatingWithFutureTurnos_throwsIllegalArgument() {
+        Turno turno = new Turno(UUID.randomUUID(), CONSULTORIO_ID, null, BOX_ID, null,
+                LocalDateTime.now().plusDays(2).withHour(11).withMinute(0), 45,
+                TurnoEstado.PROGRAMADO, null, null, Instant.now());
+
+        when(consultorioRepo.findById(CONSULTORIO_ID)).thenReturn(Optional.of(consultorio()));
+        when(boxRepo.findById(BOX_ID)).thenReturn(Optional.of(box()));
+        when(turnoRepo.findByConsultorioIdAndRange(any(), any(), any())).thenReturn(List.of(turno));
+
+        UpdateBoxCommand cmd = new UpdateBoxCommand(BOX_ID, CONSULTORIO_ID, "Box 1", "B01", BoxTipo.BOX,
+                BoxCapacidadTipo.UNLIMITED, null, false);
+
+        assertThatThrownBy(() -> service.update(cmd, USER_EMAIL, ADMIN_ROLES))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("El box tiene turnos futuros asignados. Revise la agenda antes de inactivarlo.");
     }
 }

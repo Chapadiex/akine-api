@@ -18,6 +18,8 @@ public record TurnoResponse(
         String pacienteDni,
         LocalDateTime fechaHoraInicio,
         LocalDateTime fechaHoraFin,
+        LocalDateTime fechaHoraInicioReal,
+        LocalDateTime fechaHoraFinReal,
         int duracionMinutos,
         String estado,
         String tipoConsulta,

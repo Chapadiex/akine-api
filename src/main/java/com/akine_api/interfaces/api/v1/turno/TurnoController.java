@@ -128,6 +128,23 @@ public class TurnoController {
         return ResponseEntity.ok(result);
     }
 
+    @GetMapping("/disponibilidad-boxes")
+    public ResponseEntity<List<BoxDisponibilidadResponse>> disponibilidadBoxes(
+            @PathVariable UUID consultorioId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fechaHoraInicio,
+            @RequestParam int duracion,
+            @AuthenticationPrincipal UserDetails principal) {
+
+        List<BoxDisponibilidadResponse> result = service
+                .getBoxesDisponibilidad(consultorioId, fechaHoraInicio, duracion,
+                        principal.getUsername(), roles(principal))
+                .stream()
+                .map(r -> new BoxDisponibilidadResponse(r.id().toString(), r.nombre(), r.disponible(),
+                        r.capacidadTotal(), r.capacidadUsada()))
+                .toList();
+        return ResponseEntity.ok(result);
+    }
+
     @GetMapping("/{id}/historial")
     public ResponseEntity<List<HistorialEstadoTurnoResponse>> historial(
             @PathVariable UUID consultorioId,
@@ -154,6 +171,7 @@ public class TurnoController {
                 r.boxId(), r.boxNombre(), r.pacienteId(),
                 r.pacienteNombre(), r.pacienteApellido(), r.pacienteDni(),
                 r.fechaHoraInicio(), r.fechaHoraFin(),
+                r.fechaHoraInicioReal(), r.fechaHoraFinReal(),
                 r.duracionMinutos(), r.estado().name(),
                 r.tipoConsulta() != null ? r.tipoConsulta().name() : null,
                 r.motivoConsulta(), r.notas(),

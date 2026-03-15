@@ -35,9 +35,12 @@ class ConsultorioControllerTest {
     private static final UUID ID = UUID.randomUUID();
 
     private ConsultorioResult sampleResult() {
-        return new ConsultorioResult(ID, "Test Consultorio", null,
-                "Av. 123", "1155550000", "test@mail.com", null, null, null, "ACTIVE",
-                Instant.now(), Instant.now());
+        return new ConsultorioResult(
+                ID, "Test Consultorio", null, null, null, null, "Av. 123", null, null,
+                "1155550000", "test@mail.com", null, null, null, null, null,
+                null, null, null, null, null, null, null, null, null, null, null, null,
+                null, null, null, null, null, "ACTIVE", Instant.now(), Instant.now()
+        );
     }
 
     // ─── GET /consultorios ────────────────────────────────────────────────────
@@ -76,7 +79,7 @@ class ConsultorioControllerTest {
 
         mvc.perform(post("/api/v1/consultorios")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\"Test Consultorio\",\"address\":\"Av. 123\",\"phone\":\"1155550000\",\"email\":\"test@mail.com\"}"))
+                        .content("{\"name\":\"Test Consultorio\",\"address\":\"Av. 123\",\"phone\":\"1155550000\",\"email\":\"test@mail.com\",\"status\":\"ACTIVE\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("Test Consultorio"));
     }
@@ -87,7 +90,7 @@ class ConsultorioControllerTest {
         mvc.perform(post("/api/v1/consultorios")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"name":"Test Consultorio","mapLatitude":120}
+                                {"name":"Test Consultorio","address":"Av. 123","phone":"1155550000","email":"test@mail.com","status":"ACTIVE","mapLatitude":120}
                                 """))
                 .andExpect(status().isBadRequest());
     }
@@ -98,7 +101,7 @@ class ConsultorioControllerTest {
         mvc.perform(post("/api/v1/consultorios")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
-                                {"name":"Test Consultorio","mapLongitude":-190}
+                                {"name":"Test Consultorio","address":"Av. 123","phone":"1155550000","email":"test@mail.com","status":"ACTIVE","mapLongitude":-190}
                                 """))
                 .andExpect(status().isBadRequest());
     }
@@ -111,7 +114,7 @@ class ConsultorioControllerTest {
 
         mvc.perform(post("/api/v1/consultorios")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\"Nuevo\",\"address\":\"Av. 1\",\"phone\":\"1155550000\",\"email\":\"x@x.com\"}"))
+                        .content("{\"name\":\"Nuevo\",\"address\":\"Av. 1\",\"phone\":\"1155550000\",\"email\":\"x@x.com\",\"status\":\"ACTIVE\"}"))
                 .andExpect(status().isForbidden());
     }
 

@@ -71,7 +71,7 @@ class BoxControllerTest {
     void create_withoutAuth_returns401() throws Exception {
         mvc.perform(post(baseUrl())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"nombre\":\"Box 2\",\"tipo\":\"BOX\"}"))
+                        .content("{\"nombre\":\"Box 2\",\"tipo\":\"BOX\",\"capacityType\":\"UNLIMITED\",\"activo\":true}"))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -82,7 +82,7 @@ class BoxControllerTest {
 
         mvc.perform(post(baseUrl())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"nombre\":\"Box 1\",\"codigo\":\"B01\",\"tipo\":\"BOX\"}"))
+                        .content("{\"nombre\":\"Box 1\",\"codigo\":\"B01\",\"tipo\":\"BOX\",\"capacityType\":\"UNLIMITED\",\"activo\":true}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.nombre").value("Box 1"));
     }
@@ -95,7 +95,7 @@ class BoxControllerTest {
 
         mvc.perform(post(baseUrl())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"nombre\":\"Box X\",\"tipo\":\"BOX\"}"))
+                        .content("{\"nombre\":\"Box X\",\"tipo\":\"BOX\",\"capacityType\":\"UNLIMITED\",\"activo\":true}"))
                 .andExpect(status().isForbidden());
     }
 

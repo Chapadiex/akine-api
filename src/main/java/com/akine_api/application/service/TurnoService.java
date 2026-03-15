@@ -3,6 +3,7 @@ package com.akine_api.application.service;
 import com.akine_api.application.dto.command.CambiarEstadoTurnoCommand;
 import com.akine_api.application.dto.command.CreateTurnoCommand;
 import com.akine_api.application.dto.command.ReprogramarTurnoCommand;
+import com.akine_api.application.dto.result.BoxDisponibilidadResult;
 import com.akine_api.application.dto.result.HistorialEstadoTurnoResult;
 import com.akine_api.application.dto.result.SlotDisponibleResult;
 import com.akine_api.application.dto.result.TurnoResult;
@@ -64,7 +65,6 @@ public class TurnoService {
         this.pacienteRepo = pacienteRepo;
     }
 
-    @Transactional(readOnly = true)
     public List<TurnoResult> listByRange(UUID consultorioId, LocalDateTime from, LocalDateTime to,
                                           UUID profesionalIdFilter, UUID boxIdFilter,
                                           TurnoEstado estadoFilter,
@@ -73,6 +73,7 @@ public class TurnoService {
         assertCanAccess(consultorioId, userEmail, roles);
 
         List<Turno> turnos = turnoRepo.findByConsultorioIdAndRange(consultorioId, from, to);
+        autoCompletarTurnosVencidos(turnos, userEmail);
 
         // Para PROFESIONAL, solo ve sus propios turnos
         if (roles.contains("ROLE_PROFESIONAL") && !roles.contains("ROLE_ADMIN")
@@ -157,8 +158,11 @@ public class TurnoService {
 
         // Validar box si se especifico
         if (cmd.boxId() != null) {
-            boxRepo.findById(cmd.boxId())
+            Box box = boxRepo.findById(cmd.boxId())
                     .orElseThrow(() -> new BoxNotFoundException("Box no encontrado: " + cmd.boxId()));
+            if (!box.isActivo()) {
+                throw new IllegalArgumentException("El box está inactivo y no puede asignarse a nuevos turnos.");
+            }
         }
 
         // Resolver creadoPorUserId
@@ -183,6 +187,9 @@ public class TurnoService {
                 creadoPorUserId,
                 null,
                 null,
+                null,
+                null,
+                Instant.now(),
                 Instant.now()
         );
 
@@ -243,6 +250,10 @@ public class TurnoService {
         if (cmd.nuevoEstado() == TurnoEstado.CANCELADO && cmd.motivo() != null) {
             UUID canceladoPor = resolveUserId(userEmail);
             turno.cancelar(cmd.motivo(), canceladoPor);
+        } else if (cmd.nuevoEstado() == TurnoEstado.EN_CURSO) {
+            turno.iniciarAtencion(LocalDateTime.now());
+        } else if (cmd.nuevoEstado() == TurnoEstado.COMPLETADO) {
+            turno.finalizarAtencion(LocalDateTime.now());
         } else {
             turno.cambiarEstado(cmd.nuevoEstado());
         }
@@ -288,6 +299,36 @@ public class TurnoService {
     }
 
     @Transactional(readOnly = true)
+    public List<BoxDisponibilidadResult> getBoxesDisponibilidad(UUID consultorioId, LocalDateTime start,
+                                                                 int duracionMinutos,
+                                                                 String userEmail, Set<String> roles) {
+        assertConsultorioExists(consultorioId);
+        assertCanAccess(consultorioId, userEmail, roles);
+
+        LocalDateTime end = start.plusMinutes(duracionMinutos);
+        LocalDateTime dayStart = start.toLocalDate().atStartOfDay();
+        LocalDateTime dayEnd = start.toLocalDate().plusDays(1).atStartOfDay();
+
+        List<Box> boxes = boxRepo.findByConsultorioId(consultorioId)
+                .stream().filter(Box::isActivo).toList();
+
+        List<Turno> turnosDelDia = turnoRepo.findByConsultorioIdAndRange(consultorioId, dayStart, dayEnd);
+
+        return boxes.stream().map(box -> {
+            if (box.getCapacityType() == BoxCapacidadTipo.UNLIMITED) {
+                return new BoxDisponibilidadResult(box.getId(), box.getNombre(), true, null, null);
+            }
+            int capacidadTotal = box.getCapacity() != null ? box.getCapacity() : 0;
+            int ocupados = (int) turnosDelDia.stream()
+                    .filter(t -> box.getId().equals(t.getBoxId()))
+                    .filter(t -> consumesCapacity(t.getEstado()))
+                    .filter(t -> t.getFechaHoraInicio().isBefore(end) && t.getFechaHoraFin().isAfter(start))
+                    .count();
+            return new BoxDisponibilidadResult(box.getId(), box.getNombre(), ocupados < capacidadTotal, capacidadTotal, ocupados);
+        }).toList();
+    }
+
+    @Transactional(readOnly = true)
     public List<SlotDisponibleResult> getDisponibilidad(UUID consultorioId, UUID profesionalId,
                                                          LocalDate date, int duracionMinutos,
                                                          String userEmail, Set<String> roles) {
@@ -313,6 +354,8 @@ public class TurnoService {
         LocalDateTime dayEnd = date.plusDays(1).atStartOfDay();
 
         // Obtener turnos existentes para conflictos (no cancelados/ausentes)
+        // Sin profesional: no se bloquean slots por turnos existentes del consultorio —
+        // la capacidad de cada box es ilimitada por defecto y se valida por separado.
         List<Turno> turnosExistentes;
         if (profesionalId != null) {
             turnosExistentes = turnoRepo.findByProfesionalIdAndRange(profesionalId, dayStart, dayEnd)
@@ -320,10 +363,7 @@ public class TurnoService {
                     .filter(t -> t.getEstado() != TurnoEstado.CANCELADO && t.getEstado() != TurnoEstado.AUSENTE)
                     .toList();
         } else {
-            turnosExistentes = turnoRepo.findByConsultorioIdAndRange(consultorioId, dayStart, dayEnd)
-                    .stream()
-                    .filter(t -> t.getEstado() != TurnoEstado.CANCELADO && t.getEstado() != TurnoEstado.AUSENTE)
-                    .toList();
+            turnosExistentes = List.of();
         }
 
         List<SlotDisponibleResult> slots = new ArrayList<>();
@@ -469,19 +509,30 @@ public class TurnoService {
             }
         }
 
-        // Conflicto de box (turnos de cualquier profesional en el mismo box)
+        // Conflicto de box: respetar capacidad
         if (boxId != null) {
-            boolean boxConflict = turnoRepo.findByConsultorioIdAndRange(consultorioId, dayStart, dayEnd)
-                    .stream()
-                    .filter(t -> boxId.equals(t.getBoxId()))
-                    .filter(t -> t.getEstado() != TurnoEstado.CANCELADO && t.getEstado() != TurnoEstado.AUSENTE)
-                    .filter(t -> excludeId == null || !t.getId().equals(excludeId))
-                    .anyMatch(t -> t.getFechaHoraInicio().isBefore(end) && t.getFechaHoraFin().isAfter(start));
-
-            if (boxConflict) {
-                throw new TurnoConflictException("El box ya esta ocupado en ese horario");
+            Box box = boxRepo.findById(boxId).orElse(null);
+            if (box != null && box.getCapacityType() != BoxCapacidadTipo.UNLIMITED) {
+                long ocupados = turnoRepo.findByConsultorioIdAndRange(consultorioId, dayStart, dayEnd)
+                        .stream()
+                        .filter(t -> boxId.equals(t.getBoxId()))
+                        .filter(t -> consumesCapacity(t.getEstado()))
+                        .filter(t -> excludeId == null || !t.getId().equals(excludeId))
+                        .filter(t -> t.getFechaHoraInicio().isBefore(end) && t.getFechaHoraFin().isAfter(start))
+                        .count();
+                int capacidad = box.getCapacity() != null ? box.getCapacity() : 0;
+                if (ocupados >= capacidad) {
+                    throw new TurnoConflictException("El box seleccionado no tiene capacidad disponible para el horario indicado.");
+                }
             }
+            // BoxCapacidadTipo.UNLIMITED: sin restriccion de cantidad
         }
+    }
+
+    private boolean consumesCapacity(TurnoEstado estado) {
+        return estado != TurnoEstado.CANCELADO
+                && estado != TurnoEstado.AUSENTE
+                && estado != TurnoEstado.COMPLETADO;
     }
 
     private UUID resolveUserId(String email) {
@@ -512,6 +563,7 @@ public class TurnoService {
                 paciente != null ? paciente.getApellido() : null,
                 paciente != null ? paciente.getDni() : null,
                 t.getFechaHoraInicio(), t.getFechaHoraFin(),
+                t.getFechaHoraInicioReal(), t.getFechaHoraFinReal(),
                 t.getDuracionMinutos(), t.getEstado(),
                 t.getTipoConsulta(),
                 t.getMotivoConsulta(), t.getNotas(),
@@ -542,6 +594,7 @@ public class TurnoService {
                 paciente != null ? paciente.getApellido() : null,
                 paciente != null ? paciente.getDni() : null,
                 t.getFechaHoraInicio(), t.getFechaHoraFin(),
+                t.getFechaHoraInicioReal(), t.getFechaHoraFinReal(),
                 t.getDuracionMinutos(), t.getEstado(),
                 t.getTipoConsulta(),
                 t.getMotivoConsulta(), t.getNotas(),
@@ -582,5 +635,31 @@ public class TurnoService {
 
     private LocalTime min(LocalTime a, LocalTime b) {
         return a.isBefore(b) ? a : b;
+    }
+
+    private void autoCompletarTurnosVencidos(List<Turno> turnos, String userEmail) {
+        UUID userId = resolveUserId(userEmail);
+        LocalDateTime now = LocalDateTime.now();
+
+        for (Turno turno : turnos) {
+            if (turno.getEstado() != TurnoEstado.EN_CURSO) {
+                continue;
+            }
+            if (turno.getFechaHoraFin().isAfter(now)) {
+                continue;
+            }
+
+            turno.finalizarAtencion(turno.getFechaHoraFin());
+            Turno saved = turnoRepo.save(turno);
+            historialRepo.save(new HistorialEstadoTurno(
+                    UUID.randomUUID(),
+                    saved.getId(),
+                    TurnoEstado.EN_CURSO,
+                    TurnoEstado.COMPLETADO,
+                    userId,
+                    "Auto-finalizado al superar la hora programada",
+                    Instant.now()
+            ));
+        }
     }
 }

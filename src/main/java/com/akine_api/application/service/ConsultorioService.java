@@ -54,26 +54,59 @@ public class ConsultorioService {
 
     @Transactional(readOnly = true)
     public ConsultorioResult getById(UUID id, String userEmail, Set<String> roles) {
-        Consultorio c = findOrThrow(id);
+        Consultorio consultorio = findOrThrow(id);
         if (roles.contains("ROLE_ADMIN")) {
-            return toResult(c);
+            return toResult(consultorio);
         }
         assertMember(id, resolveUserId(userEmail));
-        assertActive(c);
-        return toResult(c);
+        assertActive(consultorio);
+        return toResult(consultorio);
     }
 
     public ConsultorioResult create(CreateConsultorioCommand cmd, Set<String> roles) {
         if (!roles.contains("ROLE_ADMIN")) {
             throw new AccessDeniedException("Solo ADMIN puede crear consultorios");
         }
-        Consultorio c = new Consultorio(
+        String status = normalizeStatus(cmd.status(), "ACTIVE");
+        Consultorio consultorio = new Consultorio(
                 UUID.randomUUID(),
-                cmd.name(), cmd.cuit(), cmd.address(), cmd.phone(), cmd.email(),
-                cmd.mapLatitude(), cmd.mapLongitude(), cmd.googleMapsUrl(),
-                "ACTIVE", Instant.now()
+                cmd.name(),
+                cmd.description(),
+                cmd.logoUrl(),
+                cmd.cuit(),
+                cmd.legalName(),
+                cmd.address(),
+                cmd.accessReference(),
+                cmd.floorUnit(),
+                cmd.phone(),
+                cmd.email(),
+                cmd.administrativeContact(),
+                cmd.internalNotes(),
+                cmd.mapLatitude(),
+                cmd.mapLongitude(),
+                cmd.googleMapsUrl(),
+                cmd.documentDisplayName(),
+                cmd.documentSubtitle(),
+                cmd.documentLogoUrl(),
+                cmd.documentFooter(),
+                cmd.documentShowAddress(),
+                cmd.documentShowPhone(),
+                cmd.documentShowEmail(),
+                cmd.documentShowCuit(),
+                cmd.documentShowLegalName(),
+                cmd.documentShowLogo(),
+                cmd.licenseNumber(),
+                cmd.licenseType(),
+                cmd.licenseExpirationDate(),
+                cmd.professionalDirectorName(),
+                cmd.professionalDirectorLicense(),
+                cmd.legalDocumentSummary(),
+                cmd.legalNotes(),
+                status,
+                null,
+                Instant.now()
         );
-        Consultorio saved = consultorioRepo.save(c);
+        Consultorio saved = consultorioRepo.save(consultorio);
         cargoEmpleadoCatalogoBootstrapService.ensureDefaults();
         consultorioEspecialidadBootstrapService.enableDefaultsForConsultorio(saved.getId());
         consultorioAntecedenteBootstrapService.ensureDefaults(saved.getId(), "system");
@@ -81,32 +114,58 @@ public class ConsultorioService {
     }
 
     public ConsultorioResult update(UpdateConsultorioCommand cmd, String userEmail, Set<String> roles) {
-        Consultorio c = findOrThrow(cmd.id());
+        Consultorio consultorio = findOrThrow(cmd.id());
         if (!roles.contains("ROLE_ADMIN")) {
             assertAdminMember(cmd.id(), resolveUserId(userEmail), roles);
         }
-        assertActive(c);
-        c.update(
+        assertActive(consultorio);
+        String status = normalizeStatus(cmd.status(), consultorio.getStatus());
+        consultorio.update(
                 cmd.name(),
+                cmd.description(),
+                cmd.logoUrl(),
                 cmd.cuit(),
+                cmd.legalName(),
                 cmd.address(),
+                cmd.accessReference(),
+                cmd.floorUnit(),
                 cmd.phone(),
                 cmd.email(),
+                cmd.administrativeContact(),
+                cmd.internalNotes(),
                 cmd.mapLatitude(),
                 cmd.mapLongitude(),
-                cmd.googleMapsUrl()
+                cmd.googleMapsUrl(),
+                cmd.documentDisplayName(),
+                cmd.documentSubtitle(),
+                cmd.documentLogoUrl(),
+                cmd.documentFooter(),
+                cmd.documentShowAddress(),
+                cmd.documentShowPhone(),
+                cmd.documentShowEmail(),
+                cmd.documentShowCuit(),
+                cmd.documentShowLegalName(),
+                cmd.documentShowLogo(),
+                cmd.licenseNumber(),
+                cmd.licenseType(),
+                cmd.licenseExpirationDate(),
+                cmd.professionalDirectorName(),
+                cmd.professionalDirectorLicense(),
+                cmd.legalDocumentSummary(),
+                cmd.legalNotes(),
+                status
         );
-        return toResult(consultorioRepo.save(c));
+        return toResult(consultorioRepo.save(consultorio));
     }
 
     public void inactivate(UUID id, String userEmail, Set<String> roles) {
         if (!roles.contains("ROLE_ADMIN")) {
             throw new AccessDeniedException("Solo ADMIN puede dar de baja consultorios");
         }
-        Consultorio c = findOrThrow(id);
-        if (c.isActive()) {
-            c.inactivate();
-            consultorioRepo.save(c);
+        Consultorio consultorio = findOrThrow(id);
+        if (consultorio.isActive()) {
+            consultorio.inactivate();
+            consultorioRepo.save(consultorio);
         }
     }
 
@@ -114,18 +173,23 @@ public class ConsultorioService {
         if (!roles.contains("ROLE_ADMIN")) {
             throw new AccessDeniedException("Solo ADMIN puede reactivar consultorios");
         }
-        Consultorio c = findOrThrow(id);
-        if (!c.isActive()) {
-            c.activate();
-            c = consultorioRepo.save(c);
+        Consultorio consultorio = findOrThrow(id);
+        if (!consultorio.isActive()) {
+            consultorio.activate();
+            consultorio = consultorioRepo.save(consultorio);
         }
-        return toResult(c);
+        return toResult(consultorio);
     }
-
-    // ─── Helpers ──────────────────────────────────────────────────────────────
 
     private Consultorio findOrThrow(UUID id) {
         return ConsultorioStateGuardService.requireExists(consultorioRepo, id);
+    }
+
+    private String normalizeStatus(String rawStatus, String fallback) {
+        if (rawStatus == null || rawStatus.isBlank()) {
+            return fallback;
+        }
+        return rawStatus.trim();
     }
 
     private void assertActive(Consultorio consultorio) {
@@ -156,9 +220,42 @@ public class ConsultorioService {
 
     private ConsultorioResult toResult(Consultorio c) {
         return new ConsultorioResult(
-                c.getId(), c.getName(), c.getCuit(), c.getAddress(),
-                c.getPhone(), c.getEmail(), c.getMapLatitude(), c.getMapLongitude(), c.getGoogleMapsUrl(), c.getStatus(),
-                c.getCreatedAt(), c.getUpdatedAt()
+                c.getId(),
+                c.getName(),
+                c.getDescription(),
+                c.getLogoUrl(),
+                c.getCuit(),
+                c.getLegalName(),
+                c.getAddress(),
+                c.getAccessReference(),
+                c.getFloorUnit(),
+                c.getPhone(),
+                c.getEmail(),
+                c.getAdministrativeContact(),
+                c.getInternalNotes(),
+                c.getMapLatitude(),
+                c.getMapLongitude(),
+                c.getGoogleMapsUrl(),
+                c.getDocumentDisplayName(),
+                c.getDocumentSubtitle(),
+                c.getDocumentLogoUrl(),
+                c.getDocumentFooter(),
+                c.getDocumentShowAddress(),
+                c.getDocumentShowPhone(),
+                c.getDocumentShowEmail(),
+                c.getDocumentShowCuit(),
+                c.getDocumentShowLegalName(),
+                c.getDocumentShowLogo(),
+                c.getLicenseNumber(),
+                c.getLicenseType(),
+                c.getLicenseExpirationDate(),
+                c.getProfessionalDirectorName(),
+                c.getProfessionalDirectorLicense(),
+                c.getLegalDocumentSummary(),
+                c.getLegalNotes(),
+                c.getStatus(),
+                c.getCreatedAt(),
+                c.getUpdatedAt()
         );
     }
 }

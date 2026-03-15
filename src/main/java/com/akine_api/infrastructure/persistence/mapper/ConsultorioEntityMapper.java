@@ -12,13 +12,37 @@ public interface ConsultorioEntityMapper {
         return new Consultorio(
                 entity.getId(),
                 entity.getName(),
+                entity.getDescription(),
+                entity.getLogoUrl(),
                 entity.getCuit(),
+                entity.getLegalName(),
                 entity.getAddress(),
+                entity.getAccessReference(),
+                entity.getFloorUnit(),
                 entity.getPhone(),
                 entity.getEmail(),
+                entity.getAdministrativeContact(),
+                entity.getInternalNotes(),
                 entity.getMapLatitude(),
                 entity.getMapLongitude(),
                 entity.getGoogleMapsUrl(),
+                entity.getDocumentDisplayName(),
+                entity.getDocumentSubtitle(),
+                entity.getDocumentLogoUrl(),
+                entity.getDocumentFooter(),
+                entity.getDocumentShowAddress(),
+                entity.getDocumentShowPhone(),
+                entity.getDocumentShowEmail(),
+                entity.getDocumentShowCuit(),
+                entity.getDocumentShowLegalName(),
+                entity.getDocumentShowLogo(),
+                entity.getLicenseNumber(),
+                entity.getLicenseType(),
+                entity.getLicenseExpirationDate(),
+                entity.getProfessionalDirectorName(),
+                entity.getProfessionalDirectorLicense(),
+                entity.getLegalDocumentSummary(),
+                entity.getLegalNotes(),
                 entity.getStatus(),
                 entity.getEmpresaId(),
                 entity.getCreatedAt()
@@ -27,20 +51,44 @@ public interface ConsultorioEntityMapper {
 
     default ConsultorioEntity toEntity(Consultorio domain) {
         if (domain == null) return null;
-        ConsultorioEntity e = new ConsultorioEntity();
-        e.setId(domain.getId());
-        e.setName(domain.getName());
-        e.setCuit(domain.getCuit());
-        e.setAddress(domain.getAddress());
-        e.setPhone(domain.getPhone());
-        e.setEmail(domain.getEmail());
-        e.setMapLatitude(domain.getMapLatitude());
-        e.setMapLongitude(domain.getMapLongitude());
-        e.setGoogleMapsUrl(domain.getGoogleMapsUrl());
-        e.setEmpresaId(domain.getEmpresaId());
-        e.setStatus(domain.getStatus());
-        e.setCreatedAt(domain.getCreatedAt());
-        e.setUpdatedAt(domain.getUpdatedAt());
-        return e;
+        ConsultorioEntity entity = new ConsultorioEntity();
+        entity.setId(domain.getId());
+        entity.setName(domain.getName());
+        entity.setDescription(domain.getDescription());
+        entity.setLogoUrl(domain.getLogoUrl());
+        entity.setCuit(domain.getCuit());
+        entity.setLegalName(domain.getLegalName());
+        entity.setAddress(domain.getAddress());
+        entity.setAccessReference(domain.getAccessReference());
+        entity.setFloorUnit(domain.getFloorUnit());
+        entity.setPhone(domain.getPhone());
+        entity.setEmail(domain.getEmail());
+        entity.setAdministrativeContact(domain.getAdministrativeContact());
+        entity.setInternalNotes(domain.getInternalNotes());
+        entity.setMapLatitude(domain.getMapLatitude());
+        entity.setMapLongitude(domain.getMapLongitude());
+        entity.setGoogleMapsUrl(domain.getGoogleMapsUrl());
+        entity.setDocumentDisplayName(domain.getDocumentDisplayName());
+        entity.setDocumentSubtitle(domain.getDocumentSubtitle());
+        entity.setDocumentLogoUrl(domain.getDocumentLogoUrl());
+        entity.setDocumentFooter(domain.getDocumentFooter());
+        entity.setDocumentShowAddress(domain.getDocumentShowAddress());
+        entity.setDocumentShowPhone(domain.getDocumentShowPhone());
+        entity.setDocumentShowEmail(domain.getDocumentShowEmail());
+        entity.setDocumentShowCuit(domain.getDocumentShowCuit());
+        entity.setDocumentShowLegalName(domain.getDocumentShowLegalName());
+        entity.setDocumentShowLogo(domain.getDocumentShowLogo());
+        entity.setLicenseNumber(domain.getLicenseNumber());
+        entity.setLicenseType(domain.getLicenseType());
+        entity.setLicenseExpirationDate(domain.getLicenseExpirationDate());
+        entity.setProfessionalDirectorName(domain.getProfessionalDirectorName());
+        entity.setProfessionalDirectorLicense(domain.getProfessionalDirectorLicense());
+        entity.setLegalDocumentSummary(domain.getLegalDocumentSummary());
+        entity.setLegalNotes(domain.getLegalNotes());
+        entity.setEmpresaId(domain.getEmpresaId());
+        entity.setStatus(domain.getStatus());
+        entity.setCreatedAt(domain.getCreatedAt());
+        entity.setUpdatedAt(domain.getUpdatedAt());
+        return entity;
     }
 }

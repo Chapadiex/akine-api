@@ -45,7 +45,8 @@ public class BoxController {
             @PathVariable UUID consultorioId,
             @Valid @RequestBody BoxRequest req,
             @AuthenticationPrincipal UserDetails principal) {
-        CreateBoxCommand cmd = new CreateBoxCommand(consultorioId, req.nombre(), req.codigo(), req.tipo());
+        CreateBoxCommand cmd = new CreateBoxCommand(
+                consultorioId, req.nombre(), req.codigo(), req.tipo(), req.capacityType(), req.capacity(), req.activo());
         BoxResponse response = toResponse(service.create(cmd, principal.getUsername(), roles(principal)));
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -66,7 +67,7 @@ public class BoxController {
             @Valid @RequestBody BoxRequest req,
             @AuthenticationPrincipal UserDetails principal) {
         UpdateBoxCommand cmd = new UpdateBoxCommand(
-                id, consultorioId, req.nombre(), req.codigo(), req.tipo(), req.activo());
+                id, consultorioId, req.nombre(), req.codigo(), req.tipo(), req.capacityType(), req.capacity(), req.activo());
         return ResponseEntity.ok(toResponse(
                 service.update(cmd, principal.getUsername(), roles(principal))));
     }

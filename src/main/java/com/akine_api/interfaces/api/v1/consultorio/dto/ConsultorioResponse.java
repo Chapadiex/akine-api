@@ -2,18 +2,43 @@ package com.akine_api.interfaces.api.v1.consultorio.dto;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 
 public record ConsultorioResponse(
         UUID id,
         String name,
+        String description,
+        String logoUrl,
         String cuit,
+        String legalName,
         String address,
+        String accessReference,
+        String floorUnit,
         String phone,
         String email,
+        String administrativeContact,
+        String internalNotes,
         BigDecimal mapLatitude,
         BigDecimal mapLongitude,
         String googleMapsUrl,
+        String documentDisplayName,
+        String documentSubtitle,
+        String documentLogoUrl,
+        String documentFooter,
+        Boolean documentShowAddress,
+        Boolean documentShowPhone,
+        Boolean documentShowEmail,
+        Boolean documentShowCuit,
+        Boolean documentShowLegalName,
+        Boolean documentShowLogo,
+        String licenseNumber,
+        String licenseType,
+        LocalDate licenseExpirationDate,
+        String professionalDirectorName,
+        String professionalDirectorLicense,
+        String legalDocumentSummary,
+        String legalNotes,
         String status,
         Instant createdAt,
         Instant updatedAt

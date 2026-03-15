@@ -21,6 +21,8 @@ public record TurnoResult(
         String pacienteDni,
         LocalDateTime fechaHoraInicio,
         LocalDateTime fechaHoraFin,
+        LocalDateTime fechaHoraInicioReal,
+        LocalDateTime fechaHoraFinReal,
         int duracionMinutos,
         TurnoEstado estado,
         TipoConsulta tipoConsulta,
