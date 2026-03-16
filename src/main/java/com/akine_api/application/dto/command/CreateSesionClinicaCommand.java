@@ -11,6 +11,7 @@ public record CreateSesionClinicaCommand(
         UUID pacienteId,
         UUID profesionalId,
         UUID turnoId,
+        UUID casoAtencionId,
         UUID boxId,
         LocalDateTime fechaAtencion,
         HistoriaClinicaTipoAtencion tipoAtencion,

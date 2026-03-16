@@ -225,6 +225,7 @@ public class SuscripcionService {
                 consultorio.getCuit(),
                 consultorio.getLegalName(),
                 normalize(cmd.address()),
+                consultorio.getGeoAddress(),
                 consultorio.getAccessReference(),
                 consultorio.getFloorUnit(),
                 normalize(cmd.phone()),

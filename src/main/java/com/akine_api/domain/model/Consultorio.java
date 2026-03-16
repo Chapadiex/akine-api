@@ -14,6 +14,7 @@ public class Consultorio {
     private String cuit;
     private String legalName;
     private String address;
+    private String geoAddress;
     private String accessReference;
     private String floorUnit;
     private String phone;
@@ -48,7 +49,7 @@ public class Consultorio {
     public Consultorio(UUID id, String name, String cuit, String address,
                        String phone, String email, String status, Instant createdAt) {
         this(
-                id, name, null, null, cuit, null, address, null, null, phone, email, null, null,
+                id, name, null, null, cuit, null, address, null, null, null, phone, email, null, null,
                 null, null, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, status, null, createdAt
         );
@@ -58,7 +59,7 @@ public class Consultorio {
                        String phone, String email, BigDecimal mapLatitude, BigDecimal mapLongitude,
                        String googleMapsUrl, String status, Instant createdAt) {
         this(
-                id, name, null, null, cuit, null, address, null, null, phone, email, null, null,
+                id, name, null, null, cuit, null, address, null, null, null, phone, email, null, null,
                 mapLatitude, mapLongitude, googleMapsUrl, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null, null, status, null,
                 createdAt
@@ -68,7 +69,7 @@ public class Consultorio {
     public Consultorio(UUID id, String name, String cuit, String address,
                        String phone, String email, String status, UUID empresaId, Instant createdAt) {
         this(
-                id, name, null, null, cuit, null, address, null, null, phone, email, null, null,
+                id, name, null, null, cuit, null, address, null, null, null, phone, email, null, null,
                 null, null, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, status, empresaId, createdAt
         );
@@ -82,6 +83,7 @@ public class Consultorio {
             String cuit,
             String legalName,
             String address,
+            String geoAddress,
             String accessReference,
             String floorUnit,
             String phone,
@@ -119,6 +121,7 @@ public class Consultorio {
         this.cuit = cuit;
         this.legalName = legalName;
         this.address = address;
+        this.geoAddress = geoAddress;
         this.accessReference = accessReference;
         this.floorUnit = floorUnit;
         this.phone = phone;
@@ -158,6 +161,7 @@ public class Consultorio {
             String cuit,
             String legalName,
             String address,
+            String geoAddress,
             String accessReference,
             String floorUnit,
             String phone,
@@ -192,6 +196,7 @@ public class Consultorio {
         this.cuit = cuit;
         this.legalName = legalName;
         this.address = address;
+        this.geoAddress = geoAddress;
         this.accessReference = accessReference;
         this.floorUnit = floorUnit;
         this.phone = phone;
@@ -246,6 +251,7 @@ public class Consultorio {
     public String getCuit() { return cuit; }
     public String getLegalName() { return legalName; }
     public String getAddress() { return address; }
+    public String getGeoAddress() { return geoAddress; }
     public String getAccessReference() { return accessReference; }
     public String getFloorUnit() { return floorUnit; }
     public String getPhone() { return phone; }

@@ -36,7 +36,7 @@ class ConsultorioControllerTest {
 
     private ConsultorioResult sampleResult() {
         return new ConsultorioResult(
-                ID, "Test Consultorio", null, null, null, null, "Av. 123", null, null,
+                ID, "Test Consultorio", null, null, null, null, "Av. 123", "Av. 123, Buenos Aires, Argentina", null, null,
                 "1155550000", "test@mail.com", null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null, null, null,
                 null, null, null, null, null, "ACTIVE", Instant.now(), Instant.now()

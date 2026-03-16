@@ -37,6 +37,9 @@ public class DiagnosticoClinicoEntity {
     @Column(name = "sesion_id")
     private UUID sesionId;
 
+    @Column(name = "caso_atencion_id")
+    private UUID casoAtencionId;
+
     @Column(length = 100)
     private String codigo;
 

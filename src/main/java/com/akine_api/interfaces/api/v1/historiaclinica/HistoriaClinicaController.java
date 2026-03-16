@@ -253,6 +253,7 @@ public class HistoriaClinicaController {
                         pacienteId,
                         request.profesionalId(),
                         request.turnoId(),
+                        request.casoAtencionId(),
                         request.boxId(),
                         request.fechaAtencion(),
                         request.tipoAtencion(),

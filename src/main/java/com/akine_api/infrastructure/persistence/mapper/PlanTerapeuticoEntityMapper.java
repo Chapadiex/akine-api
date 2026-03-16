@@ -12,6 +12,7 @@ public interface PlanTerapeuticoEntityMapper {
         return new PlanTerapeutico(
                 entity.getId(),
                 entity.getAtencionInicialId(),
+                entity.getCasoAtencionId(),
                 entity.getConsultorioId(),
                 entity.getPacienteId(),
                 entity.getProfesionalId(),
@@ -29,6 +30,7 @@ public interface PlanTerapeuticoEntityMapper {
         PlanTerapeuticoEntity entity = new PlanTerapeuticoEntity();
         entity.setId(domain.getId());
         entity.setAtencionInicialId(domain.getAtencionInicialId());
+        entity.setCasoAtencionId(domain.getCasoAtencionId());
         entity.setConsultorioId(domain.getConsultorioId());
         entity.setPacienteId(domain.getPacienteId());
         entity.setProfesionalId(domain.getProfesionalId());

@@ -48,6 +48,7 @@ class TurnoControllerTest {
                 TURNO_ID, CID, PROF_ID, "Juan", "Perez",
                 null, null, null, null, null, null,
                 inicio, fin,
+                null, null,
                 30, estado, null,
                 "Consulta", null,
                 null, null, null,

@@ -7,5 +7,6 @@ import java.util.UUID;
 
 public interface HistoriaClinicaLegajoRepositoryPort {
     HistoriaClinicaLegajo save(HistoriaClinicaLegajo legajo);
+    Optional<HistoriaClinicaLegajo> findById(UUID id);
     Optional<HistoriaClinicaLegajo> findByConsultorioIdAndPacienteId(UUID consultorioId, UUID pacienteId);
 }

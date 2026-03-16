@@ -27,6 +27,9 @@ public class PlanTerapeuticoEntity {
     @Column(name = "atencion_inicial_id", nullable = false)
     private UUID atencionInicialId;
 
+    @Column(name = "caso_atencion_id")
+    private UUID casoAtencionId;
+
     @Column(name = "consultorio_id", nullable = false)
     private UUID consultorioId;
 

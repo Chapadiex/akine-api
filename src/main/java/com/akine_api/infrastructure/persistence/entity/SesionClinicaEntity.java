@@ -39,6 +39,9 @@ public class SesionClinicaEntity {
     @Column(name = "turno_id")
     private UUID turnoId;
 
+    @Column(name = "caso_atencion_id")
+    private UUID casoAtencionId;
+
     @Column(name = "box_id")
     private UUID boxId;
 

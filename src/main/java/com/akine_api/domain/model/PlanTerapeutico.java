@@ -7,6 +7,7 @@ public class PlanTerapeutico {
 
     private final UUID id;
     private final UUID atencionInicialId;
+    private final UUID casoAtencionId;
     private final UUID consultorioId;
     private final UUID pacienteId;
     private final UUID profesionalId;
@@ -19,6 +20,7 @@ public class PlanTerapeutico {
 
     public PlanTerapeutico(UUID id,
                            UUID atencionInicialId,
+                           UUID casoAtencionId,
                            UUID consultorioId,
                            UUID pacienteId,
                            UUID profesionalId,
@@ -36,6 +38,7 @@ public class PlanTerapeutico {
         }
         this.id = id;
         this.atencionInicialId = atencionInicialId;
+        this.casoAtencionId = casoAtencionId;
         this.consultorioId = consultorioId;
         this.pacienteId = pacienteId;
         this.profesionalId = profesionalId;
@@ -49,6 +52,7 @@ public class PlanTerapeutico {
 
     public UUID getId() { return id; }
     public UUID getAtencionInicialId() { return atencionInicialId; }
+    public UUID getCasoAtencionId() { return casoAtencionId; }
     public UUID getConsultorioId() { return consultorioId; }
     public UUID getPacienteId() { return pacienteId; }
     public UUID getProfesionalId() { return profesionalId; }

@@ -95,7 +95,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             SubscriptionNotFoundException.class,
             SesionClinicaNotFoundException.class,
             DiagnosticoClinicoNotFoundException.class,
-            AdjuntoClinicoNotFoundException.class
+            AdjuntoClinicoNotFoundException.class,
+            CasoAtencionNotFoundException.class
     })
     public ProblemDetail handleEntityNotFound(DomainException ex) {
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());

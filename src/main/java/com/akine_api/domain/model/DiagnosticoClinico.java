@@ -15,6 +15,7 @@ public class DiagnosticoClinico {
     private final Instant createdAt;
     private UUID profesionalId;
     private UUID sesionId;
+    private UUID casoAtencionId;
     private String codigo;
     private String descripcion;
     private String diagnosticoTipo;
@@ -34,6 +35,7 @@ public class DiagnosticoClinico {
                               UUID pacienteId,
                               UUID profesionalId,
                               UUID sesionId,
+                              UUID casoAtencionId,
                               String codigo,
                               String descripcion,
                               String diagnosticoTipo,
@@ -63,6 +65,7 @@ public class DiagnosticoClinico {
         this.pacienteId = pacienteId;
         this.profesionalId = profesionalId;
         this.sesionId = sesionId;
+        this.casoAtencionId = casoAtencionId;
         this.codigo = codigo;
         this.descripcion = descripcion;
         this.diagnosticoTipo = diagnosticoTipo;
@@ -148,6 +151,7 @@ public class DiagnosticoClinico {
     public UUID getPacienteId() { return pacienteId; }
     public UUID getProfesionalId() { return profesionalId; }
     public UUID getSesionId() { return sesionId; }
+    public UUID getCasoAtencionId() { return casoAtencionId; }
     public String getCodigo() { return codigo; }
     public String getDescripcion() { return descripcion; }
     public String getDiagnosticoTipo() { return diagnosticoTipo; }

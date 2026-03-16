@@ -13,6 +13,7 @@ public record ConsultorioResult(
         String cuit,
         String legalName,
         String address,
+        String geoAddress,
         String accessReference,
         String floorUnit,
         String phone,

@@ -16,6 +16,7 @@ public class SesionClinica {
     private final Instant createdAt;
     private UUID profesionalId;
     private UUID turnoId;
+    private UUID casoAtencionId;
     private UUID boxId;
     private LocalDateTime fechaAtencion;
     private HistoriaClinicaSesionEstado estado;
@@ -36,6 +37,7 @@ public class SesionClinica {
                          UUID pacienteId,
                          UUID profesionalId,
                          UUID turnoId,
+                         UUID casoAtencionId,
                          UUID boxId,
                          LocalDateTime fechaAtencion,
                          HistoriaClinicaSesionEstado estado,
@@ -64,6 +66,7 @@ public class SesionClinica {
         this.pacienteId = pacienteId;
         this.profesionalId = profesionalId;
         this.turnoId = turnoId;
+        this.casoAtencionId = casoAtencionId;
         this.boxId = boxId;
         this.fechaAtencion = fechaAtencion;
         this.estado = estado;
@@ -149,6 +152,7 @@ public class SesionClinica {
     public UUID getPacienteId() { return pacienteId; }
     public UUID getProfesionalId() { return profesionalId; }
     public UUID getTurnoId() { return turnoId; }
+    public UUID getCasoAtencionId() { return casoAtencionId; }
     public UUID getBoxId() { return boxId; }
     public LocalDateTime getFechaAtencion() { return fechaAtencion; }
     public HistoriaClinicaSesionEstado getEstado() { return estado; }

@@ -29,6 +29,9 @@ public record ConsultorioRequest(
         @Size(max = 500, message = "La direccion no puede superar 500 caracteres")
         String address,
 
+        @Size(max = 500, message = "La direccion georreferenciada no puede superar 500 caracteres")
+        String geoAddress,
+
         @Size(max = 255, message = "La referencia de acceso no puede superar 255 caracteres")
         String accessReference,
 

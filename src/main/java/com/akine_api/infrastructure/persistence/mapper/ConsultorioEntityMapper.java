@@ -17,6 +17,7 @@ public interface ConsultorioEntityMapper {
                 entity.getCuit(),
                 entity.getLegalName(),
                 entity.getAddress(),
+                entity.getGeoAddress(),
                 entity.getAccessReference(),
                 entity.getFloorUnit(),
                 entity.getPhone(),
@@ -59,6 +60,7 @@ public interface ConsultorioEntityMapper {
         entity.setCuit(domain.getCuit());
         entity.setLegalName(domain.getLegalName());
         entity.setAddress(domain.getAddress());
+        entity.setGeoAddress(domain.getGeoAddress());
         entity.setAccessReference(domain.getAccessReference());
         entity.setFloorUnit(domain.getFloorUnit());
         entity.setPhone(domain.getPhone());

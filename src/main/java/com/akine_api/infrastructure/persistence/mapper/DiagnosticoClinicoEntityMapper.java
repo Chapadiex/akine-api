@@ -15,6 +15,7 @@ public interface DiagnosticoClinicoEntityMapper {
                 entity.getPacienteId(),
                 entity.getProfesionalId(),
                 entity.getSesionId(),
+                entity.getCasoAtencionId(),
                 entity.getCodigo(),
                 entity.getDescripcion(),
                 entity.getDiagnosticoTipo(),
@@ -41,6 +42,7 @@ public interface DiagnosticoClinicoEntityMapper {
         entity.setPacienteId(domain.getPacienteId());
         entity.setProfesionalId(domain.getProfesionalId());
         entity.setSesionId(domain.getSesionId());
+        entity.setCasoAtencionId(domain.getCasoAtencionId());
         entity.setCodigo(domain.getCodigo());
         entity.setDescripcion(domain.getDescripcion());
         entity.setDiagnosticoTipo(domain.getDiagnosticoTipo());

@@ -8,6 +8,7 @@ import java.util.UUID;
 public record SesionClinicaRequest(
         UUID profesionalId,
         UUID turnoId,
+        UUID casoAtencionId,
         UUID boxId,
         LocalDateTime fechaAtencion,
         HistoriaClinicaTipoAtencion tipoAtencion,

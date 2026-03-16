@@ -75,6 +75,7 @@ class ConsultorioServiceTest {
                 "20123456789",
                 "Razon Social",
                 "Av. Siempreviva 123",
+                "Avenida Siempreviva 123, Springfield, Buenos Aires, Argentina",
                 null,
                 null,
                 "1155551234",
@@ -201,6 +202,7 @@ class ConsultorioServiceTest {
 
         assertThat(result.mapLatitude()).isEqualByComparingTo("-34.603722");
         assertThat(result.mapLongitude()).isEqualByComparingTo("-58.381592");
+        assertThat(result.geoAddress()).isEqualTo("Av. 123, Buenos Aires, Argentina");
         assertThat(result.documentShowAddress()).isTrue();
         assertThat(result.licenseNumber()).isEqualTo("HAB-01");
         assertThat(result.professionalDirectorName()).isEqualTo("Dra. Perez");
@@ -245,6 +247,7 @@ class ConsultorioServiceTest {
         ConsultorioResult result = service.update(updateCommand("INACTIVE"), ADMIN_EMAIL, ADMIN_ROLES);
 
         assertThat(result.status()).isEqualTo("INACTIVE");
+        assertThat(result.geoAddress()).isEqualTo("Nueva direccion georreferenciada");
         assertThat(result.documentShowCuit()).isTrue();
         assertThat(result.licenseType()).isEqualTo("Provincial");
     }
@@ -297,18 +300,18 @@ class ConsultorioServiceTest {
 
     private CreateConsultorioCommand quickCreateCommand() {
         return new CreateConsultorioCommand(
-                "Nuevo", null, null, null, null, "Av. 123", null, null, "1155550000", "nuevo@mail.com",
+                "Nuevo", null, null, null, null, "Av. 123", null, null, null, "1155550000", "nuevo@mail.com",
                 null, null, new BigDecimal("-34.603722"), new BigDecimal("-58.381592"),
                 "https://maps.google.com/?q=-34.603722,-58.381592",
                 null, null, null, null, null, null, null, null, null, null, null, null, null,
-                null, null, null, "ACTIVE"
+                null, null, null, null, "ACTIVE"
         );
     }
 
     private CreateConsultorioCommand completeCreateCommand() {
         return new CreateConsultorioCommand(
                 "Nuevo", "Descripcion", "https://cdn.test/logo.png", "20123456789", "Clinica Nuevo SA",
-                "Av. 123", "Puerta lateral", "Piso 2", "1155550000", "nuevo@mail.com", "Laura Admin",
+                "Av. 123", "Av. 123, Buenos Aires, Argentina", "Puerta lateral", "Piso 2", "1155550000", "nuevo@mail.com", "Laura Admin",
                 "Observaciones internas", new BigDecimal("-34.603722"), new BigDecimal("-58.381592"),
                 "https://maps.google.com/?q=-34.603722,-58.381592", "Clinica Nuevo", "Kinesiologia",
                 "https://cdn.test/doc-logo.png", "Pie documental", true, true, true, false, true,
@@ -320,7 +323,7 @@ class ConsultorioServiceTest {
     private UpdateConsultorioCommand updateCommand(String status) {
         return new UpdateConsultorioCommand(
                 CONSULTORIO_ID, "Actualizado", "Nueva descripcion", null, "20999999999",
-                "Clinica Actualizada SA", "Nueva direccion", "Ingreso principal", "Unidad B",
+                "Clinica Actualizada SA", "Nueva direccion", "Nueva direccion georreferenciada", "Ingreso principal", "Unidad B",
                 "1155559999", "actualizado@mail.com", "Nuevo responsable", "Notas internas",
                 new BigDecimal("-34.603722"), new BigDecimal("-58.381592"),
                 "https://maps.google.com/?q=-34.603722,-58.381592", "Nombre documentos", "Subtitulo",

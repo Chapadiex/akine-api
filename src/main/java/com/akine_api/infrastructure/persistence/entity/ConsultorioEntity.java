@@ -41,6 +41,9 @@ public class ConsultorioEntity {
     @Column(length = 500)
     private String address;
 
+    @Column(name = "geo_address", length = 500)
+    private String geoAddress;
+
     @Column(name = "access_reference", length = 255)
     private String accessReference;
 

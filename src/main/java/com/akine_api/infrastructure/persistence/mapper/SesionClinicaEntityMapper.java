@@ -15,6 +15,7 @@ public interface SesionClinicaEntityMapper {
                 entity.getPacienteId(),
                 entity.getProfesionalId(),
                 entity.getTurnoId(),
+                entity.getCasoAtencionId(),
                 entity.getBoxId(),
                 entity.getFechaAtencion(),
                 entity.getEstado(),
@@ -43,6 +44,7 @@ public interface SesionClinicaEntityMapper {
         entity.setPacienteId(domain.getPacienteId());
         entity.setProfesionalId(domain.getProfesionalId());
         entity.setTurnoId(domain.getTurnoId());
+        entity.setCasoAtencionId(domain.getCasoAtencionId());
         entity.setBoxId(domain.getBoxId());
         entity.setFechaAtencion(domain.getFechaAtencion());
         entity.setEstado(domain.getEstado());

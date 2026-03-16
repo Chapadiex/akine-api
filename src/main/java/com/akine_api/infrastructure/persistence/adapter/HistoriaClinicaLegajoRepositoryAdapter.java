@@ -27,6 +27,11 @@ public class HistoriaClinicaLegajoRepositoryAdapter implements HistoriaClinicaLe
     }
 
     @Override
+    public Optional<HistoriaClinicaLegajo> findById(UUID id) {
+        return repo.findById(id).map(mapper::toDomain);
+    }
+
+    @Override
     public Optional<HistoriaClinicaLegajo> findByConsultorioIdAndPacienteId(UUID consultorioId, UUID pacienteId) {
         return repo.findByConsultorioIdAndPacienteId(consultorioId, pacienteId).map(mapper::toDomain);
     }
