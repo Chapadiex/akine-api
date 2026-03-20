@@ -6,13 +6,13 @@ import java.util.UUID;
 
 public record UpdateCasoAtencionRequest(
         UUID profesionalResponsableId,
-        @Size(max = 500)
+        @Size(max = 1000)
         String motivoConsulta,
-        @Size(max = 500)
+        @Size(max = 1000)
         String diagnosticoMedico,
-        @Size(max = 500)
+        @Size(max = 1000)
         String diagnosticoFuncional,
-        @Size(max = 255)
+        @Size(max = 1000)
         String afeccionPrincipal,
         @Size(max = 20)
         String prioridad

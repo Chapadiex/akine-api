@@ -67,6 +67,13 @@ public class AdjuntoClinicoRepositoryAdapter implements AdjuntoClinicoRepository
     }
 
     @Override
+    public List<AdjuntoClinico> findByCasoAtencionId(UUID casoAtencionId) {
+        return repo.findByCasoAtencionIdOrderByCreatedAtAsc(casoAtencionId).stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public void deleteById(UUID id) {
         repo.deleteById(id);
     }

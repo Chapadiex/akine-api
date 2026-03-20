@@ -4,6 +4,7 @@ import com.akine_api.domain.model.CasoAtencionEstado;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public record CasoAtencionResult(
@@ -25,6 +26,7 @@ public record CasoAtencionResult(
         UUID atencionInicialId,
         int cantidadSesiones,
         int cantidadPlanes,
+        List<AdjuntoClinicoResult> adjuntos,
         Instant createdAt,
         Instant updatedAt
 ) {}

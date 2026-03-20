@@ -13,5 +13,6 @@ public interface AdjuntoClinicoRepositoryPort {
     List<AdjuntoClinico> findBySesionIds(List<UUID> sesionIds);
     List<AdjuntoClinico> findByAtencionInicialId(UUID atencionInicialId);
     List<AdjuntoClinico> findByAtencionInicialIds(List<UUID> atencionInicialIds);
+    List<AdjuntoClinico> findByCasoAtencionId(UUID casoAtencionId);
     void deleteById(UUID id);
 }

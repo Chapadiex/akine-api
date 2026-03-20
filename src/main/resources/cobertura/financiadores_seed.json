@@ -1,0 +1,5661 @@
+{
+  "metadata": {
+    "schemaVersion": "2.0",
+    "generatedOn": "2026-03-19",
+    "project": "AKINE",
+    "variant": "definitivo",
+    "counts": {
+      "totalRegistros": 265,
+      "oficialesBase": 255,
+      "manualesBase": 1,
+      "curadosActualizados": 6,
+      "curadosAgregados": 9,
+      "porTipoFinanciador": {
+        "Obra Social": 257,
+        "PAMI": 1,
+        "Particular": 1,
+        "Prepaga": 6
+      }
+    },
+    "notes": [
+      "Version definitiva consolidada para AKINE.",
+      "Parte de un maestro base de 231 entidades nacionales del RNAS, 24 obras sociales provinciales y 1 registro Particular para uso operativo.",
+      "Consolida curaciones puntuales sobre financiadores destacados pedidos por el proyecto y evita duplicados operativos entre archivos intermedios.",
+      "Los financiadores oficiales/provinciales no curados conservan un plan generico inicial (PLAN GENERAL, PAMI GENERAL o PARTICULAR segun corresponda).",
+      "Los financiadores destacados curados incluyen planes de arranque mas utiles para carga y pruebas operativas, pero no reemplazan una futura administracion de convenios y aranceles.",
+      "OSPE fue dejado como registro curado independiente porque el acronimo es ambiguo dentro del universo oficial y conviene validarlo funcionalmente en AKINE antes de homologarlo."
+    ],
+    "sources": [
+      "https://www.sssalud.gob.ar/?page=os_inscriptas",
+      "https://www.sssalud.gob.ar/?page=listRnosc&tipo=7",
+      "https://www.sssalud.gob.ar/?page=listRnosc&tipo=8",
+      "https://www.sssalud.gob.ar/?page=listRnosc&tipo=9",
+      "https://www.sssalud.gob.ar/?page=listRnosc&tipo=11",
+      "https://www.sssalud.gob.ar/?page=listRnosc&tipo=12",
+      "https://www.sssalud.gob.ar/?page=listRnosc&tipo=13",
+      "https://www.sssalud.gob.ar/?page=listRnosc&tipo=18",
+      "https://www.cosspra.com.ar/nosotros/"
+    ]
+  },
+  "financiadores": [
+    {
+      "nombreCompleto": "OBRA SOCIAL UNION PERSONAL DE LA UNION DEL PERSONAL CIVIL DE LA NACION",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2570-7",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE LOS SUPERVISORES DE LA INDUSTRIA METALMECANICA DE LA REPUBLICA ARGENTINA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1220-2",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DEL ESPECTACULO PUBLICO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0710-7",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA INDUSTRIA TEXTIL",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2100-2",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA INDUSTRIA DEL CALZADO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0310-5",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE SEGURIDAD COMERCIAL, INDUSTRIAL E INVESTIGACIONES PRIVADAS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1970-8",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": false,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE ESCRIBANIAS DE LA PROVINCIA DE BUENOS AIRES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0690-6",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA CONSTRUCCION",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0540-8",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL AERONAUTICO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0050-2",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL TRABAJADORES PASTELEROS, CONFITEROS, PIZZEROS, HELADEROS Y ALFAJOREROS DE LA REPUBLICA ARGENTINA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1430-7",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL ELECTRICISTAS NAVALES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0660-9",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA INDUSTRIA NAVAL",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1370-0",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE LA INDUSTRIA DEL TRANSPORTE AUTOMOTOR DE CORDOBA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2150-7",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA INDUSTRIA DEL CUERO Y AFINES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0560-6",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE OBREROS EMPACADORES DE FRUTA DE RIO NEGRO Y NEUQUEN",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0670-8",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE PANADERIAS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1390-8",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE COLOCADORES DE AZULEJOS, MOSAICOS, GRANITEROS, LUSTRADORES Y PORCELANEROS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0480-1",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL LADRILLERO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1030-5",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE INDUSTRIAS QUIMICAS Y PETROQUIMICAS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1870-5",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": false,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA ACTIVIDAD PERFUMISTA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1500-3",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA INDUSTRIA DEL PESCADO DE MAR DEL PLATA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1520-1",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA INDUSTRIA DEL PLASTICO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1600-6",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE PORTUARIOS ARGENTINOS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1620-4",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE PRENSA DE LA REPUBLICA ARGENTINA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1720-7",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA INDUSTRIA DEL VESTIDO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2200-5",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL FEDERAL DE LA FEDERACION NACIONAL DE TRABAJADORES DE OBRAS SANITARIAS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2530-1",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL CONDUCTORES DE TAXIS DE CORDOBA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2180-4",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": false,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE LA FEDERACION GREMIAL DEL PERSONAL DE LA INDUSTRIA DE LA CARNE Y SUS DERIVADOS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2600-7",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL SERVICIOS SOCIALES BANCARIOS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2630-4",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE GUINCHEROS Y MAQUINISTAS DE GRUAS MOVILES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0920-2",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL PERSONAL ESTACIONES DE SERVICIO, GARAGES, PLAYAS Y LAVADEROS DE LA PROVINCIA DEL CHACO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2770-3",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE RELOJEROS Y JOYEROS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1920-3",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL SINDICATO OBREROS Y EMPLEADOS DE EMPRESAS DE LIMPIEZA, SERVICIOS Y AFINES DE CORDOBA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2840-9",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE LA UNION DE TRABAJADORES DEL INSTITUTO NACIONAL DE SERVICIOS SOCIALES PARA JUBILADOS Y PENSIONADOS DE LA REPUBLICA ARGENTINA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2810-2",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE LA ASOCIACION DEL PERSONAL SUPERIOR DE LA EMPRESA PROVINCIAL DE ENERGIA DE CORDOBA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2900-6",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE ACTORES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0020-5",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE LUZ Y FUERZA DE LA PATAGONIA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2780-2",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA FEDERACION DE SINDICATOS DE LA INDUSTRIA QUIMICA Y PETROQUIMICA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2800-3",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL ADMINISTRATIVO Y TECNICO DE LA CONSTRUCCION Y AFINES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0530-9",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE PETROLEROS DE CORDOBA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1550-8",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE JABONEROS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1000-8",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL SINDICATO UNICO DE RECOLECTORES DE RESIDUOS Y BARRIDO DE CORDOBA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2820-1",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE PETROLEROS PRIVADOS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2790-1",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL MODELOS ARGENTINOS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1250-9",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL SINDICATO DE MECANICOS Y AFINES DEL TRANSPORTE AUTOMOTOR",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1190-2",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE MAESTRANZA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1120-9",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL EMPLEADOS DE AGENCIAS DE INFORMES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0090-8",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA INDUSTRIA AZUCARERA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0270-6",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DEL CAUCHO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0380-8",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE CERAMISTAS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0410-8",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA CERAMICA, SANITARIOS, PORCELANA DE MESA Y AFINES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0420-7",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL PEONES DE TAXIS DE ROSARIO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2830-0",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": false,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE PRENSA DE MENDOZA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1780-1",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": false,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA ACTIVIDAD CERVECERA Y AFINES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0430-6",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA INDUSTRIA CINEMATOGRAFICA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0450-4",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE EMPLEADOS DE DESPACHANTES DE ADUANA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0610-4",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE JARDINEROS, PARQUISTAS, VIVERISTAS Y FLORICULTORES DE LA REPUBLICA ARGENTINA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1010-7",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE DOCENTES PARTICULARES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0630-2",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA INDUSTRIA DEL FIBROCEMENTO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0780-0",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE MANIPULEO, EMPAQUE Y EXPEDICION DE FRUTA FRESCA Y HORTALIZAS DE CUYO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0850-6",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE CONSIGNATARIOS DEL MERCADO NACIONAL DE HACIENDA DE LINIERS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0930-1",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DEL JOCKEY CLUB DE ROSARIO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1020-6",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE LOS TRABAJADORES DE LAS EMPRESAS DE ELECTRICIDAD",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1080-0",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE CAPITANES DE ULTRAMAR Y OFICIALES DE LA MARINA MERCANTE",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1140-7",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA INDUSTRIA MOLINERA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1260-8",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE JEFES Y OFICIALES NAVALES DE RADIOCOMUNICACIONES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1320-5",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE LA INDUSTRIA DE PASTAS ALIMENTICIAS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1420-8",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE PETROLEROS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1530-0",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA PUBLICIDAD",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1860-6",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE REFINERIAS DE MAIZ",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1900-5",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA SANIDAD ARGENTINA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1950-0",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA ACTIVIDAD VIAL",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2230-2",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE EMPLEADOS DE LA INDUSTRIA DEL VIDRIO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2240-1",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA ACTIVIDAD VITIVINICOLA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2260-9",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE VIGILANCIA Y SEGURIDAD COMERCIAL, INDUSTRIAL E INVESTIGACIONES PRIVADAS DE CORDOBA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2280-7",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE ESTACIONES DE SERVICIO, GARAGES, PLAYAS Y LAVADEROS AUTOMATICOS DE LA PROVINCIA DE SANTA FE",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2290-6",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE AGENTES DE PROPAGANDA MEDICA DE ENTRE RIOS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1840-8",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": false,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL TALLERISTAS A DOMICILIO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2310-7",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE LOS PROFESIONALES UNIVERSITARIOS DEL AGUA Y LA ENERGIA ELECTRICA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2510-3",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE LA CONFEDERACION DE OBREROS Y EMPLEADOS MUNICIPALES ARGENTINA (OSCOEMA)",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2650-2",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE LOS MEDICOS DE LA CIUDAD DE BUENOS AIRES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2690-8",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE TRABAJADORES DE ESTACIONES DE SERVICIO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2700-0",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE ESCRIBANOS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0700-8",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE RECOLECCION Y BARRIDO DE ROSARIO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1890-3",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL RURAL Y ESTIBADORES DE LA REPUBLICA ARGENTINA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1930-2",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE INDUSTRIAS QUIMICAS Y PETROQUIMICAS DE ZARATE CAMPANA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2660-1",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE CHOFERES DE CAMIONES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0580-4",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE EMPLEADOS TEXTILES Y AFINES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2110-1",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA INDUSTRIA FIDEERA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0790-9",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE TRABAJADORES DEL PETROLEO Y GAS PRIVADO DEL CHUBUT",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2860-7",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE TRABAJADORES DE LA INDUSTRIA DEL GAS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2450-6",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE PRENSA DE TUCUMAN",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2350-3",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE BOXEADORES AGREMIADOS DE LA REPUBLICA ARGENTINA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2400-1",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE DIRECCION DE LA EMPRESA SUBTERRANEOS DE BUENOS AIRES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2040-5",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE TELECOMUNICACIONES SINDICATO BUENOS AIRES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2710-9",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE LOS TRABAJADORES ARGENTINOS DE CENTROS DE CONTACTOS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2890-4",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA INDUSTRIA DEL TRACTOR",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2130-9",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL SUPERIOR MERCEDES BENZ ARGENTINA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1200-4",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE PRENSA DE ROSARIO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2340-4",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DEL AZUCAR DEL INGENIO LEDESMA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0190-1",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": false,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE AGUAS GASEOSAS Y AFINES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0100-0",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE LA UNION DE TRABAJADORES DEL TURISMO, HOTELEROS Y GASTRONOMICOS DE LA REPUBLICA ARGENTINA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0880-3",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA INDUSTRIA DEL NEUMATICO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1360-1",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DEL AUTOMOVIL CLUB ARGENTINO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0160-4",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": false,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE TELEVISION",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2090-0",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL PARA EL PERSONAL DE ESTACIONES DE SERVICIO, GARAGES, PLAYAS DE ESTACIONAMIENTO, LAVADEROS AUTOMATICOS Y GOMERIAS DE LA REPUBLICA ARGENTINA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2300-8",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE SOCIEDADES DE AUTORES Y AFINES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2330-5",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL AUXILIAR DE CASAS PARTICULARES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0360-0",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE PRENSA DE BAHIA BLANCA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1740-5",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE EMPLEADOS DEL TABACO DE LA REPUBLICA ARGENTINA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2060-3",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL TECNICO AERONAUTICO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0070-0",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE FUTBOLISTAS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0860-5",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL CINEMATOGRAFICO DE MAR DEL PLATA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0440-5",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": false,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE FOTOGRAFOS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0820-9",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE LA FEDERACION ARGENTINA DE TRABAJADORES DE LUZ Y FUERZA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1070-1",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE FARMACIA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0740-4",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE ARBITROS DEPORTIVOS DE LA REPUBLICA ARGENTINA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2590-5",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE PANADEROS, PASTELEROS Y FACTUREROS DE ENTRE RIOS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1400-0",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE AGENTES DE PROPAGANDA MEDICA DE CORDOBA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1830-9",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE INSTALACIONES SANITARIAS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1960-9",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL GRAFICO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0900-4",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL MARITIMO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1180-3",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE LOCUTORES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1060-2",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LUZ Y FUERZA DE CORDOBA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1090-9",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE OBRAS Y SERVICIOS SANITARIOS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2760-4",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL PARA LOS TRABAJADORES DE LA EDUCACION PRIVADA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2610-6",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE CEMENTERIOS DE LA REPUBLICA ARGENTINA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0400-9",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA INDUSTRIA DEL CAUCHO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0370-9",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PETROLEO Y GAS PRIVADOS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1540-9",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE FABRICAS DE PINTURA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1580-5",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE EDIFICIOS DE RENTA Y HORIZONTAL DE LA CIUDAD AUTONOMA DE BUENOS AIRES Y GRAN BUENOS AIRES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0650-0",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE JEFES Y OFICIALES MAQUINISTAS NAVALES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1330-4",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE EMPLEADOS DE LA MARINA MERCANTE",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1160-5",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE LOS EMPLEADOS DE COMERCIO Y ACTIVIDADES CIVILES",
+      "nombreCortoAcronimo": "OSECAC",
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2620-5",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ],
+      "curadoAkine": true
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE CAPATACES ESTIBADORES PORTUARIOS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1610-5",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA INDUSTRIA DEL VIDRIO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2250-0",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE LAS ASOCIACIONES DE EMPLEADOS DE FARMACIA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2750-5",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE MAQUINISTAS DE TEATRO Y TELEVISION",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1130-8",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE TRABAJADORES DE PRENSA DE BUENOS AIRES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1510-2",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE EMPLEADOS DE PRENSA DE CORDOBA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1800-2",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": false,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE OFICIALES PELUQUEROS Y PEINADORES DE LA 2DA CIRCUNSCRIPCION JUDICIAL DE LA PROVINCIA DE SANTA FE",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1490-1",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE SUPERVISION DE LA EMPRESA SUBTERRANEOS DE BUENOS AIRES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2030-6",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL SUPERIOR Y PROFESIONAL DE EMPRESAS AEROCOMERCIALES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0040-3",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE FARMACEUTICOS Y BIOQUIMICOS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2850-8",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE OBREROS Y EMPLEADOS TINTOREROS SOMBREREROS Y LAVADEROS DE LA REPUBLICA ARGENTINA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2740-6",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL PARA EL PERSONAL DE LA INDUSTRIA ACEITERA, DESMOTADORA Y AFINES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0010-6",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE AERONAVEGACION DE ENTES PRIVADOS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0060-1",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE AERONAVEGANTES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0080-9",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE CONDUCTORES NAVALES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0500-2",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE LOS CORTADORES DE LA INDUMENTARIA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0550-7",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE LA ACTIVIDAD MINERA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1240-0",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE PELUQUERIAS, ESTETICAS Y AFINES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1470-3",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA INDUSTRIA DEL TABACO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2050-4",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE MANDOS MEDIOS DE TELECOMUNICACIONES EN LA REPUBLICA ARGENTINA Y MERCOSUR",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2720-8",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE DISTRIBUIDORAS CINEMATOGRAFICAS DE LA R.A.",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0620-3",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE PRENSA DE MAR DEL PLATA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1770-2",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE OPERADORES CINEMATOGRAFICOS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0460-3",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA INDUSTRIA DE LA ALIMENTACION",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0120-8",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA INDUSTRIA MADERERA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1100-1",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DEL PAPEL, CARTON Y QUIMICOS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1410-9",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL PARA PILOTOS DE LINEAS AEREAS COMERCIALES Y REGULARES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1570-6",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA ENSEÑANZA PRIVADA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0680-7",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL CONDUCTORES DE TRANSPORTE COLECTIVO DE PASAJEROS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2160-6",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE CONDUCTORES CAMIONEROS Y PERSONAL DEL TRANSPORTE AUTOMOTOR DE CARGAS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0320-4",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE IMPRENTAS, DIARIOS Y AFINES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0970-7",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE RECIBIDORES DE GRANOS Y ANEXOS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1880-4",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA INDUSTRIA DEL CAUCHO DE SANTA FE",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0390-7",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE TECNICOS DE FUTBOL",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0870-4",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": false,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE TRABAJADORES DE LAS COMUNICACIONES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2080-1",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DEL AZUCAR DEL INGENIO LA ESPERANZA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0180-2",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE LOS TRABAJADORES VIALES Y AFINES DE LA REPUBLICA ARGENTINA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2730-7",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE ENTIDADES DEPORTIVAS Y CIVILES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0600-5",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE PEONES DE TAXIS DE LA CAPITAL FEDERAL",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2370-1",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE AGENTES DE PROPAGANDA MEDICA DE LA REPUBLICA ARGENTINA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1820-0",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE TRABAJADORES DE PERKINS ARGENTINA S.A.I.C.",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2360-2",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL PARA EL PERSONAL DE LA INDUSTRIA FORESTAL DE SANTIAGO DEL ESTERO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0800-1",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA INDUSTRIA PETROQUIMICA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1560-7",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE LA UNION OBRERA METALURGICA DE LA REPUBLICA ARGENTINA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1210-3",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DEL AZUCAR DEL INGENIO SAN MARTIN",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0230-0",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": false,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE ENCARGADOS APUNTADORES MARITIMOS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1170-4",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE CONDUCTORES DE REMISES Y AUTOS AL INSTANTE Y AFINES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2680-9",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE PATRONES DE CABOTAJE DE RIOS Y PUERTOS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1450-5",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL PORTUARIOS PUERTO SAN MARTIN Y BELLA VISTA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1670-9",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE MUSICOS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1280-6",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE EDIFICIOS DE RENTA Y HORIZONTAL DE LA REPUBLICA ARGENTINA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0640-1",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL MOSAISTA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1270-7",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE LA FEDERACION ARGENTINA DEL TRABAJADOR DE LAS UNIVERSIDADES NACIONALES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2550-9",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE CARGA Y DESCARGA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0340-2",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE ESTACIONES DE SERVICIO Y G.N.C, GARAGES, PLAYAS DE ESTACIONAMIENTO Y LAVADEROS AUTOMATICOS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0720-6",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA INDUSTRIA DEL HIELO Y MERCADOS PARTICULARES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0940-0",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE MICROS Y OMNIBUS DE MENDOZA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1230-1",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE VIAJANTES VENDEDORES DE LA REPUBLICA ARGENTINA (ANDAR)",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2210-4",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE BARRACAS DE LANAS, CUEROS Y ANEXOS",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0290-4",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA INDUSTRIA DEL FOSFORO, ENCENDIDO Y AFINES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0810-0",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": false,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA INDUSTRIA LADRILLERA A MAQUINA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1040-4",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LOS HIPODROMOS DE BUENOS AIRES Y SAN ISIDRO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0950-9",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": false,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA INDUSTRIA DEL CHACINADO Y AFINES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0570-5",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL MENSUALIZADO DEL JOCKEY CLUB DE BUENOS AIRES Y LOS HIPODROMOS DE PALERMO Y SAN ISIDRO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0960-8",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": false,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA ACTIVIDAD FRUTICOLA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0840-7",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": false,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE COMISARIOS NAVALES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1380-9",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE VENDEDORES AMBULANTES DE LA REPUBLICA ARGENTINA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2390-9",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA ACTIVIDAD AZUCARERA TUCUMANA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2670-0",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": false,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE DRAGADO Y BALIZAMIENTO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2870-6",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL ASOCIACION PROFESIONAL DE CAPITANES Y BAQUEANOS FLUVIALES Y PERSONAL CON CONOCIMIENTO DE ZONA DE LA MARINA MERCANTE",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1150-6",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": false,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE VAREADORES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2190-3",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL NAVAL",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1340-3",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA INDUSTRIA BOTONERA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-0300-6",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": false,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LAS TELECOMUNICACIONES DE LA REPUBLICA ARGENTINA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2070-2",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": false,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA ACTIVIDAD DEL TURF",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-2170-5",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE SERENOS DE BUQUES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1990-6",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA INDUSTRIA LECHERA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "1-1050-3",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_SINDICALES",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE LA EMPRESA NACIONAL DE CORREOS Y TELEGRAFOS S.A. Y DE LAS COMUNICACIONES DE LA REPUBLICA ARGENTINA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "2-0040-0",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_OTRAS_CATEGORIAS",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL CERAS JOHNSON",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "3-0070-4",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_OTRAS_CATEGORIAS",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL PARA DIRECTIVOS, TECNICOS Y EMPLEADOS DE JOHN DEERE ARGENTINA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "3-0210-6",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_OTRAS_CATEGORIAS",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL REFINERIAS DE MAIZ S.A.I.C.F.",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "3-0280-9",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_OTRAS_CATEGORIAS",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL SUPERCO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "3-0310-9",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_OTRAS_CATEGORIAS",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL CABOT ARGENTINA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "3-0330-7",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_OTRAS_CATEGORIAS",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE SHELL ARGENTINA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "3-0340-6",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_OTRAS_CATEGORIAS",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL DE PBBPOLISUR SRL DE BAHIA BLANCA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "3-0370-3",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_OTRAS_CATEGORIAS",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE FORD ARGENTINA S.C.A.",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "3-0390-1",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_OTRAS_CATEGORIAS",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE VOLKSWAGEN ARGENTINA S.A.",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "3-0400-3",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": false,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_OTRAS_CATEGORIAS",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "INSTITUTO NACIONAL DE SERVICIOS SOCIALES PARA JUBILADOS Y PENSIONADOS",
+      "nombreCortoAcronimo": "PAMI",
+      "tipoFinanciador": "PAMI",
+      "codigoExternoSSS": "5-0080-7",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_OTRAS_CATEGORIAS",
+      "planes": [
+        {
+          "nombrePlan": "PAMI GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ],
+      "curadoAkine": true
+    },
+    {
+      "nombreCompleto": "ASOCIACION DE OBRAS SOCIALES DE COMODORO RIVADAVIA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "6-0040-8",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_OTRAS_CATEGORIAS",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "ASOCIACION GUALEGUAYCHU DE OBRAS SOCIALES",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "6-0110-4",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": false,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_OTRAS_CATEGORIAS",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "ASOCIACION DE OBRAS SOCIALES DE GUALEGUAY",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "6-0120-3",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_OTRAS_CATEGORIAS",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "ASOCIACION DE OBRAS SOCIALES DE ROSARIO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "6-0230-5",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_OTRAS_CATEGORIAS",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "ASOCIACION DE OBRAS SOCIALES DE TRELEW",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "6-0310-0",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_OTRAS_CATEGORIAS",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL ACEROS PARANA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "8-0050-1",
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_OTRAS_CATEGORIAS",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL MUNICIPAL DE AVELLANEDA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "7-0010-8",
+      "ambitoCobertura": "Provincial",
+      "financiadorActivo": false,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_OTRAS_CATEGORIAS",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL PERSONAL MUNICIPAL DE LA MATANZA",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "7-0080-1",
+      "ambitoCobertura": "Provincial",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_OTRAS_CATEGORIAS",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL PARA EL PERSONAL MUNICIPAL DE TRES DE FEBRERO",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": "7-0100-2",
+      "ambitoCobertura": "Provincial",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "RNAS_SSS_OTRAS_CATEGORIAS",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE LOS EMPLEADOS PUBLICOS DE CATAMARCA",
+      "nombreCortoAcronimo": "OSEP",
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Provincial",
+      "financiadorActivo": true,
+      "provincia": "CATAMARCA",
+      "origenRegistro": "COSSPRA",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "INSTITUTO DE SEGUROS DE JUJUY",
+      "nombreCortoAcronimo": "ISJ",
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Provincial",
+      "financiadorActivo": true,
+      "provincia": "JUJUY",
+      "origenRegistro": "COSSPRA",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "INSTITUTO DE OBRA SOCIAL DEL EMPLEADO PROVINCIAL",
+      "nombreCortoAcronimo": "IOSEP",
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Provincial",
+      "financiadorActivo": true,
+      "provincia": "SANTIAGO DEL ESTERO",
+      "origenRegistro": "COSSPRA",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "INSTITUTO PROVINCIAL DE SALUD DE SALTA",
+      "nombreCortoAcronimo": "IPS",
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Provincial",
+      "financiadorActivo": true,
+      "provincia": "SALTA",
+      "origenRegistro": "COSSPRA",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "INSTITUTO DE PREVISION Y SEGURIDAD SOCIAL DE TUCUMAN",
+      "nombreCortoAcronimo": "IPSST",
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Provincial",
+      "financiadorActivo": true,
+      "provincia": "TUCUMAN",
+      "origenRegistro": "COSSPRA",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "ADMINISTRACION PROVINCIAL DE OBRA SOCIAL",
+      "nombreCortoAcronimo": "APOS",
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Provincial",
+      "financiadorActivo": true,
+      "provincia": "LA RIOJA",
+      "origenRegistro": "COSSPRA",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "INSTITUTO DE OBRA SOCIAL DE LA PROVINCIA DE ENTRE RIOS",
+      "nombreCortoAcronimo": "IOSPER",
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Provincial",
+      "financiadorActivo": true,
+      "provincia": "ENTRE RIOS",
+      "origenRegistro": "COSSPRA",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "INSTITUTO DE SEGURIDAD SOCIAL, SEGUROS Y PRESTAMOS",
+      "nombreCortoAcronimo": "INSSSEP",
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Provincial",
+      "financiadorActivo": true,
+      "provincia": "CHACO",
+      "origenRegistro": "COSSPRA",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "INSTITUTO DE PREVISION SOCIAL DE MISIONES",
+      "nombreCortoAcronimo": "IPSM",
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Provincial",
+      "financiadorActivo": true,
+      "provincia": "MISIONES",
+      "origenRegistro": "COSSPRA",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "INSTITUTO DE OBRA SOCIAL DE CORRIENTES",
+      "nombreCortoAcronimo": "IOSCOR",
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Provincial",
+      "financiadorActivo": true,
+      "provincia": "CORRIENTES",
+      "origenRegistro": "COSSPRA",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "INSTITUTO DE ASISTENCIA SOCIAL PARA EMPLEADOS PUBLICOS",
+      "nombreCortoAcronimo": "IASEP",
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Provincial",
+      "financiadorActivo": true,
+      "provincia": "FORMOSA",
+      "origenRegistro": "COSSPRA",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE LA CIUDAD DE BUENOS AIRES",
+      "nombreCortoAcronimo": "ObSBA",
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Provincial",
+      "financiadorActivo": true,
+      "provincia": "CIUDAD AUTONOMA DE BUENOS AIRES",
+      "origenRegistro": "COSSPRA",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "INSTITUTO DE OBRA MEDICO ASISTENCIAL",
+      "nombreCortoAcronimo": "IOMA",
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Provincial",
+      "financiadorActivo": true,
+      "provincia": "BUENOS AIRES",
+      "origenRegistro": "COSSPRA",
+      "planes": [
+        {
+          "nombrePlan": "AFILIACION OBLIGATORIA",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "AFILIACION VOLUNTARIA",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "AFILIACION JOVEN",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ],
+      "curadoAkine": true
+    },
+    {
+      "nombreCompleto": "INSTITUTO AUTARQUICO PROVINCIAL DE OBRA SOCIAL",
+      "nombreCortoAcronimo": "IAPOS",
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Provincial",
+      "financiadorActivo": true,
+      "provincia": "SANTA FE",
+      "origenRegistro": "COSSPRA",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "ADMINISTRACION PROVINCIAL DEL SEGURO DE SALUD",
+      "nombreCortoAcronimo": "APROSS",
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Provincial",
+      "financiadorActivo": true,
+      "provincia": "CORDOBA",
+      "origenRegistro": "COSSPRA",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "AFILIACION VOLUNTARIA",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "PLAN MATERNO",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": true,
+          "planActivo": true
+        }
+      ],
+      "curadoAkine": true
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DE EMPLEADOS PUBLICOS DE MENDOZA",
+      "nombreCortoAcronimo": "OSEP",
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Provincial",
+      "financiadorActivo": true,
+      "provincia": "MENDOZA",
+      "origenRegistro": "COSSPRA",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "AFILIACION VOLUNTARIA",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "PLANES ESPECIALES",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": true,
+          "planActivo": true
+        }
+      ],
+      "curadoAkine": true
+    },
+    {
+      "nombreCompleto": "DIRECCION DE OBRA SOCIAL DEL ESTADO PROVINCIAL",
+      "nombreCortoAcronimo": "DOSEP",
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Provincial",
+      "financiadorActivo": true,
+      "provincia": "SAN LUIS",
+      "origenRegistro": "COSSPRA",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "DIRECCION DE OBRA SOCIAL",
+      "nombreCortoAcronimo": "DOS",
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Provincial",
+      "financiadorActivo": true,
+      "provincia": "SAN JUAN",
+      "origenRegistro": "COSSPRA",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "SERVICIO MEDICO PREVISIONAL",
+      "nombreCortoAcronimo": "SEMPRE",
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Provincial",
+      "financiadorActivo": true,
+      "provincia": "LA PAMPA",
+      "origenRegistro": "COSSPRA",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "INSTITUTO DE SEGURIDAD SOCIAL DEL NEUQUEN",
+      "nombreCortoAcronimo": "ISSN",
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Provincial",
+      "financiadorActivo": true,
+      "provincia": "NEUQUEN",
+      "origenRegistro": "COSSPRA",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "INSTITUTO PROVINCIAL DEL SEGURO DE SALUD",
+      "nombreCortoAcronimo": "IPROSS",
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Provincial",
+      "financiadorActivo": true,
+      "provincia": "RIO NEGRO",
+      "origenRegistro": "COSSPRA",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ],
+      "curadoAkine": true
+    },
+    {
+      "nombreCompleto": "CAJA DE SERVICIOS SOCIALES",
+      "nombreCortoAcronimo": "CSS",
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Provincial",
+      "financiadorActivo": true,
+      "provincia": "SANTA CRUZ",
+      "origenRegistro": "COSSPRA",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OBRA SOCIAL DEL ESTADO FUEGUINO",
+      "nombreCortoAcronimo": "OSEF",
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Provincial",
+      "financiadorActivo": true,
+      "provincia": "TIERRA DEL FUEGO",
+      "origenRegistro": "COSSPRA",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "SEROS CHUBUT",
+      "nombreCortoAcronimo": "SEROS",
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Provincial",
+      "financiadorActivo": true,
+      "provincia": "CHUBUT",
+      "origenRegistro": "COSSPRA",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "PARTICULAR",
+      "nombreCortoAcronimo": null,
+      "tipoFinanciador": "Particular",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "SEED_AKINE",
+      "planes": [
+        {
+          "nombrePlan": "PARTICULAR",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ]
+    },
+    {
+      "nombreCompleto": "OSDE",
+      "nombreCortoAcronimo": "OSDE",
+      "tipoFinanciador": "Prepaga",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "CURADO_AKINE",
+      "planes": [
+        {
+          "nombrePlan": "210",
+          "tipoPlan": "Comercial",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "310",
+          "tipoPlan": "Comercial",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "410",
+          "tipoPlan": "Comercial",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "450",
+          "tipoPlan": "Comercial",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "510",
+          "tipoPlan": "Comercial",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ],
+      "curadoAkine": true
+    },
+    {
+      "nombreCompleto": "SWISS MEDICAL",
+      "nombreCortoAcronimo": "SWISS MEDICAL",
+      "tipoFinanciador": "Prepaga",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "CURADO_AKINE",
+      "planes": [
+        {
+          "nombrePlan": "SMG20",
+          "tipoPlan": "Comercial",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "SMG50",
+          "tipoPlan": "Superador",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "PLAN S",
+          "tipoPlan": "Comercial",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ],
+      "curadoAkine": true
+    },
+    {
+      "nombreCompleto": "GALENO",
+      "nombreCortoAcronimo": "GALENO",
+      "tipoFinanciador": "Prepaga",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "CURADO_AKINE",
+      "planes": [
+        {
+          "nombrePlan": "PLAN 220",
+          "tipoPlan": "Comercial",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "PLAN 330",
+          "tipoPlan": "Comercial",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "PLAN 440",
+          "tipoPlan": "Superador",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "PLAN 550",
+          "tipoPlan": "Superador",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ],
+      "curadoAkine": true
+    },
+    {
+      "nombreCompleto": "MEDIFE",
+      "nombreCortoAcronimo": "MEDIFE",
+      "tipoFinanciador": "Prepaga",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "CURADO_AKINE",
+      "planes": [
+        {
+          "nombrePlan": "BRONCE",
+          "tipoPlan": "Básico",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "BRONCE CLASSIC",
+          "tipoPlan": "Básico",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "PLATA",
+          "tipoPlan": "Comercial",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "PLATA CLASSIC",
+          "tipoPlan": "Comercial",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "ORO",
+          "tipoPlan": "Superador",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "PLATINUM",
+          "tipoPlan": "Superador",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "JUNTOS",
+          "tipoPlan": "Comercial",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "MEDIFE+",
+          "tipoPlan": "Superador",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ],
+      "curadoAkine": true
+    },
+    {
+      "nombreCompleto": "OMINT",
+      "nombreCortoAcronimo": "OMINT",
+      "tipoFinanciador": "Prepaga",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "CURADO_AKINE",
+      "planes": [
+        {
+          "nombrePlan": "OMINT VOS",
+          "tipoPlan": "Comercial",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "PREMIUM",
+          "tipoPlan": "Superador",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "CLASICO",
+          "tipoPlan": "Comercial",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "GLOBAL",
+          "tipoPlan": "Comercial",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "GENESIS",
+          "tipoPlan": "Básico",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "COMUNIDAD",
+          "tipoPlan": "Básico",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "OMINT MIDOC",
+          "tipoPlan": "Comercial",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ],
+      "curadoAkine": true
+    },
+    {
+      "nombreCompleto": "SANCOR SALUD",
+      "nombreCortoAcronimo": "SANCOR SALUD",
+      "tipoFinanciador": "Prepaga",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "CURADO_AKINE",
+      "planes": [
+        {
+          "nombrePlan": "S1000",
+          "tipoPlan": "Básico",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "S1500",
+          "tipoPlan": "Comercial",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "S3000",
+          "tipoPlan": "Comercial",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "S3500",
+          "tipoPlan": "Comercial",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "S4000",
+          "tipoPlan": "Superador",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "S4500",
+          "tipoPlan": "Superador",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "S5000",
+          "tipoPlan": "Superador",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "S6000",
+          "tipoPlan": "Superador",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ],
+      "curadoAkine": true
+    },
+    {
+      "nombreCompleto": "INSTITUTO DE OBRA SOCIAL DE LAS FUERZAS ARMADAS Y DE SEGURIDAD",
+      "nombreCortoAcronimo": "IOSFA",
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "CURADO_AKINE",
+      "planes": [
+        {
+          "nombrePlan": "AFILIADO TITULAR",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "ADHERENTE",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "PMI",
+          "tipoPlan": "PMO",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ],
+      "curadoAkine": true
+    },
+    {
+      "nombreCompleto": "DIRECCION DE ASISTENCIA SOCIAL DEL PERSONAL UNIVERSITARIO",
+      "nombreCortoAcronimo": "DASPU",
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Provincial",
+      "financiadorActivo": true,
+      "provincia": "CORDOBA",
+      "origenRegistro": "CURADO_AKINE",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        },
+        {
+          "nombrePlan": "ADHERENTE",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ],
+      "curadoAkine": true
+    },
+    {
+      "nombreCompleto": "OSPE",
+      "nombreCortoAcronimo": "OSPE",
+      "tipoFinanciador": "Obra Social",
+      "codigoExternoSSS": null,
+      "ambitoCobertura": "Nacional",
+      "financiadorActivo": true,
+      "provincia": null,
+      "origenRegistro": "CURADO_AKINE",
+      "planes": [
+        {
+          "nombrePlan": "PLAN GENERAL",
+          "tipoPlan": "Otro",
+          "vigenciaDesde": null,
+          "vigenciaHasta": null,
+          "requiereAutorizacionPorDefecto": false,
+          "planActivo": true
+        }
+      ],
+      "curadoAkine": true
+    }
+  ]
+}

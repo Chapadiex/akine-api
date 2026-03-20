@@ -9,6 +9,7 @@ import com.akine_api.application.service.CargoEmpleadoCatalogoBootstrapService;
 import com.akine_api.application.service.ConsultorioAntecedenteBootstrapService;
 import com.akine_api.application.service.ConsultorioEspecialidadBootstrapService;
 import com.akine_api.application.service.ConsultorioService;
+import com.akine_api.application.service.cobertura.FinanciadorSeedService;
 import com.akine_api.domain.exception.ConsultorioInactiveException;
 import com.akine_api.domain.exception.ConsultorioNotFoundException;
 import com.akine_api.domain.model.Consultorio;
@@ -45,6 +46,7 @@ class ConsultorioServiceTest {
     @Mock ConsultorioEspecialidadBootstrapService especialidadBootstrapService;
     @Mock ConsultorioAntecedenteBootstrapService antecedenteBootstrapService;
     @Mock CargoEmpleadoCatalogoBootstrapService cargoBootstrapService;
+    @Mock FinanciadorSeedService financiadorSeedService;
 
     ConsultorioService service;
 
@@ -62,7 +64,8 @@ class ConsultorioServiceTest {
                 userRepo,
                 especialidadBootstrapService,
                 antecedenteBootstrapService,
-                cargoBootstrapService
+                cargoBootstrapService,
+                financiadorSeedService
         );
     }
 

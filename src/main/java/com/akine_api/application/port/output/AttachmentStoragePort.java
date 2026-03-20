@@ -5,7 +5,7 @@ import java.util.UUID;
 public interface AttachmentStoragePort {
     String store(UUID consultorioId,
                  UUID pacienteId,
-                 UUID sesionId,
+                 UUID ownerId,
                  UUID adjuntoId,
                  String originalFilename,
                  byte[] content);

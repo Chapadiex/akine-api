@@ -225,6 +225,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return pd;
     }
 
+    @ExceptionHandler(PlanDuplicadoException.class)
+    public ProblemDetail handlePlanDuplicado(PlanDuplicadoException ex) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        pd.setType(URI.create("urn:akine:error:plan-duplicado"));
+        pd.setTitle("Plan duplicado");
+        return pd;
+    }
+
+    @ExceptionHandler(FinanciadorDuplicadoException.class)
+    public ProblemDetail handleFinanciadorDuplicado(FinanciadorDuplicadoException ex) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        pd.setType(URI.create("urn:akine:error:financiador-duplicado"));
+        pd.setTitle("Financiador duplicado");
+        return pd;
+    }
+
     @ExceptionHandler(ObraSocialConflictException.class)
     public ProblemDetail handleObraSocialConflict(ObraSocialConflictException ex) {
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());

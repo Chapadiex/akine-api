@@ -30,11 +30,13 @@ import com.akine_api.application.dto.result.HistoriaClinicaTimelineEventResult;
 import com.akine_api.application.dto.result.HistoriaClinicaWorkspaceItem;
 import com.akine_api.application.dto.result.HistoriaClinicaWorkspaceResult;
 import com.akine_api.application.dto.result.PlanTerapeuticoSummaryResult;
+import com.akine_api.application.dto.result.CasoAtencionSummaryResult;
 import com.akine_api.application.dto.result.PlanTratamientoDetalleResult;
 import com.akine_api.application.dto.result.SesionClinicaResult;
 import com.akine_api.application.port.output.AdjuntoClinicoRepositoryPort;
 import com.akine_api.application.port.output.AtencionInicialEvaluacionRepositoryPort;
 import com.akine_api.application.port.output.AtencionInicialRepositoryPort;
+import com.akine_api.application.port.output.CasoAtencionRepositoryPort;
 import com.akine_api.application.port.output.AttachmentStoragePort;
 import com.akine_api.application.port.output.BoxRepositoryPort;
 import com.akine_api.application.port.output.ConsultorioRepositoryPort;
@@ -65,6 +67,8 @@ import com.akine_api.domain.model.AtencionInicial;
 import com.akine_api.domain.model.AtencionInicialEvaluacion;
 import com.akine_api.domain.model.AtencionInicialTipoIngreso;
 import com.akine_api.domain.model.Box;
+import com.akine_api.domain.model.CasoAtencion;
+import com.akine_api.domain.model.CasoAtencionEstado;
 import com.akine_api.domain.model.DiagnosticoClinico;
 import com.akine_api.domain.model.DiagnosticoClinicoEstado;
 import com.akine_api.domain.model.HistoriaClinicaAntecedente;
@@ -118,6 +122,7 @@ public class HistoriaClinicaService {
     private final SesionExamenFisicoRepositoryPort sesionExamenFisicoRepo;
     private final SesionIntervencionRepositoryPort sesionIntervencionRepo;
     private final DiagnosticoClinicoRepositoryPort diagnosticoRepo;
+    private final CasoAtencionRepositoryPort casoAtencionRepo;
     private final AdjuntoClinicoRepositoryPort adjuntoRepo;
     private final AtencionInicialRepositoryPort atencionInicialRepo;
     private final AtencionInicialEvaluacionRepositoryPort atencionEvaluacionRepo;
@@ -142,6 +147,7 @@ public class HistoriaClinicaService {
                                   SesionExamenFisicoRepositoryPort sesionExamenFisicoRepo,
                                   SesionIntervencionRepositoryPort sesionIntervencionRepo,
                                   DiagnosticoClinicoRepositoryPort diagnosticoRepo,
+                                  CasoAtencionRepositoryPort casoAtencionRepo,
                                   AdjuntoClinicoRepositoryPort adjuntoRepo,
                                   AtencionInicialRepositoryPort atencionInicialRepo,
                                   AtencionInicialEvaluacionRepositoryPort atencionEvaluacionRepo,
@@ -165,6 +171,7 @@ public class HistoriaClinicaService {
         this.sesionExamenFisicoRepo = sesionExamenFisicoRepo;
         this.sesionIntervencionRepo = sesionIntervencionRepo;
         this.diagnosticoRepo = diagnosticoRepo;
+        this.casoAtencionRepo = casoAtencionRepo;
         this.adjuntoRepo = adjuntoRepo;
         this.atencionInicialRepo = atencionInicialRepo;
         this.atencionEvaluacionRepo = atencionEvaluacionRepo;
@@ -295,6 +302,17 @@ public class HistoriaClinicaService {
                 .sorted(Comparator.comparing(DiagnosticoClinico::getFechaInicio, Comparator.reverseOrder()))
                 .map(diagnostico -> toCaseSummary(diagnostico, sesiones, profesionales))
                 .toList();
+        List<CasoAtencionEstado> estadosAtencionActivos = List.of(
+                CasoAtencionEstado.BORRADOR,
+                CasoAtencionEstado.EN_EVALUACION,
+                CasoAtencionEstado.ACTIVO,
+                CasoAtencionEstado.EN_TRATAMIENTO,
+                CasoAtencionEstado.EN_PAUSA);
+        List<CasoAtencionSummaryResult> casosAtencionActivos = casoAtencionRepo
+                .findByPacienteIdAndConsultorioIdAndEstadoIn(pacienteId, consultorioId, estadosAtencionActivos)
+                .stream()
+                .map(caso -> toCasoAtencionSummaryResult(caso, profesionales))
+                .toList();
         List<String> alertasClinicas = antecedentes.stream()
                 .filter(HistoriaClinicaAntecedente::isCritical)
                 .map(antecedente -> firstNonBlank(
@@ -322,6 +340,7 @@ public class HistoriaClinicaService {
                 alertasClinicas,
                 antecedentesRelevantes,
                 casosActivos,
+                casosAtencionActivos,
                 ultimaSesion,
                 adjuntosRecientes,
                 resolveProfesionalHabitual(sesiones, profesionales),
@@ -1034,6 +1053,7 @@ public class HistoriaClinicaService {
                 pacienteId,
                 sesionId,
                 null,
+                null,
                 storageKey,
                 originalFilename,
                 contentType,
@@ -1077,6 +1097,7 @@ public class HistoriaClinicaService {
                 pacienteId,
                 null,
                 atencionInicialId,
+                null,
                 storageKey,
                 originalFilename,
                 contentType,
@@ -1500,6 +1521,7 @@ public class HistoriaClinicaService {
                 adjunto.getId(),
                 adjunto.getSesionId(),
                 adjunto.getAtencionInicialId(),
+                adjunto.getCasoAtencionId(),
                 adjunto.getOriginalFilename(),
                 adjunto.getContentType(),
                 adjunto.getSizeBytes(),
@@ -1555,6 +1577,29 @@ public class HistoriaClinicaService {
                                 relatedSessions.get(0).getEvaluacion(),
                                 relatedSessions.get(0).getMotivoConsulta()
                         )
+        );
+    }
+
+    private CasoAtencionSummaryResult toCasoAtencionSummaryResult(CasoAtencion caso,
+                                                                   Map<UUID, Profesional> profesionales) {
+        Profesional profesional = caso.getProfesionalResponsableId() != null
+                ? profesionales.get(caso.getProfesionalResponsableId())
+                : null;
+        return new CasoAtencionSummaryResult(
+                caso.getId(),
+                caso.getLegajoId(),
+                caso.getPacienteId(),
+                caso.getProfesionalResponsableId(),
+                fullName(profesional),
+                caso.getTipoOrigen(),
+                caso.getFechaApertura(),
+                caso.getMotivoConsulta(),
+                caso.getDiagnosticoMedico(),
+                caso.getAfeccionPrincipal(),
+                caso.getEstado(),
+                caso.getPrioridad(),
+                0,
+                0
         );
     }
 

@@ -9,6 +9,7 @@ import com.akine_api.application.dto.command.ResolveDiagnosticoClinicoCommand;
 import com.akine_api.application.dto.command.UpdateHistoriaClinicaAntecedentesCommand;
 import com.akine_api.application.dto.command.UpdateSesionClinicaCommand;
 import com.akine_api.application.port.output.AdjuntoClinicoRepositoryPort;
+import com.akine_api.application.port.output.CasoAtencionRepositoryPort;
 import com.akine_api.application.port.output.AtencionInicialEvaluacionRepositoryPort;
 import com.akine_api.application.port.output.AtencionInicialRepositoryPort;
 import com.akine_api.application.port.output.AttachmentStoragePort;
@@ -111,6 +112,7 @@ class HistoriaClinicaServiceTest {
     @Mock SesionIntervencionRepositoryPort sesionIntervencionRepo;
     @Mock ConsultorioDiagnosticosMedicosService diagnosticosMedicosService;
     @Mock ConsultorioTratamientoCatalogService tratamientoCatalogService;
+    @Mock CasoAtencionRepositoryPort casoAtencionRepo;
 
     private HistoriaClinicaService service;
 
@@ -134,6 +136,7 @@ class HistoriaClinicaServiceTest {
                 sesionExamenFisicoRepo,
                 sesionIntervencionRepo,
                 diagnosticoRepo,
+                casoAtencionRepo,
                 adjuntoRepo,
                 atencionInicialRepo,
                 atencionEvaluacionRepo,
@@ -154,6 +157,7 @@ class HistoriaClinicaServiceTest {
                 tratamientoCatalogService
         );
         mockAccessBase();
+        when(casoAtencionRepo.findByPacienteIdAndConsultorioIdAndEstadoIn(any(), any(), anyList())).thenReturn(List.of());
         when(sesionRepo.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(diagnosticoRepo.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(legajoRepo.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
@@ -907,6 +911,7 @@ class HistoriaClinicaServiceTest {
                 consultorioId,
                 pacienteId,
                 sesionId,
+                null,
                 null,
                 "storage-key",
                 "nota.pdf",

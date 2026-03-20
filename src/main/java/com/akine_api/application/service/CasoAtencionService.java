@@ -3,8 +3,12 @@ package com.akine_api.application.service;
 import com.akine_api.application.dto.command.CambiarEstadoCasoAtencionCommand;
 import com.akine_api.application.dto.command.CreateCasoAtencionCommand;
 import com.akine_api.application.dto.command.UpdateCasoAtencionCommand;
+import com.akine_api.application.dto.result.AdjuntoClinicoDownloadResult;
+import com.akine_api.application.dto.result.AdjuntoClinicoResult;
 import com.akine_api.application.dto.result.CasoAtencionResult;
 import com.akine_api.application.dto.result.CasoAtencionSummaryResult;
+import com.akine_api.application.port.output.AdjuntoClinicoRepositoryPort;
+import com.akine_api.application.port.output.AttachmentStoragePort;
 import com.akine_api.application.port.output.CasoAtencionRepositoryPort;
 import com.akine_api.application.port.output.ConsultorioRepositoryPort;
 import com.akine_api.application.port.output.HistoriaClinicaLegajoRepositoryPort;
@@ -12,12 +16,14 @@ import com.akine_api.application.port.output.ProfesionalRepositoryPort;
 import com.akine_api.application.port.output.UserRepositoryPort;
 import com.akine_api.domain.exception.CasoAtencionNotFoundException;
 import com.akine_api.domain.exception.HistoriaClinicaValidationException;
+import com.akine_api.domain.model.AdjuntoClinico;
 import com.akine_api.domain.model.CasoAtencion;
 import com.akine_api.domain.model.CasoAtencionEstado;
 import com.akine_api.domain.model.User;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
 import java.util.List;
@@ -28,17 +34,23 @@ import java.util.UUID;
 public class CasoAtencionService {
 
     private final CasoAtencionRepositoryPort casoAtencionRepo;
+    private final AdjuntoClinicoRepositoryPort adjuntoRepo;
+    private final AttachmentStoragePort attachmentStorage;
     private final HistoriaClinicaLegajoRepositoryPort legajoRepo;
     private final ProfesionalRepositoryPort profesionalRepo;
     private final ConsultorioRepositoryPort consultorioRepo;
     private final UserRepositoryPort userRepo;
 
     public CasoAtencionService(CasoAtencionRepositoryPort casoAtencionRepo,
+                                AdjuntoClinicoRepositoryPort adjuntoRepo,
+                                AttachmentStoragePort attachmentStorage,
                                 HistoriaClinicaLegajoRepositoryPort legajoRepo,
                                 ProfesionalRepositoryPort profesionalRepo,
                                 ConsultorioRepositoryPort consultorioRepo,
                                 UserRepositoryPort userRepo) {
         this.casoAtencionRepo = casoAtencionRepo;
+        this.adjuntoRepo = adjuntoRepo;
+        this.attachmentStorage = attachmentStorage;
         this.legajoRepo = legajoRepo;
         this.profesionalRepo = profesionalRepo;
         this.consultorioRepo = consultorioRepo;
@@ -90,6 +102,83 @@ public class CasoAtencionService {
         CasoAtencion caso = casoAtencionRepo.findByIdAndConsultorioId(id, consultorioId)
                 .orElseThrow(() -> new CasoAtencionNotFoundException(id));
         return toResult(caso);
+    }
+
+    @Transactional
+    public AdjuntoClinicoResult addAdjunto(UUID consultorioId,
+                                           UUID casoId,
+                                           MultipartFile file,
+                                           String userEmail,
+                                           Set<String> roles) {
+        checkAccess(consultorioId, userEmail, roles);
+        UUID actorUserId = resolveUserId(userEmail);
+        CasoAtencion caso = casoAtencionRepo.findByIdAndConsultorioId(casoId, consultorioId)
+                .orElseThrow(() -> new CasoAtencionNotFoundException(casoId));
+
+        validateAttachment(file);
+        UUID adjuntoId = UUID.randomUUID();
+        String originalFilename = sanitizeFilename(file.getOriginalFilename());
+        String contentType = sanitizeContentType(file.getContentType());
+        String storageKey;
+        try {
+            storageKey = attachmentStorage.store(
+                    consultorioId,
+                    caso.getPacienteId(),
+                    casoId,
+                    adjuntoId,
+                    originalFilename,
+                    file.getBytes()
+            );
+        } catch (Exception ex) {
+            throw new HistoriaClinicaValidationException("No se pudo procesar el adjunto clinico");
+        }
+        AdjuntoClinico adjunto = new AdjuntoClinico(
+                adjuntoId,
+                consultorioId,
+                caso.getPacienteId(),
+                null,
+                null,
+                casoId,
+                storageKey,
+                originalFilename,
+                contentType,
+                file.getSize(),
+                actorUserId,
+                Instant.now()
+        );
+        return toAdjuntoResult(adjuntoRepo.save(adjunto));
+    }
+
+    @Transactional(readOnly = true)
+    public AdjuntoClinicoDownloadResult downloadAdjunto(UUID consultorioId,
+                                                        UUID casoId,
+                                                        UUID adjuntoId,
+                                                        String userEmail,
+                                                        Set<String> roles) {
+        checkAccess(consultorioId, userEmail, roles);
+        CasoAtencion caso = casoAtencionRepo.findByIdAndConsultorioId(casoId, consultorioId)
+                .orElseThrow(() -> new CasoAtencionNotFoundException(casoId));
+        AdjuntoClinico adjunto = loadCasoAdjunto(consultorioId, caso.getPacienteId(), casoId, adjuntoId);
+        return new AdjuntoClinicoDownloadResult(
+                adjunto.getOriginalFilename(),
+                adjunto.getContentType(),
+                adjunto.getSizeBytes(),
+                attachmentStorage.load(adjunto.getStorageKey())
+        );
+    }
+
+    @Transactional
+    public void deleteAdjunto(UUID consultorioId,
+                              UUID casoId,
+                              UUID adjuntoId,
+                              String userEmail,
+                              Set<String> roles) {
+        checkAccess(consultorioId, userEmail, roles);
+        CasoAtencion caso = casoAtencionRepo.findByIdAndConsultorioId(casoId, consultorioId)
+                .orElseThrow(() -> new CasoAtencionNotFoundException(casoId));
+        AdjuntoClinico adjunto = loadCasoAdjunto(consultorioId, caso.getPacienteId(), casoId, adjuntoId);
+        attachmentStorage.delete(adjunto.getStorageKey());
+        adjuntoRepo.deleteById(adjuntoId);
     }
 
     @Transactional(readOnly = true)
@@ -187,6 +276,9 @@ public class CasoAtencionService {
     }
 
     private CasoAtencionResult toResult(CasoAtencion caso) {
+        List<AdjuntoClinicoResult> adjuntos = adjuntoRepo.findByCasoAtencionId(caso.getId()).stream()
+                .map(this::toAdjuntoResult)
+                .toList();
         return new CasoAtencionResult(
                 caso.getId(),
                 caso.getLegajoId(),
@@ -206,6 +298,7 @@ public class CasoAtencionService {
                 caso.getAtencionInicialId(),
                 0,  // cantidadSesiones — se completará en Fase 5
                 0,  // cantidadPlanes   — se completará en Fase 5
+                adjuntos,
                 caso.getCreatedAt(),
                 caso.getUpdatedAt()
         );
@@ -228,5 +321,51 @@ public class CasoAtencionService {
                 0,  // cantidadSesiones — se completará en Fase 5
                 0   // cantidadPlanes   — se completará en Fase 5
         );
+    }
+    private AdjuntoClinico loadCasoAdjunto(UUID consultorioId, UUID pacienteId, UUID casoId, UUID adjuntoId) {
+        AdjuntoClinico adjunto = adjuntoRepo.findById(adjuntoId)
+                .orElseThrow(() -> new HistoriaClinicaValidationException("Adjunto clinico no encontrado"));
+        if (!consultorioId.equals(adjunto.getConsultorioId())
+                || !pacienteId.equals(adjunto.getPacienteId())
+                || !casoId.equals(adjunto.getCasoAtencionId())) {
+            throw new HistoriaClinicaValidationException("Adjunto clinico no encontrado");
+        }
+        return adjunto;
+    }
+
+    private AdjuntoClinicoResult toAdjuntoResult(AdjuntoClinico adjunto) {
+        return new AdjuntoClinicoResult(
+                adjunto.getId(),
+                adjunto.getSesionId(),
+                adjunto.getAtencionInicialId(),
+                adjunto.getCasoAtencionId(),
+                adjunto.getOriginalFilename(),
+                adjunto.getContentType(),
+                adjunto.getSizeBytes(),
+                adjunto.getCreatedAt()
+        );
+    }
+
+    private void validateAttachment(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new HistoriaClinicaValidationException("Debes adjuntar un archivo valido");
+        }
+        if (file.getSize() > 10 * 1024 * 1024) {
+            throw new HistoriaClinicaValidationException("El adjunto supera el maximo permitido de 10 MB");
+        }
+    }
+
+    private String sanitizeFilename(String originalFilename) {
+        if (originalFilename == null || originalFilename.isBlank()) {
+            return "adjunto-clinico";
+        }
+        return originalFilename.replaceAll("[\\r\\n\\\\/]+", "_").trim();
+    }
+
+    private String sanitizeContentType(String contentType) {
+        if (contentType == null || contentType.isBlank()) {
+            return "application/octet-stream";
+        }
+        return contentType;
     }
 }

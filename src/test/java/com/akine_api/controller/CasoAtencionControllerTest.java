@@ -50,7 +50,7 @@ class CasoAtencionControllerTest {
                 LocalDateTime.of(2026, 3, 15, 10, 0),
                 "Dolor lumbar", null, null, null, null,
                 CasoAtencionEstado.BORRADOR, "NORMAL",
-                null, 0, 0,
+                null, 0, 0, List.of(),
                 Instant.now(), Instant.now()
         );
     }
@@ -158,7 +158,7 @@ class CasoAtencionControllerTest {
                 LocalDateTime.of(2026, 3, 15, 10, 0),
                 "Dolor lumbar", null, null, null, null,
                 CasoAtencionEstado.ACTIVO, "NORMAL",
-                null, 0, 0,
+                null, 0, 0, List.of(),
                 Instant.now(), Instant.now()
         );
         when(service.cambiarEstado(eq(CASO_ID), eq(CID), any(), anyString(), anySet()))

@@ -3,6 +3,8 @@ package com.akine_api.interfaces.api.v1.casoatencion;
 import com.akine_api.application.dto.command.CambiarEstadoCasoAtencionCommand;
 import com.akine_api.application.dto.command.CreateCasoAtencionCommand;
 import com.akine_api.application.dto.command.UpdateCasoAtencionCommand;
+import com.akine_api.application.dto.result.AdjuntoClinicoDownloadResult;
+import com.akine_api.application.dto.result.AdjuntoClinicoResult;
 import com.akine_api.application.dto.result.CasoAtencionResult;
 import com.akine_api.application.dto.result.CasoAtencionSummaryResult;
 import com.akine_api.application.service.CasoAtencionService;
@@ -10,10 +12,14 @@ import com.akine_api.interfaces.api.v1.casoatencion.dto.CambiarEstadoCasoAtencio
 import com.akine_api.interfaces.api.v1.casoatencion.dto.CreateCasoAtencionRequest;
 import com.akine_api.interfaces.api.v1.casoatencion.dto.UpdateCasoAtencionRequest;
 import jakarta.validation.Valid;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -125,6 +131,45 @@ public class CasoAtencionController {
                 roles(principal)
         );
         return ResponseEntity.ok(result);
+    }
+
+    @PostMapping(path = "/api/v1/consultorios/{consultorioId}/casos-atencion/{id}/adjuntos", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<AdjuntoClinicoResult> uploadAdjunto(
+            @PathVariable UUID consultorioId,
+            @PathVariable UUID id,
+            @RequestPart("file") MultipartFile file,
+            @AuthenticationPrincipal UserDetails principal) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.addAdjunto(
+                consultorioId, id, file, principal.getUsername(), roles(principal)
+        ));
+    }
+
+    @GetMapping("/api/v1/consultorios/{consultorioId}/casos-atencion/{id}/adjuntos/{adjuntoId}")
+    public ResponseEntity<byte[]> downloadAdjunto(
+            @PathVariable UUID consultorioId,
+            @PathVariable UUID id,
+            @PathVariable UUID adjuntoId,
+            @AuthenticationPrincipal UserDetails principal) {
+        AdjuntoClinicoDownloadResult result = service.downloadAdjunto(
+                consultorioId, id, adjuntoId, principal.getUsername(), roles(principal)
+        );
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType(result.contentType()));
+        headers.setContentDisposition(ContentDisposition.attachment().filename(result.originalFilename()).build());
+        headers.setContentLength(result.sizeBytes());
+        return new ResponseEntity<>(result.content(), headers, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/api/v1/consultorios/{consultorioId}/casos-atencion/{id}/adjuntos/{adjuntoId}")
+    public ResponseEntity<Void> deleteAdjunto(
+            @PathVariable UUID consultorioId,
+            @PathVariable UUID id,
+            @PathVariable UUID adjuntoId,
+            @AuthenticationPrincipal UserDetails principal) {
+        service.deleteAdjunto(
+                consultorioId, id, adjuntoId, principal.getUsername(), roles(principal)
+        );
+        return ResponseEntity.noContent().build();
     }
 
     // GET /api/v1/consultorios/{consultorioId}/pacientes/{pacienteId}/casos-activos

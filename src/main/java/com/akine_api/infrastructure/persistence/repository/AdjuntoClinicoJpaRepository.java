@@ -11,4 +11,5 @@ public interface AdjuntoClinicoJpaRepository extends JpaRepository<AdjuntoClinic
     List<AdjuntoClinicoEntity> findBySesionIdInOrderByCreatedAtAsc(List<UUID> sesionIds);
     List<AdjuntoClinicoEntity> findByAtencionInicialIdOrderByCreatedAtAsc(UUID atencionInicialId);
     List<AdjuntoClinicoEntity> findByAtencionInicialIdInOrderByCreatedAtAsc(List<UUID> atencionInicialIds);
+    List<AdjuntoClinicoEntity> findByCasoAtencionIdOrderByCreatedAtAsc(UUID casoAtencionId);
 }

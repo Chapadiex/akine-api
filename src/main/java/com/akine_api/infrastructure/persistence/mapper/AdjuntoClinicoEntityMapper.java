@@ -15,6 +15,7 @@ public interface AdjuntoClinicoEntityMapper {
                 entity.getPacienteId(),
                 entity.getSesionId(),
                 entity.getAtencionInicialId(),
+                entity.getCasoAtencionId(),
                 entity.getStorageKey(),
                 entity.getOriginalFilename(),
                 entity.getContentType(),
@@ -32,6 +33,7 @@ public interface AdjuntoClinicoEntityMapper {
         entity.setPacienteId(domain.getPacienteId());
         entity.setSesionId(domain.getSesionId());
         entity.setAtencionInicialId(domain.getAtencionInicialId());
+        entity.setCasoAtencionId(domain.getCasoAtencionId());
         entity.setStorageKey(domain.getStorageKey());
         entity.setOriginalFilename(domain.getOriginalFilename());
         entity.setContentType(domain.getContentType());

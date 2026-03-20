@@ -1,5 +1,6 @@
 package com.akine_api.application.service;
 
+import com.akine_api.application.service.cobertura.FinanciadorSeedService;
 import com.akine_api.application.dto.command.CreateConsultorioCommand;
 import com.akine_api.application.dto.command.UpdateConsultorioCommand;
 import com.akine_api.application.dto.result.ConsultorioResult;
@@ -26,17 +27,20 @@ public class ConsultorioService {
     private final ConsultorioEspecialidadBootstrapService consultorioEspecialidadBootstrapService;
     private final ConsultorioAntecedenteBootstrapService consultorioAntecedenteBootstrapService;
     private final CargoEmpleadoCatalogoBootstrapService cargoEmpleadoCatalogoBootstrapService;
+    private final FinanciadorSeedService financiadorSeedService;
 
     public ConsultorioService(ConsultorioRepositoryPort consultorioRepo,
                               UserRepositoryPort userRepo,
                               ConsultorioEspecialidadBootstrapService consultorioEspecialidadBootstrapService,
                               ConsultorioAntecedenteBootstrapService consultorioAntecedenteBootstrapService,
-                              CargoEmpleadoCatalogoBootstrapService cargoEmpleadoCatalogoBootstrapService) {
+                              CargoEmpleadoCatalogoBootstrapService cargoEmpleadoCatalogoBootstrapService,
+                              FinanciadorSeedService financiadorSeedService) {
         this.consultorioRepo = consultorioRepo;
         this.userRepo = userRepo;
         this.consultorioEspecialidadBootstrapService = consultorioEspecialidadBootstrapService;
         this.consultorioAntecedenteBootstrapService = consultorioAntecedenteBootstrapService;
         this.cargoEmpleadoCatalogoBootstrapService = cargoEmpleadoCatalogoBootstrapService;
+        this.financiadorSeedService = financiadorSeedService;
     }
 
     @Transactional(readOnly = true)
@@ -111,6 +115,7 @@ public class ConsultorioService {
         cargoEmpleadoCatalogoBootstrapService.ensureDefaults();
         consultorioEspecialidadBootstrapService.enableDefaultsForConsultorio(saved.getId());
         consultorioAntecedenteBootstrapService.ensureDefaults(saved.getId(), "system");
+        financiadorSeedService.seedForConsultorio(saved.getId());
         return toResult(saved);
     }
 

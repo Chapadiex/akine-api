@@ -10,6 +10,7 @@ public class AdjuntoClinico {
     private final UUID pacienteId;
     private final UUID sesionId;
     private final UUID atencionInicialId;
+    private final UUID casoAtencionId;
     private final String storageKey;
     private final String originalFilename;
     private final String contentType;
@@ -22,6 +23,7 @@ public class AdjuntoClinico {
                           UUID pacienteId,
                           UUID sesionId,
                           UUID atencionInicialId,
+                          UUID casoAtencionId,
                           String storageKey,
                           String originalFilename,
                           String contentType,
@@ -31,8 +33,8 @@ public class AdjuntoClinico {
         if (consultorioId == null || pacienteId == null) {
             throw new IllegalArgumentException("Consultorio y paciente son obligatorios");
         }
-        if (sesionId == null && atencionInicialId == null) {
-            throw new IllegalArgumentException("El adjunto clinico debe pertenecer a una sesion o atencion inicial");
+        if (sesionId == null && atencionInicialId == null && casoAtencionId == null) {
+            throw new IllegalArgumentException("El adjunto clinico debe pertenecer a una sesion, atencion inicial o caso");
         }
         if (storageKey == null || storageKey.isBlank()
                 || originalFilename == null || originalFilename.isBlank()
@@ -45,6 +47,7 @@ public class AdjuntoClinico {
         this.pacienteId = pacienteId;
         this.sesionId = sesionId;
         this.atencionInicialId = atencionInicialId;
+        this.casoAtencionId = casoAtencionId;
         this.storageKey = storageKey;
         this.originalFilename = originalFilename;
         this.contentType = contentType;
@@ -58,6 +61,7 @@ public class AdjuntoClinico {
     public UUID getPacienteId() { return pacienteId; }
     public UUID getSesionId() { return sesionId; }
     public UUID getAtencionInicialId() { return atencionInicialId; }
+    public UUID getCasoAtencionId() { return casoAtencionId; }
     public String getStorageKey() { return storageKey; }
     public String getOriginalFilename() { return originalFilename; }
     public String getContentType() { return contentType; }

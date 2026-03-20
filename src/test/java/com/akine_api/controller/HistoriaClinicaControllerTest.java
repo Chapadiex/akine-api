@@ -489,6 +489,7 @@ class HistoriaClinicaControllerTest {
                         3,
                         "Dolor en descenso"
                 )),
+                List.of(),
                 new HistoriaClinicaSesionSummaryResult(
                         SESION_ID,
                         PROFESIONAL_ID,
@@ -592,6 +593,7 @@ class HistoriaClinicaControllerTest {
         return new AdjuntoClinicoResult(
                 ADJUNTO_ID,
                 SESION_ID,
+                null,
                 null,
                 "nota.pdf",
                 "application/pdf",

@@ -8,6 +8,7 @@ public record HistoriaClinicaOverviewResult(
         List<String> alertasClinicas,
         List<HistoriaClinicaAntecedenteResult> antecedentesRelevantes,
         List<HistoriaClinicaActiveCaseSummaryResult> casosActivos,
+        List<CasoAtencionSummaryResult> casosAtencionActivos,
         HistoriaClinicaSesionSummaryResult ultimaSesion,
         List<AdjuntoClinicoResult> adjuntosRecientes,
         String profesionalHabitual,

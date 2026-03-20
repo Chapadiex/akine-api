@@ -7,6 +7,7 @@ public record AdjuntoClinicoResult(
         UUID id,
         UUID sesionId,
         UUID atencionInicialId,
+        UUID casoAtencionId,
         String originalFilename,
         String contentType,
         long sizeBytes,

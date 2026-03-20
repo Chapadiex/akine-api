@@ -12,13 +12,13 @@ public record CreateCasoAtencionRequest(
         @Size(max = 40)
         String tipoOrigen,
         LocalDateTime fechaApertura,
-        @Size(max = 500)
+        @Size(max = 1000)
         String motivoConsulta,
-        @Size(max = 500)
+        @Size(max = 1000)
         String diagnosticoMedico,
-        @Size(max = 500)
+        @Size(max = 1000)
         String diagnosticoFuncional,
-        @Size(max = 255)
+        @Size(max = 1000)
         String afeccionPrincipal,
         UUID coberturaId,
         @Size(max = 20)

@@ -25,12 +25,12 @@ public class LocalDiskClinicalAttachmentStorageAdapter implements AttachmentStor
     @Override
     public String store(UUID consultorioId,
                         UUID pacienteId,
-                        UUID sesionId,
+                        UUID ownerId,
                         UUID adjuntoId,
                         String originalFilename,
                         byte[] content) {
         String extension = resolveExtension(originalFilename);
-        String storageKey = consultorioId + "/" + pacienteId + "/" + sesionId + "/" + adjuntoId + extension;
+        String storageKey = consultorioId + "/" + pacienteId + "/" + ownerId + "/" + adjuntoId + extension;
         Path target = root.resolve(storageKey);
         try {
             Files.createDirectories(target.getParent());
