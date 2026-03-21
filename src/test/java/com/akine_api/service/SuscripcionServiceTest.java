@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -37,6 +38,9 @@ class SuscripcionServiceTest {
     @Mock MembershipRepositoryPort membershipRepo;
     @Mock SuscripcionRepositoryPort suscripcionRepo;
     @Mock SuscripcionAuditoriaRepositoryPort auditoriaRepo;
+    @Mock PlanDefinicionRepositoryPort planRepo;
+    @Mock ProfesionalRepositoryPort profesionalRepo;
+    @Mock PacienteConsultorioRepositoryPort pacienteConsultorioRepo;
     @Mock EmailPort emailPort;
 
     SuscripcionService service;
@@ -52,6 +56,9 @@ class SuscripcionServiceTest {
                 membershipRepo,
                 suscripcionRepo,
                 auditoriaRepo,
+                planRepo,
+                profesionalRepo,
+                pacienteConsultorioRepo,
                 emailPort
         );
     }
@@ -64,7 +71,6 @@ class SuscripcionServiceTest {
         AtomicReference<Suscripcion> savedSubscription = new AtomicReference<>();
 
         when(userRepo.existsByEmail("owner@test.com")).thenReturn(false);
-        when(empresaRepo.existsByCuit("30711222334")).thenReturn(false);
         when(roleRepo.findByName(RoleName.PROFESIONAL_ADMIN))
                 .thenReturn(Optional.of(new Role(UUID.randomUUID(), RoleName.PROFESIONAL_ADMIN, "Profesional admin")));
         when(passwordEncoder.encode("Pass12345")).thenReturn("hashed-password");
@@ -92,6 +98,7 @@ class SuscripcionServiceTest {
         });
         when(auditoriaRepo.save(any(SuscripcionAuditoria.class))).thenAnswer(inv -> inv.getArgument(0));
 
+        when(suscripcionRepo.findById(any())).thenAnswer(inv -> Optional.ofNullable(savedSubscription.get()));
         when(userRepo.findById(any())).thenAnswer(inv -> Optional.of(savedUser.get()));
         when(empresaRepo.findById(any())).thenAnswer(inv -> Optional.of(savedEmpresa.get()));
         when(consultorioRepo.findById(any())).thenAnswer(inv -> Optional.of(savedConsultorio.get()));
@@ -121,7 +128,7 @@ class SuscripcionServiceTest {
         assertThat(savedConsultorio.get().getStatus()).isEqualTo("INACTIVE");
         assertThat(savedSubscription.get().getStatus()).isEqualTo(SuscripcionStatus.PENDING_APPROVAL);
         verify(emailPort).sendSubscriptionReceived(eq("owner@test.com"), eq("Juan"), anyString());
-        verify(auditoriaRepo).save(any(SuscripcionAuditoria.class));
+        verify(auditoriaRepo, times(6)).save(any(SuscripcionAuditoria.class));
     }
 
     @Test
@@ -158,6 +165,8 @@ class SuscripcionServiceTest {
                 "tracking-token",
                 SuscripcionStatus.PENDING_APPROVAL,
                 Instant.now(),
+                null,
+                null,
                 null,
                 null,
                 null,
@@ -207,6 +216,7 @@ class SuscripcionServiceTest {
         );
 
         when(suscripcionRepo.expireActiveDue(any())).thenReturn(0);
+        when(consultorioRepo.generateNroConsultorio()).thenReturn("AKN-000001");
         when(suscripcionRepo.findById(subscriptionId)).thenReturn(Optional.of(subscription));
         when(suscripcionRepo.save(any(Suscripcion.class))).thenAnswer(inv -> inv.getArgument(0));
         when(userRepo.findById(ownerId)).thenReturn(Optional.of(owner));

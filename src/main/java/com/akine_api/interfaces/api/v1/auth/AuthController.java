@@ -94,7 +94,7 @@ public class AuthController {
                 new AuthResponse.UserInfo(
                         r.userId(), r.email(), r.firstName(), r.lastName(),
                         r.roles(), r.accountState(), r.defaultRole(), r.allowedRoles(),
-                        r.consultorioIds(), r.profesionalId()
+                        r.consultorioIds(), r.profesionalId(), r.consultorioNros()
                 )
         );
     }

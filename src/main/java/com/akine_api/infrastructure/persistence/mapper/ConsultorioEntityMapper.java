@@ -46,6 +46,8 @@ public interface ConsultorioEntityMapper {
                 entity.getLegalNotes(),
                 entity.getStatus(),
                 entity.getEmpresaId(),
+                entity.getNroConsultorio(),
+                entity.getSlug(),
                 entity.getCreatedAt()
         );
     }
@@ -88,6 +90,8 @@ public interface ConsultorioEntityMapper {
         entity.setLegalDocumentSummary(domain.getLegalDocumentSummary());
         entity.setLegalNotes(domain.getLegalNotes());
         entity.setEmpresaId(domain.getEmpresaId());
+        entity.setNroConsultorio(domain.getNroConsultorio());
+        entity.setSlug(domain.getSlug());
         entity.setStatus(domain.getStatus());
         entity.setCreatedAt(domain.getCreatedAt());
         entity.setUpdatedAt(domain.getUpdatedAt());

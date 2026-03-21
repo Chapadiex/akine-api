@@ -87,7 +87,7 @@ public class ConsultorioController {
                 req.legalNotes(),
                 req.status()
         );
-        ConsultorioResponse response = toResponse(service.create(cmd, roles(principal)));
+        ConsultorioResponse response = toResponse(service.create(cmd, principal.getUsername(), roles(principal)));
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

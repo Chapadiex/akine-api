@@ -1,6 +1,7 @@
 package com.akine_api.infrastructure.config;
 
 import com.akine_api.infrastructure.security.JwtAuthenticationFilter;
+import com.akine_api.infrastructure.security.TenantResolutionFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -21,9 +22,12 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtFilter;
+    private final TenantResolutionFilter tenantFilter;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtFilter) {
+    public SecurityConfig(JwtAuthenticationFilter jwtFilter,
+                          TenantResolutionFilter tenantFilter) {
         this.jwtFilter = jwtFilter;
+        this.tenantFilter = tenantFilter;
     }
 
     @Bean
@@ -83,6 +87,7 @@ public class SecurityConfig {
                 })
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(tenantFilter, JwtAuthenticationFilter.class)
             .formLogin(AbstractHttpConfigurer::disable)
             .httpBasic(AbstractHttpConfigurer::disable);
 

@@ -29,9 +29,14 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class CasoAtencionService {
+    private static final Pattern CANTIDAD_SESIONES_PATTERN =
+            Pattern.compile("(?i)cantidad\\s+de\\s+sesiones\\s*:\\s*(\\d+)");
+
 
     private final CasoAtencionRepositoryPort casoAtencionRepo;
     private final AdjuntoClinicoRepositoryPort adjuntoRepo;
@@ -279,6 +284,7 @@ public class CasoAtencionService {
         List<AdjuntoClinicoResult> adjuntos = adjuntoRepo.findByCasoAtencionId(caso.getId()).stream()
                 .map(this::toAdjuntoResult)
                 .toList();
+        int cantidadSesiones = resolveCantidadSesiones(caso.getDiagnosticoFuncional());
         return new CasoAtencionResult(
                 caso.getId(),
                 caso.getLegajoId(),
@@ -296,7 +302,7 @@ public class CasoAtencionService {
                 caso.getEstado(),
                 caso.getPrioridad(),
                 caso.getAtencionInicialId(),
-                0,  // cantidadSesiones — se completará en Fase 5
+                cantidadSesiones,
                 0,  // cantidadPlanes   — se completará en Fase 5
                 adjuntos,
                 caso.getCreatedAt(),
@@ -305,6 +311,7 @@ public class CasoAtencionService {
     }
 
     private CasoAtencionSummaryResult toSummaryResult(CasoAtencion caso) {
+        int cantidadSesiones = resolveCantidadSesiones(caso.getDiagnosticoFuncional());
         return new CasoAtencionSummaryResult(
                 caso.getId(),
                 caso.getLegajoId(),
@@ -318,10 +325,26 @@ public class CasoAtencionService {
                 caso.getAfeccionPrincipal(),
                 caso.getEstado(),
                 caso.getPrioridad(),
-                0,  // cantidadSesiones — se completará en Fase 5
+                cantidadSesiones,
                 0   // cantidadPlanes   — se completará en Fase 5
         );
     }
+
+    private int resolveCantidadSesiones(String diagnosticoFuncional) {
+        if (diagnosticoFuncional == null || diagnosticoFuncional.isBlank()) {
+            return 0;
+        }
+        Matcher matcher = CANTIDAD_SESIONES_PATTERN.matcher(diagnosticoFuncional);
+        if (!matcher.find()) {
+            return 0;
+        }
+        try {
+            return Integer.parseInt(matcher.group(1));
+        } catch (NumberFormatException ex) {
+            return 0;
+        }
+    }
+
     private AdjuntoClinico loadCasoAdjunto(UUID consultorioId, UUID pacienteId, UUID casoId, UUID adjuntoId) {
         AdjuntoClinico adjunto = adjuntoRepo.findById(adjuntoId)
                 .orElseThrow(() -> new HistoriaClinicaValidationException("Adjunto clinico no encontrado"));

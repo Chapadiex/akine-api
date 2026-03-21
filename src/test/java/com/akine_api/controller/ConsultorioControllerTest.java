@@ -75,7 +75,7 @@ class ConsultorioControllerTest {
     @Test
     @WithMockUser(roles = "ADMIN")
     void create_asAdmin_returns201() throws Exception {
-        when(consultorioService.create(any(), any())).thenReturn(sampleResult());
+        when(consultorioService.create(any(), any(), any())).thenReturn(sampleResult());
 
         mvc.perform(post("/api/v1/consultorios")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -109,7 +109,7 @@ class ConsultorioControllerTest {
     @Test
     @WithMockUser(roles = "PROFESIONAL_ADMIN")
     void create_asProfAdmin_returns403() throws Exception {
-        when(consultorioService.create(any(), any()))
+        when(consultorioService.create(any(), any(), any()))
                 .thenThrow(new AccessDeniedException("forbidden"));
 
         mvc.perform(post("/api/v1/consultorios")

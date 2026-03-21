@@ -1,7 +1,9 @@
 package com.akine_api.interfaces.api.v1.subscription;
 
+import com.akine_api.application.dto.command.ChangePlanCommand;
 import com.akine_api.application.dto.command.CreateSubscriptionCommand;
 import com.akine_api.application.dto.command.CreateSubscriptionDraftCommand;
+import com.akine_api.application.dto.command.RenewSubscriptionCommand;
 import com.akine_api.application.dto.command.SimulateSubscriptionPaymentCommand;
 import com.akine_api.application.dto.command.SubmitSubscriptionForApprovalCommand;
 import com.akine_api.application.dto.command.UpdateSubscriptionClinicCommand;
@@ -9,6 +11,7 @@ import com.akine_api.application.dto.command.UpdateSubscriptionCompanyCommand;
 import com.akine_api.application.dto.command.UpdateSubscriptionOwnerCommand;
 import com.akine_api.application.dto.result.SubscriptionSummaryResult;
 import com.akine_api.application.service.SuscripcionService;
+import com.akine_api.interfaces.api.v1.subscription.dto.ChangePlanRequest;
 import com.akine_api.interfaces.api.v1.subscription.dto.CreateSubscriptionDraftRequest;
 import com.akine_api.interfaces.api.v1.subscription.dto.CreateSubscriptionRequest;
 import com.akine_api.interfaces.api.v1.subscription.dto.CreateSubscriptionResponse;
@@ -20,6 +23,8 @@ import com.akine_api.interfaces.api.v1.subscription.dto.UpdateSubscriptionOwnerR
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -171,6 +176,39 @@ public class SubscriptionController {
                 .map(this::toStatusResponse)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/my")
+    public ResponseEntity<SubscriptionStatusResponse> getMySuscripcion(Authentication auth) {
+        SubscriptionSummaryResult result = suscripcionService.getMySuscripcion(auth.getName());
+        return ResponseEntity.ok(toStatusResponse(result));
+    }
+
+    @PostMapping("/{id}/renew")
+    public ResponseEntity<SubscriptionStatusResponse> renew(
+            @PathVariable UUID id,
+            Authentication auth
+    ) {
+        boolean isAdmin = auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch("ROLE_ADMIN"::equals);
+        SubscriptionSummaryResult result = suscripcionService.renew(
+                new RenewSubscriptionCommand(id, auth.getName(), isAdmin));
+        return ResponseEntity.ok(toStatusResponse(result));
+    }
+
+    @PostMapping("/{id}/change-plan")
+    public ResponseEntity<SubscriptionStatusResponse> changePlan(
+            @PathVariable UUID id,
+            @Valid @RequestBody ChangePlanRequest req,
+            Authentication auth
+    ) {
+        boolean isAdmin = auth.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch("ROLE_ADMIN"::equals);
+        SubscriptionSummaryResult result = suscripcionService.changePlan(
+                new ChangePlanCommand(id, req.planCode(), auth.getName(), isAdmin));
+        return ResponseEntity.ok(toStatusResponse(result));
     }
 
     private SubscriptionStatusResponse toStatusResponse(SubscriptionSummaryResult result) {

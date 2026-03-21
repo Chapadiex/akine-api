@@ -28,6 +28,9 @@ public class SuscripcionService {
     private final MembershipRepositoryPort membershipRepo;
     private final SuscripcionRepositoryPort suscripcionRepo;
     private final SuscripcionAuditoriaRepositoryPort auditoriaRepo;
+    private final PlanDefinicionRepositoryPort planRepo;
+    private final ProfesionalRepositoryPort profesionalRepo;
+    private final PacienteConsultorioRepositoryPort pacienteConsultorioRepo;
     private final EmailPort emailPort;
 
     public SuscripcionService(UserRepositoryPort userRepo,
@@ -38,6 +41,9 @@ public class SuscripcionService {
                               MembershipRepositoryPort membershipRepo,
                               SuscripcionRepositoryPort suscripcionRepo,
                               SuscripcionAuditoriaRepositoryPort auditoriaRepo,
+                              PlanDefinicionRepositoryPort planRepo,
+                              ProfesionalRepositoryPort profesionalRepo,
+                              PacienteConsultorioRepositoryPort pacienteConsultorioRepo,
                               EmailPort emailPort) {
         this.userRepo = userRepo;
         this.roleRepo = roleRepo;
@@ -47,6 +53,9 @@ public class SuscripcionService {
         this.membershipRepo = membershipRepo;
         this.suscripcionRepo = suscripcionRepo;
         this.auditoriaRepo = auditoriaRepo;
+        this.planRepo = planRepo;
+        this.profesionalRepo = profesionalRepo;
+        this.pacienteConsultorioRepo = pacienteConsultorioRepo;
         this.emailPort = emailPort;
     }
 
@@ -161,6 +170,8 @@ public class SuscripcionService {
                 UUID.randomUUID().toString(),
                 SuscripcionStatus.DRAFT,
                 Instant.now(),
+                null,
+                null,
                 null,
                 null,
                 null,
@@ -350,10 +361,14 @@ public class SuscripcionService {
         userRepo.save(owner);
 
         Consultorio consultorio = ConsultorioStateGuardService.requireExists(consultorioRepo, saved.getConsultorioBaseId());
+        if (consultorio.getNroConsultorio() == null) {
+            String nro = consultorioRepo.generateNroConsultorio();
+            consultorio.assignNroConsultorio(nro);
+        }
         if (!consultorio.isActive()) {
             consultorio.activate();
-            consultorioRepo.save(consultorio);
         }
+        consultorioRepo.save(consultorio);
 
         Membership membership = membershipRepo.findByUserIdAndConsultorioId(saved.getOwnerUserId(), saved.getConsultorioBaseId())
                 .orElseThrow(() -> new SubscriptionStateException("No se encontró la membresía base del dueño."));
@@ -446,6 +461,96 @@ public class SuscripcionService {
         suscripcionRepo.expireActiveDue(LocalDate.now(OPERATIVE_ZONE));
     }
 
+    @Transactional(readOnly = true)
+    public SubscriptionSummaryResult getMySuscripcion(String callerEmail) {
+        User caller = userRepo.findByEmail(callerEmail)
+                .orElseThrow(() -> new UserNotFoundException(callerEmail));
+        return suscripcionRepo.findTopByOwnerUserId(caller.getId())
+                .map(this::buildSummary)
+                .orElseThrow(() -> new SubscriptionNotFoundException(callerEmail));
+    }
+
+    public SubscriptionSummaryResult renew(RenewSubscriptionCommand cmd) {
+        Suscripcion suscripcion = findSubscription(cmd.subscriptionId());
+        if (!cmd.isAdmin()) {
+            validateOwner(suscripcion, cmd.callerEmail());
+        }
+        if (suscripcion.getStatus() != SuscripcionStatus.ACTIVE
+                && suscripcion.getStatus() != SuscripcionStatus.PENDING_RENEWAL) {
+            throw new SubscriptionStateException(
+                    "Solo se pueden renovar suscripciones en estado ACTIVE o PENDING_RENEWAL.");
+        }
+        LocalDate currentEnd = suscripcion.getEndDate() != null
+                ? suscripcion.getEndDate()
+                : LocalDate.now(OPERATIVE_ZONE);
+        LocalDate newEnd = "ANNUAL".equalsIgnoreCase(suscripcion.getBillingCycle())
+                ? currentEnd.plusYears(1)
+                : currentEnd.plusMonths(1);
+
+        String previousStatus = suscripcion.getStatus().name();
+        suscripcion.renew(newEnd);
+        Suscripcion saved = suscripcionRepo.save(suscripcion);
+
+        User owner = userRepo.findById(saved.getOwnerUserId())
+                .orElseThrow(() -> new UserNotFoundException(saved.getOwnerUserId().toString()));
+        saveAudit(saved, "SUBSCRIPTION_RENEWED", previousStatus, saved.getStatus().name(), null, null);
+        emailPort.sendSubscriptionRenewed(owner.getEmail(), owner.getFirstName(), newEnd);
+        return buildSummary(saved);
+    }
+
+    public SubscriptionSummaryResult changePlan(ChangePlanCommand cmd) {
+        Suscripcion suscripcion = findSubscription(cmd.subscriptionId());
+        if (!cmd.isAdmin()) {
+            validateOwner(suscripcion, cmd.callerEmail());
+        }
+        if (suscripcion.getStatus() != SuscripcionStatus.ACTIVE
+                && suscripcion.getStatus() != SuscripcionStatus.PENDING_RENEWAL) {
+            throw new SubscriptionStateException(
+                    "Solo se puede cambiar el plan en estado ACTIVE o PENDING_RENEWAL.");
+        }
+        String newCode = cmd.newPlanCode().trim().toUpperCase(Locale.ROOT);
+        PlanDefinicion newPlan = planRepo.findByCodigo(newCode)
+                .orElseThrow(() -> new SubscriptionStateException("Plan no encontrado: " + newCode));
+        if (!newPlan.isActivo()) {
+            throw new SubscriptionStateException("El plan " + newCode + " no está activo.");
+        }
+
+        // Validate downgrade: check current resource usage vs new plan limits
+        UUID consultorioId = suscripcion.getConsultorioBaseId();
+        UUID empresaId = suscripcion.getEmpresaId();
+        if (newPlan.getMaxConsultorios() != null) {
+            long count = consultorioRepo.countByEmpresaId(empresaId);
+            if (count > newPlan.getMaxConsultorios()) {
+                throw new PlanDowngradeNotAllowedException(
+                        "tiene " + count + " consultorios, el plan " + newCode + " permite " + newPlan.getMaxConsultorios());
+            }
+        }
+        if (newPlan.getMaxProfesionales() != null) {
+            long count = profesionalRepo.countByConsultorioId(consultorioId);
+            if (count > newPlan.getMaxProfesionales()) {
+                throw new PlanDowngradeNotAllowedException(
+                        "tiene " + count + " profesionales, el plan " + newCode + " permite " + newPlan.getMaxProfesionales());
+            }
+        }
+        if (newPlan.getMaxPacientes() != null) {
+            long count = pacienteConsultorioRepo.countByConsultorioId(consultorioId);
+            if (count > newPlan.getMaxPacientes()) {
+                throw new PlanDowngradeNotAllowedException(
+                        "tiene " + count + " pacientes, el plan " + newCode + " permite " + newPlan.getMaxPacientes());
+            }
+        }
+
+        String previousStatus = suscripcion.getStatus().name();
+        suscripcion.changePlan(newCode);
+        Suscripcion saved = suscripcionRepo.save(suscripcion);
+
+        User owner = userRepo.findById(saved.getOwnerUserId())
+                .orElseThrow(() -> new UserNotFoundException(saved.getOwnerUserId().toString()));
+        saveAudit(saved, "SUBSCRIPTION_PLAN_CHANGED", previousStatus, saved.getStatus().name(), null, newCode);
+        emailPort.sendPlanChanged(owner.getEmail(), owner.getFirstName(), newPlan.getNombre());
+        return buildSummary(saved);
+    }
+
     private Suscripcion findSubscription(UUID id) {
         return suscripcionRepo.findById(id)
                 .orElseThrow(() -> new SubscriptionNotFoundException(id.toString()));
@@ -487,10 +592,16 @@ public class SuscripcionService {
         Consultorio consultorio = consultorioRepo.findById(subscription.getConsultorioBaseId())
                 .orElseThrow(() -> new SubscriptionStateException("Consultorio base de suscripción no encontrado."));
 
+        String planNombre = subscription.getPlanCode() == null ? null :
+                planRepo.findByCodigo(subscription.getPlanCode())
+                        .map(p -> p.getNombre())
+                        .orElse(subscription.getPlanCode());
+
         return new SubscriptionSummaryResult(
                 subscription.getId(),
                 subscription.getStatus().name(),
                 subscription.getPlanCode(),
+                planNombre,
                 subscription.getBillingCycle(),
                 subscription.getOnboardingStep(),
                 subscription.getTrackingToken(),
@@ -512,7 +623,8 @@ public class SuscripcionService {
                 empresa.getProvince(),
                 consultorio.getId(),
                 consultorio.getName(),
-                consultorio.getAddress()
+                consultorio.getAddress(),
+                consultorio.getNroConsultorio()
         );
     }
 
@@ -539,5 +651,14 @@ public class SuscripcionService {
 
     private String randomShortId() {
         return UUID.randomUUID().toString().substring(0, 8).toUpperCase(Locale.ROOT);
+    }
+
+    private void validateOwner(Suscripcion suscripcion, String callerEmail) {
+        User caller = userRepo.findByEmail(callerEmail)
+                .orElseThrow(() -> new UserNotFoundException(callerEmail));
+        if (!suscripcion.getOwnerUserId().equals(caller.getId())) {
+            throw new org.springframework.security.access.AccessDeniedException(
+                    "No tiene permiso para operar sobre esta suscripción.");
+        }
     }
 }

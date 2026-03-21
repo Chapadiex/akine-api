@@ -17,12 +17,13 @@ public interface MembershipJpaRepository extends JpaRepository<MembershipEntity,
     @Query("""
            SELECT DISTINCT m.consultorioId
              FROM MembershipEntity m
-             JOIN SuscripcionEntity s ON s.consultorioBaseId = m.consultorioId
+             LEFT JOIN SuscripcionEntity s ON s.consultorioBaseId = m.consultorioId
             WHERE m.userId = :userId
               AND m.status = 'ACTIVE'
-              AND s.status = 'ACTIVE'
-              AND (s.startDate IS NULL OR s.startDate <= :today)
-              AND (s.endDate IS NULL OR s.endDate >= :today)
+              AND (s IS NULL
+                   OR (s.status = 'ACTIVE'
+                       AND (s.startDate IS NULL OR s.startDate <= :today)
+                       AND (s.endDate IS NULL OR s.endDate >= :today)))
            """)
     List<UUID> findConsultorioIdsByUserId(@Param("userId") UUID userId, @Param("today") LocalDate today);
 }

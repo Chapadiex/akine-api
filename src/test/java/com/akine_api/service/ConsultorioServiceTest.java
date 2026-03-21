@@ -4,11 +4,13 @@ import com.akine_api.application.dto.command.CreateConsultorioCommand;
 import com.akine_api.application.dto.command.UpdateConsultorioCommand;
 import com.akine_api.application.dto.result.ConsultorioResult;
 import com.akine_api.application.port.output.ConsultorioRepositoryPort;
+import com.akine_api.application.port.output.MembershipRepositoryPort;
 import com.akine_api.application.port.output.UserRepositoryPort;
 import com.akine_api.application.service.CargoEmpleadoCatalogoBootstrapService;
 import com.akine_api.application.service.ConsultorioAntecedenteBootstrapService;
 import com.akine_api.application.service.ConsultorioEspecialidadBootstrapService;
 import com.akine_api.application.service.ConsultorioService;
+import com.akine_api.application.service.PlanGateService;
 import com.akine_api.application.service.cobertura.FinanciadorSeedService;
 import com.akine_api.domain.exception.ConsultorioInactiveException;
 import com.akine_api.domain.exception.ConsultorioNotFoundException;
@@ -43,10 +45,12 @@ class ConsultorioServiceTest {
 
     @Mock ConsultorioRepositoryPort consultorioRepo;
     @Mock UserRepositoryPort userRepo;
+    @Mock MembershipRepositoryPort membershipRepo;
     @Mock ConsultorioEspecialidadBootstrapService especialidadBootstrapService;
     @Mock ConsultorioAntecedenteBootstrapService antecedenteBootstrapService;
     @Mock CargoEmpleadoCatalogoBootstrapService cargoBootstrapService;
     @Mock FinanciadorSeedService financiadorSeedService;
+    @Mock PlanGateService planGateService;
 
     ConsultorioService service;
 
@@ -62,10 +66,12 @@ class ConsultorioServiceTest {
         service = new ConsultorioService(
                 consultorioRepo,
                 userRepo,
+                membershipRepo,
                 especialidadBootstrapService,
                 antecedenteBootstrapService,
                 cargoBootstrapService,
-                financiadorSeedService
+                financiadorSeedService,
+                planGateService
         );
     }
 
@@ -106,6 +112,8 @@ class ConsultorioServiceTest {
                 "Contrato base",
                 "Notas legales",
                 "ACTIVE",
+                null,
+                null,
                 null,
                 Instant.now()
         );
@@ -188,7 +196,7 @@ class ConsultorioServiceTest {
         when(consultorioRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         CreateConsultorioCommand cmd = quickCreateCommand();
-        ConsultorioResult result = service.create(cmd, ADMIN_ROLES);
+        ConsultorioResult result = service.create(cmd, ADMIN_EMAIL, ADMIN_ROLES);
 
         assertThat(result.name()).isEqualTo("Nuevo");
         assertThat(result.status()).isEqualTo("ACTIVE");
@@ -201,7 +209,7 @@ class ConsultorioServiceTest {
     void create_withExtendedData_persistsCoordinatesAndDocumentSetup() {
         when(consultorioRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        ConsultorioResult result = service.create(completeCreateCommand(), ADMIN_ROLES);
+        ConsultorioResult result = service.create(completeCreateCommand(), ADMIN_EMAIL, ADMIN_ROLES);
 
         assertThat(result.mapLatitude()).isEqualByComparingTo("-34.603722");
         assertThat(result.mapLongitude()).isEqualByComparingTo("-58.381592");
@@ -218,14 +226,27 @@ class ConsultorioServiceTest {
                 .when(antecedenteBootstrapService)
                 .ensureDefaults(any(), any());
 
-        assertThatThrownBy(() -> service.create(quickCreateCommand(), ADMIN_ROLES))
+        assertThatThrownBy(() -> service.create(quickCreateCommand(), ADMIN_EMAIL, ADMIN_ROLES))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("bootstrap fail");
     }
 
     @Test
-    void create_asProfAdmin_throwsAccessDenied() {
-        assertThatThrownBy(() -> service.create(quickCreateCommand(), PROF_ADMIN_ROLES))
+    void create_asProfAdmin_succeeds_and_createsMembership() {
+        User user = new User(USER_ID, "prof@test.com", "hash", "Prof", "Admin", null, UserStatus.ACTIVE, Instant.now());
+        when(consultorioRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(userRepo.findByEmail("prof@test.com")).thenReturn(Optional.of(user));
+        when(membershipRepo.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        ConsultorioResult result = service.create(quickCreateCommand(), "prof@test.com", PROF_ADMIN_ROLES);
+
+        assertThat(result.name()).isEqualTo("Nuevo");
+        verify(membershipRepo).save(any());
+    }
+
+    @Test
+    void create_asUnprivilegedRole_throwsAccessDenied() {
+        assertThatThrownBy(() -> service.create(quickCreateCommand(), ADMIN_EMAIL, PROF_ROLES))
                 .isInstanceOf(AccessDeniedException.class);
     }
 
@@ -276,8 +297,6 @@ class ConsultorioServiceTest {
 
     @Test
     void inactivate_asProfAdmin_throwsAccessDenied() {
-        when(consultorioRepo.findById(CONSULTORIO_ID)).thenReturn(Optional.of(activeConsultorio()));
-
         assertThatThrownBy(() -> service.inactivate(CONSULTORIO_ID, ADMIN_EMAIL, PROF_ADMIN_ROLES))
                 .isInstanceOf(AccessDeniedException.class);
     }
@@ -295,8 +314,6 @@ class ConsultorioServiceTest {
 
     @Test
     void activate_asProfAdmin_throwsAccessDenied() {
-        when(consultorioRepo.findById(CONSULTORIO_ID)).thenReturn(Optional.of(inactiveConsultorio()));
-
         assertThatThrownBy(() -> service.activate(CONSULTORIO_ID, PROF_ADMIN_ROLES))
                 .isInstanceOf(AccessDeniedException.class);
     }

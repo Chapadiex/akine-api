@@ -8,6 +8,7 @@ public record SubscriptionSummaryResult(
         UUID id,
         String status,
         String planCode,
+        String planNombre,
         String billingCycle,
         String onboardingStep,
         String trackingToken,
@@ -29,5 +30,6 @@ public record SubscriptionSummaryResult(
         String empresaProvince,
         UUID consultorioBaseId,
         String consultorioBaseName,
-        String consultorioBaseAddress
+        String consultorioBaseAddress,
+        String nroConsultorio
 ) {}

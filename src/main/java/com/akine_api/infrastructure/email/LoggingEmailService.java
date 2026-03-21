@@ -53,4 +53,24 @@ public class LoggingEmailService implements EmailPort {
     public void sendSubscriptionReactivated(String to, String firstName, LocalDate endDate) {
         log.info("[DEV EMAIL] Subscription reactivated for {} ({}) until {}", firstName, to, endDate);
     }
+
+    @Override
+    public void sendRenewalWarning(String to, String firstName, int daysLeft, LocalDate endDate) {
+        log.info("[DEV EMAIL] Renewal warning for {} ({}) — {} days left, expires {}", firstName, to, daysLeft, endDate);
+    }
+
+    @Override
+    public void sendSubscriptionExpiredNotice(String to, String firstName) {
+        log.info("[DEV EMAIL] Subscription expired notice for {} ({})", firstName, to);
+    }
+
+    @Override
+    public void sendSubscriptionRenewed(String to, String firstName, LocalDate newEndDate) {
+        log.info("[DEV EMAIL] Subscription renewed for {} ({}) until {}", firstName, to, newEndDate);
+    }
+
+    @Override
+    public void sendPlanChanged(String to, String firstName, String newPlanName) {
+        log.info("[DEV EMAIL] Plan changed for {} ({}) to '{}'", firstName, to, newPlanName);
+    }
 }

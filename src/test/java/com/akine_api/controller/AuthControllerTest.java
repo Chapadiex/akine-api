@@ -1,6 +1,7 @@
 package com.akine_api.controller;
 
 import com.akine_api.application.dto.result.AuthResult;
+import java.util.Map;
 import com.akine_api.application.service.AuthenticationService;
 import com.akine_api.application.service.UserRegistrationService;
 import com.akine_api.domain.exception.InvalidCredentialsException;
@@ -85,7 +86,8 @@ class AuthControllerTest {
                 "PACIENTE",
                 List.of("PACIENTE"),
                 List.of(),
-                null
+                null,
+                Map.of()
         );
         when(authService.login(any())).thenReturn(mockResult);
 

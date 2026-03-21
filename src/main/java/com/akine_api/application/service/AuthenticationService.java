@@ -20,7 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -123,6 +125,10 @@ public class AuthenticationService {
                 .map(Profesional::getId)
                 .orElse(null);
 
+        Map<UUID, String> consultorioNros = consultorioRepo.findByIds(consultorioIds).stream()
+                .filter(c -> c.getNroConsultorio() != null)
+                .collect(Collectors.toMap(c -> c.getId(), c -> c.getNroConsultorio()));
+
         return new AuthResult(
                 accessToken,
                 rawRefresh,
@@ -136,7 +142,8 @@ public class AuthenticationService {
                 defaultRole,
                 roles,
                 consultorioIds,
-                profesionalId
+                profesionalId,
+                consultorioNros
         );
     }
 

@@ -5,9 +5,13 @@ import com.akine_api.application.dto.command.CreateConsultorioCommand;
 import com.akine_api.application.dto.command.UpdateConsultorioCommand;
 import com.akine_api.application.dto.result.ConsultorioResult;
 import com.akine_api.application.port.output.ConsultorioRepositoryPort;
+import com.akine_api.application.port.output.MembershipRepositoryPort;
 import com.akine_api.application.port.output.UserRepositoryPort;
 import com.akine_api.domain.exception.ConsultorioInactiveException;
 import com.akine_api.domain.model.Consultorio;
+import com.akine_api.domain.model.Membership;
+import com.akine_api.domain.model.MembershipRole;
+import com.akine_api.domain.model.MembershipStatus;
 import com.akine_api.domain.model.User;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -24,23 +28,29 @@ public class ConsultorioService {
 
     private final ConsultorioRepositoryPort consultorioRepo;
     private final UserRepositoryPort userRepo;
+    private final MembershipRepositoryPort membershipRepo;
     private final ConsultorioEspecialidadBootstrapService consultorioEspecialidadBootstrapService;
     private final ConsultorioAntecedenteBootstrapService consultorioAntecedenteBootstrapService;
     private final CargoEmpleadoCatalogoBootstrapService cargoEmpleadoCatalogoBootstrapService;
     private final FinanciadorSeedService financiadorSeedService;
+    private final PlanGateService planGateService;
 
     public ConsultorioService(ConsultorioRepositoryPort consultorioRepo,
                               UserRepositoryPort userRepo,
+                              MembershipRepositoryPort membershipRepo,
                               ConsultorioEspecialidadBootstrapService consultorioEspecialidadBootstrapService,
                               ConsultorioAntecedenteBootstrapService consultorioAntecedenteBootstrapService,
                               CargoEmpleadoCatalogoBootstrapService cargoEmpleadoCatalogoBootstrapService,
-                              FinanciadorSeedService financiadorSeedService) {
+                              FinanciadorSeedService financiadorSeedService,
+                              PlanGateService planGateService) {
         this.consultorioRepo = consultorioRepo;
         this.userRepo = userRepo;
+        this.membershipRepo = membershipRepo;
         this.consultorioEspecialidadBootstrapService = consultorioEspecialidadBootstrapService;
         this.consultorioAntecedenteBootstrapService = consultorioAntecedenteBootstrapService;
         this.cargoEmpleadoCatalogoBootstrapService = cargoEmpleadoCatalogoBootstrapService;
         this.financiadorSeedService = financiadorSeedService;
+        this.planGateService = planGateService;
     }
 
     @Transactional(readOnly = true)
@@ -67,9 +77,20 @@ public class ConsultorioService {
         return toResult(consultorio);
     }
 
-    public ConsultorioResult create(CreateConsultorioCommand cmd, Set<String> roles) {
-        if (!roles.contains("ROLE_ADMIN")) {
-            throw new AccessDeniedException("Solo ADMIN puede crear consultorios");
+    public ConsultorioResult create(CreateConsultorioCommand cmd, String userEmail, Set<String> roles) {
+        boolean isSystemAdmin = roles.contains("ROLE_ADMIN");
+        boolean isProfesionalAdmin = roles.contains("ROLE_PROFESIONAL_ADMIN");
+        if (!isSystemAdmin && !isProfesionalAdmin) {
+            throw new AccessDeniedException("Solo ADMIN o PROFESIONAL_ADMIN puede crear consultorios");
+        }
+        if (isProfesionalAdmin && !isSystemAdmin) {
+            UUID userId = resolveUserId(userEmail);
+            List<UUID> existingIds = consultorioRepo.findConsultorioIdsByUserId(userId);
+            if (!existingIds.isEmpty()) {
+                java.util.UUID empresaId = consultorioRepo.findById(existingIds.get(0))
+                        .map(c -> c.getEmpresaId()).orElse(null);
+                planGateService.checkConsultorioLimit(empresaId);
+            }
         }
         String status = normalizeStatus(cmd.status(), "ACTIVE");
         Consultorio consultorio = new Consultorio(
@@ -109,6 +130,8 @@ public class ConsultorioService {
                 cmd.legalNotes(),
                 status,
                 null,
+                null,
+                null,
                 Instant.now()
         );
         Consultorio saved = consultorioRepo.save(consultorio);
@@ -116,6 +139,18 @@ public class ConsultorioService {
         consultorioEspecialidadBootstrapService.enableDefaultsForConsultorio(saved.getId());
         consultorioAntecedenteBootstrapService.ensureDefaults(saved.getId(), "system");
         financiadorSeedService.seedForConsultorio(saved.getId());
+        if (isProfesionalAdmin && !isSystemAdmin) {
+            UUID userId = resolveUserId(userEmail);
+            Membership membership = new Membership(
+                    UUID.randomUUID(),
+                    userId,
+                    saved.getId(),
+                    MembershipRole.PROFESIONAL_ADMIN,
+                    MembershipStatus.ACTIVE,
+                    Instant.now()
+            );
+            membershipRepo.save(membership);
+        }
         return toResult(saved);
     }
 

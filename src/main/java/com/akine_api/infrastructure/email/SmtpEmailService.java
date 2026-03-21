@@ -99,4 +99,42 @@ public class SmtpEmailService implements EmailPort {
                 + "\nCurrent end date: " + endDate);
         mailSender.send(msg);
     }
+
+    @Override
+    public void sendRenewalWarning(String to, String firstName, int daysLeft, LocalDate endDate) {
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setTo(to);
+        msg.setSubject("Tu suscripción AKINE vence en " + daysLeft + " días");
+        msg.setText("Hola " + firstName + ",\n\nTu suscripción vence el " + endDate
+                + " (" + daysLeft + " días).\n\nRenová desde tu panel para continuar sin interrupciones.");
+        mailSender.send(msg);
+    }
+
+    @Override
+    public void sendSubscriptionExpiredNotice(String to, String firstName) {
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setTo(to);
+        msg.setSubject("Tu suscripción AKINE ha expirado");
+        msg.setText("Hola " + firstName + ",\n\nTu suscripción AKINE ha expirado."
+                + "\nContactá a soporte o renová tu plan para volver a acceder.");
+        mailSender.send(msg);
+    }
+
+    @Override
+    public void sendSubscriptionRenewed(String to, String firstName, LocalDate newEndDate) {
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setTo(to);
+        msg.setSubject("Suscripción AKINE renovada");
+        msg.setText("Hola " + firstName + ",\n\nTu suscripción fue renovada exitosamente hasta el " + newEndDate + ".");
+        mailSender.send(msg);
+    }
+
+    @Override
+    public void sendPlanChanged(String to, String firstName, String newPlanName) {
+        SimpleMailMessage msg = new SimpleMailMessage();
+        msg.setTo(to);
+        msg.setSubject("Plan AKINE actualizado");
+        msg.setText("Hola " + firstName + ",\n\nTu plan fue actualizado a: " + newPlanName + ".");
+        mailSender.send(msg);
+    }
 }

@@ -27,4 +27,6 @@ public interface PacienteConsultorioJpaRepository extends JpaRepository<Paciente
             """)
     List<UUID> findPacienteIdsByConsultorioIdAndPacienteIds(@Param("consultorioId") UUID consultorioId,
                                                             @Param("pacienteIds") List<UUID> pacienteIds);
+
+    long countByConsultorioId(UUID consultorioId);
 }

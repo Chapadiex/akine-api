@@ -8,6 +8,7 @@ public record SubscriptionSummaryResponse(
         UUID id,
         String status,
         String planCode,
+        String planNombre,
         String billingCycle,
         String onboardingStep,
         String trackingToken,
@@ -40,6 +41,7 @@ public record SubscriptionSummaryResponse(
     public record ConsultorioInfo(
             UUID id,
             String name,
-            String address
+            String address,
+            String nroConsultorio
     ) {}
 }

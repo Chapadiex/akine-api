@@ -11,4 +11,8 @@ public interface EmailPort {
     void sendSubscriptionRejected(String to, String firstName, String reason);
     void sendSubscriptionSuspended(String to, String firstName, String reason);
     void sendSubscriptionReactivated(String to, String firstName, LocalDate endDate);
+    void sendRenewalWarning(String to, String firstName, int daysLeft, LocalDate endDate);
+    void sendSubscriptionExpiredNotice(String to, String firstName);
+    void sendSubscriptionRenewed(String to, String firstName, LocalDate newEndDate);
+    void sendPlanChanged(String to, String firstName, String newPlanName);
 }

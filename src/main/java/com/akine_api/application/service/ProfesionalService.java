@@ -31,15 +31,18 @@ public class ProfesionalService {
     private final ProfesionalConsultorioRepositoryPort profesionalConsultorioRepo;
     private final ConsultorioRepositoryPort consultorioRepo;
     private final UserRepositoryPort userRepo;
+    private final PlanGateService planGateService;
 
     public ProfesionalService(ProfesionalRepositoryPort profesionalRepo,
                               ProfesionalConsultorioRepositoryPort profesionalConsultorioRepo,
                               ConsultorioRepositoryPort consultorioRepo,
-                              UserRepositoryPort userRepo) {
+                              UserRepositoryPort userRepo,
+                              PlanGateService planGateService) {
         this.profesionalRepo = profesionalRepo;
         this.profesionalConsultorioRepo = profesionalConsultorioRepo;
         this.consultorioRepo = consultorioRepo;
         this.userRepo = userRepo;
+        this.planGateService = planGateService;
     }
 
     @Transactional(readOnly = true)
@@ -73,6 +76,9 @@ public class ProfesionalService {
     public ProfesionalResult create(CreateProfesionalCommand cmd, String userEmail, Set<String> roles) {
         assertConsultorioExists(cmd.consultorioId());
         assertCanWrite(cmd.consultorioId(), userEmail, roles);
+        if (!roles.contains("ROLE_ADMIN")) {
+            planGateService.checkProfesionalLimit(cmd.consultorioId());
+        }
         validateUniqueCreate(cmd);
 
         String especialidadesCsv = normalizeEspecialidades(cmd.especialidades(), cmd.especialidad());

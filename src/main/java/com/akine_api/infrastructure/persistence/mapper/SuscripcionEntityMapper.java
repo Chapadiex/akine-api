@@ -26,6 +26,8 @@ public interface SuscripcionEntityMapper {
                 entity.getRequestedAt(),
                 entity.getStartDate(),
                 entity.getEndDate(),
+                entity.getNextRenewalDate(),
+                entity.getGracePeriodEnd(),
                 entity.getReviewedAt(),
                 entity.getReviewedByUserId(),
                 entity.getRejectionReason(),
@@ -51,6 +53,8 @@ public interface SuscripcionEntityMapper {
         entity.setRequestedAt(domain.getRequestedAt());
         entity.setStartDate(domain.getStartDate());
         entity.setEndDate(domain.getEndDate());
+        entity.setNextRenewalDate(domain.getNextRenewalDate());
+        entity.setGracePeriodEnd(domain.getGracePeriodEnd());
         entity.setReviewedAt(domain.getReviewedAt());
         entity.setReviewedByUserId(domain.getReviewedByUserId());
         entity.setRejectionReason(domain.getRejectionReason());

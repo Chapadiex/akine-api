@@ -200,6 +200,36 @@ class HistoriaClinicaServiceTest {
     }
 
     @Test
+    void createSesion_withoutProfesional_allowsNull() {
+        var result = service.createSesion(
+                new CreateSesionClinicaCommand(
+                        CONSULTORIO_ID,
+                        PACIENTE_ID,
+                        null,
+                        null,
+                        null,
+                        null,
+                        LocalDateTime.now(),
+                        HistoriaClinicaTipoAtencion.SEGUIMIENTO,
+                        "Motivo",
+                        "Resumen",
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                ),
+                "admin@test.com",
+                Set.of("ROLE_ADMIN")
+        );
+
+        assertThat(result.profesionalId()).isNull();
+    }
+
+    @Test
     void createSesion_asProfessionalForAnotherProfessional_throws403() {
         when(profesionalRepo.findByEmail("prof@test.com"))
                 .thenReturn(Optional.of(sampleProfesional(PROFESIONAL_ID, "prof@test.com")));
@@ -463,6 +493,24 @@ class HistoriaClinicaServiceTest {
         assertThat(result.legajo().exists()).isFalse();
         assertThat(result.casosActivos()).isEmpty();
         assertThat(result.ultimaSesion()).isNull();
+    }
+
+    @Test
+    void getOverview_withSesionWithoutProfesional_returnsSinProfesionalHabitual() {
+        when(sesionRepo.findByPacienteIdAndConsultorioId(PACIENTE_ID, CONSULTORIO_ID))
+                .thenReturn(List.of(sampleSesion(SESION_ID, CONSULTORIO_ID, PACIENTE_ID, null, HistoriaClinicaSesionEstado.BORRADOR)));
+        when(diagnosticoRepo.findByPacienteIdAndConsultorioId(PACIENTE_ID, CONSULTORIO_ID)).thenReturn(List.of());
+        when(antecedenteRepo.findByConsultorioIdAndPacienteId(CONSULTORIO_ID, PACIENTE_ID)).thenReturn(List.of());
+        when(legajoRepo.findByConsultorioIdAndPacienteId(CONSULTORIO_ID, PACIENTE_ID)).thenReturn(Optional.empty());
+
+        var result = service.getOverview(
+                CONSULTORIO_ID,
+                PACIENTE_ID,
+                "admin@test.com",
+                Set.of("ROLE_ADMIN")
+        );
+
+        assertThat(result.profesionalHabitual()).isEqualTo("Sin profesional");
     }
 
     @Test

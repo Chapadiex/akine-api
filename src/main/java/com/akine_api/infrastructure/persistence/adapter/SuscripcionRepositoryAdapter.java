@@ -10,7 +10,9 @@ import org.springframework.stereotype.Component;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -38,6 +40,11 @@ public class SuscripcionRepositoryAdapter implements SuscripcionRepositoryPort {
     @Override
     public Optional<Suscripcion> findByConsultorioBaseId(UUID consultorioBaseId) {
         return repo.findByConsultorioBaseId(consultorioBaseId).map(mapper::toDomain);
+    }
+
+    @Override
+    public Optional<Suscripcion> findByEmpresaId(UUID empresaId) {
+        return repo.findByEmpresaId(empresaId).map(mapper::toDomain);
     }
 
     @Override
@@ -75,5 +82,56 @@ public class SuscripcionRepositoryAdapter implements SuscripcionRepositoryPort {
     @Override
     public int expireActiveDue(LocalDate today) {
         return repo.expireActiveDue(today, Instant.now());
+    }
+
+    @Override
+    public int markPendingRenewalDue(LocalDate today, LocalDate cutoff) {
+        return repo.markPendingRenewalDue(today, cutoff, Instant.now());
+    }
+
+    @Override
+    public int expirePendingRenewalDue(LocalDate today) {
+        return repo.expirePendingRenewalDue(today, Instant.now());
+    }
+
+    @Override
+    public List<Suscripcion> findByStatusAndEndDate(SuscripcionStatus status, LocalDate targetDate) {
+        return repo.findByStatusAndEndDate(status.name(), targetDate)
+                .stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public Map<String, Long> countGroupByStatus() {
+        Map<String, Long> result = new HashMap<>();
+        for (Object[] row : repo.countGroupByStatus()) {
+            result.put((String) row[0], (Long) row[1]);
+        }
+        return result;
+    }
+
+    @Override
+    public Map<String, Long> countActiveGroupByPlanCode() {
+        Map<String, Long> result = new HashMap<>();
+        for (Object[] row : repo.countActiveGroupByPlanCode()) {
+            result.put((String) row[0], (Long) row[1]);
+        }
+        return result;
+    }
+
+    @Override
+    public List<Suscripcion> findExpiringBetween(LocalDate from, LocalDate to) {
+        return repo.findExpiringBetween(from, to).stream().map(mapper::toDomain).toList();
+    }
+
+    @Override
+    public long countCreatedAfter(Instant since) {
+        return repo.countByCreatedAtAfter(since);
+    }
+
+    @Override
+    public long countExpiredSince(Instant since) {
+        return repo.countByStatusAndUpdatedAtAfter("EXPIRED", since);
     }
 }

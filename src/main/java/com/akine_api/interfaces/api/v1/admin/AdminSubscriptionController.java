@@ -129,6 +129,7 @@ public class AdminSubscriptionController {
                 r.id(),
                 r.status(),
                 r.planCode(),
+                r.planNombre(),
                 r.billingCycle(),
                 r.onboardingStep(),
                 r.trackingToken(),
@@ -155,7 +156,8 @@ public class AdminSubscriptionController {
                 new SubscriptionSummaryResponse.ConsultorioInfo(
                         r.consultorioBaseId(),
                         r.consultorioBaseName(),
-                        r.consultorioBaseAddress()
+                        r.consultorioBaseAddress(),
+                        r.nroConsultorio()
                 )
         );
     }

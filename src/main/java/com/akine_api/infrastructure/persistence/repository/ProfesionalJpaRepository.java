@@ -15,4 +15,5 @@ public interface ProfesionalJpaRepository extends JpaRepository<ProfesionalEntit
     boolean existsByMatriculaAndConsultorioIdAndIdNot(String matricula, UUID consultorioId, UUID id);
     boolean existsByNroDocumento(String nroDocumento);
     boolean existsByNroDocumentoAndIdNot(String nroDocumento, UUID id);
+    long countByConsultorioId(UUID consultorioId);
 }

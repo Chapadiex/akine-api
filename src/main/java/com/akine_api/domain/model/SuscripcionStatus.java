@@ -7,6 +7,7 @@ public enum SuscripcionStatus {
     SETUP_PENDING,
     PENDING_APPROVAL,
     ACTIVE,
+    PENDING_RENEWAL,
     REJECTED,
     EXPIRED,
     SUSPENDED

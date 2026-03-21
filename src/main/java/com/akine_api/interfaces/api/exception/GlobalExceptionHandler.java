@@ -217,6 +217,30 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return pd;
     }
 
+    @ExceptionHandler(PlanDowngradeNotAllowedException.class)
+    public ProblemDetail handlePlanDowngradeNotAllowed(PlanDowngradeNotAllowedException ex) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
+        pd.setType(URI.create("urn:akine:error:plan-downgrade-not-allowed"));
+        pd.setTitle("Downgrade de plan no permitido");
+        return pd;
+    }
+
+    @ExceptionHandler(PlanLimitExceededException.class)
+    public ProblemDetail handlePlanLimitExceeded(PlanLimitExceededException ex) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
+        pd.setType(URI.create("urn:akine:error:plan-limit-exceeded"));
+        pd.setTitle("Límite de plan alcanzado");
+        return pd;
+    }
+
+    @ExceptionHandler(FeatureNotAvailableException.class)
+    public ProblemDetail handleFeatureNotAvailable(FeatureNotAvailableException ex) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
+        pd.setType(URI.create("urn:akine:error:feature-not-available"));
+        pd.setTitle("Funcionalidad no disponible en el plan");
+        return pd;
+    }
+
     @ExceptionHandler(ConsultorioInactiveException.class)
     public ProblemDetail handleConsultorioInactive(ConsultorioInactiveException ex) {
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());

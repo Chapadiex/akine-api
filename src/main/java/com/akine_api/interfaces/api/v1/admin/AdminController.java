@@ -1,10 +1,13 @@
 package com.akine_api.interfaces.api.v1.admin;
 
 import com.akine_api.application.dto.command.AssignRoleCommand;
+import com.akine_api.application.dto.result.SaasMetricsResult;
 import com.akine_api.application.dto.result.UserSummaryResult;
 import com.akine_api.application.service.AdminUserService;
+import com.akine_api.application.service.SaasMetricsService;
 import com.akine_api.interfaces.api.v1.admin.dto.AssignRoleRequest;
 import com.akine_api.interfaces.api.v1.admin.dto.PagedUserListResponse;
+import com.akine_api.interfaces.api.v1.admin.dto.SaasMetricsResponse;
 import com.akine_api.interfaces.api.v1.admin.dto.UserSummaryResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -21,9 +24,11 @@ import java.util.stream.Collectors;
 public class AdminController {
 
     private final AdminUserService adminUserService;
+    private final SaasMetricsService saasMetricsService;
 
-    public AdminController(AdminUserService adminUserService) {
+    public AdminController(AdminUserService adminUserService, SaasMetricsService saasMetricsService) {
         this.adminUserService = adminUserService;
+        this.saasMetricsService = saasMetricsService;
     }
 
     @GetMapping("/users")
@@ -47,6 +52,26 @@ public class AdminController {
                 new AssignRoleCommand(id, req.roleName())
         );
         return ResponseEntity.ok(toResponse(result));
+    }
+
+    @GetMapping("/saas/metrics")
+    public ResponseEntity<SaasMetricsResponse> saasMetrics() {
+        SaasMetricsResult r = saasMetricsService.getMetrics();
+        SaasMetricsResponse.MrrResponse mrr = new SaasMetricsResponse.MrrResponse(
+                r.mrr().total(), r.mrr().porPlan());
+        List<SaasMetricsResponse.VencimientoProximoResponse> vencimientos = r.vencimientosProximos()
+                .stream()
+                .map(v -> new SaasMetricsResponse.VencimientoProximoResponse(
+                        v.nroConsultorio(), v.razonSocial(), v.endDate(), v.diasRestantes()))
+                .toList();
+        return ResponseEntity.ok(new SaasMetricsResponse(
+                r.totalSuscripciones(),
+                r.distribucionPlanes(),
+                mrr,
+                vencimientos,
+                r.nuevasSuscripcionesUltimos30Dias(),
+                r.churnsUltimos30Dias()
+        ));
     }
 
     private UserSummaryResponse toResponse(UserSummaryResult r) {

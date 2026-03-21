@@ -101,6 +101,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -1211,6 +1212,9 @@ public class HistoriaClinicaService {
                                              UUID profesionalId,
                                              String userEmail,
                                              Set<String> roles) {
+        if (profesionalId == null) {
+            return;
+        }
         Profesional profesional = profesionalRepo.findById(profesionalId)
                 .orElseThrow(() -> new ProfesionalNotFoundException("Profesional no encontrado"));
         ProfesionalConsultorio asignacion = profesionalConsultorioRepo
@@ -1272,7 +1276,7 @@ public class HistoriaClinicaService {
         if (!pacienteId.equals(turno.getPacienteId())) {
             throw new HistoriaClinicaValidationException("El turno no pertenece al paciente indicado");
         }
-        if (turno.getProfesionalId() != null && !profesionalId.equals(turno.getProfesionalId())) {
+        if (turno.getProfesionalId() != null && !turno.getProfesionalId().equals(profesionalId)) {
             throw new HistoriaClinicaValidationException("El profesional no coincide con el turno asociado");
         }
         sesionRepo.findByTurnoId(turnoId)
@@ -1760,16 +1764,31 @@ public class HistoriaClinicaService {
     }
 
     private String resolveProfesionalHabitual(List<SesionClinica> sesiones, Map<UUID, Profesional> profesionales) {
-        return sesiones.stream()
-                .filter(sesion -> sesion.getEstado() != HistoriaClinicaSesionEstado.ANULADA)
-                .collect(Collectors.groupingBy(SesionClinica::getProfesionalId, Collectors.counting()))
-                .entrySet()
+        Map<UUID, Long> profesionalesCount = new HashMap<>();
+        boolean hasSesionSinProfesional = false;
+        for (SesionClinica sesion : sesiones) {
+            if (sesion.getEstado() == HistoriaClinicaSesionEstado.ANULADA) {
+                continue;
+            }
+            UUID profesionalId = sesion.getProfesionalId();
+            if (profesionalId == null) {
+                hasSesionSinProfesional = true;
+                continue;
+            }
+            profesionalesCount.merge(profesionalId, 1L, Long::sum);
+        }
+
+        String habitualConProfesional = profesionalesCount.entrySet()
                 .stream()
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
                 .map(profesionales::get)
                 .map(this::fullName)
                 .orElse(null);
+        if (habitualConProfesional != null) {
+            return habitualConProfesional;
+        }
+        return hasSesionSinProfesional ? "Sin profesional" : null;
     }
 
     private LocalDateTime toLocalDateTime(Instant instant) {
@@ -1958,12 +1977,12 @@ public class HistoriaClinicaService {
 
     private String fullName(Profesional profesional) {
         if (profesional == null) {
-            return "Profesional";
+            return "Sin profesional";
         }
         return firstNonBlank(
                 (Objects.toString(profesional.getNombre(), "") + " " + Objects.toString(profesional.getApellido(), "")).trim(),
                 profesional.getEmail(),
-                "Profesional"
+                "Sin profesional"
         );
     }
 

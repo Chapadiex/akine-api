@@ -12,4 +12,8 @@ public interface ConsultorioRepositoryPort {
     List<Consultorio> findAll();
     List<Consultorio> findByIds(List<UUID> ids);
     List<UUID> findConsultorioIdsByUserId(UUID userId);
+    /** Cuenta cuántos consultorios pertenecen a una empresa. */
+    long countByEmpresaId(UUID empresaId);
+    /** Genera el próximo nro_consultorio en formato AKN-000001 usando la secuencia de DB. */
+    String generateNroConsultorio();
 }

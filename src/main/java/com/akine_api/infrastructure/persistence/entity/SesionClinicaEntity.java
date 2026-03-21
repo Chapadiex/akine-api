@@ -33,7 +33,7 @@ public class SesionClinicaEntity {
     @Column(name = "paciente_id", nullable = false)
     private UUID pacienteId;
 
-    @Column(name = "profesional_id", nullable = false)
+    @Column(name = "profesional_id")
     private UUID profesionalId;
 
     @Column(name = "turno_id")

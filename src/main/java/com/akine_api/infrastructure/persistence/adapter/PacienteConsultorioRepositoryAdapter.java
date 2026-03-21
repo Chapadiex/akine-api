@@ -43,4 +43,9 @@ public class PacienteConsultorioRepositoryAdapter implements PacienteConsultorio
         }
         return jpaRepository.findPacienteIdsByConsultorioIdAndPacienteIds(consultorioId, pacienteIds);
     }
+
+    @Override
+    public long countByConsultorioId(UUID consultorioId) {
+        return jpaRepository.countByConsultorioId(consultorioId);
+    }
 }

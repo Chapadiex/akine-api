@@ -17,4 +17,5 @@ public interface ProfesionalRepositoryPort {
     boolean existsByMatriculaAndConsultorioIdAndIdNot(String matricula, UUID consultorioId, UUID excludeId);
     boolean existsByNroDocumento(String nroDocumento);
     boolean existsByNroDocumentoAndIdNot(String nroDocumento, UUID excludeId);
+    long countByConsultorioId(UUID consultorioId);
 }

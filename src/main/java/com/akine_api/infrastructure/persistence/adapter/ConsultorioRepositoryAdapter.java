@@ -55,4 +55,15 @@ public class ConsultorioRepositoryAdapter implements ConsultorioRepositoryPort {
     public List<UUID> findConsultorioIdsByUserId(UUID userId) {
         return membershipRepo.findConsultorioIdsByUserId(userId, LocalDate.now(OPERATIVE_ZONE));
     }
+
+    @Override
+    public long countByEmpresaId(UUID empresaId) {
+        return consultorioRepo.countByEmpresaId(empresaId);
+    }
+
+    @Override
+    public String generateNroConsultorio() {
+        long seq = consultorioRepo.nextNroConsultorioSequence();
+        return String.format("AKN-%06d", seq);
+    }
 }

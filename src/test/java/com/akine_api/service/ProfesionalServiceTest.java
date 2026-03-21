@@ -6,6 +6,7 @@ import com.akine_api.application.port.output.ConsultorioRepositoryPort;
 import com.akine_api.application.port.output.ProfesionalConsultorioRepositoryPort;
 import com.akine_api.application.port.output.ProfesionalRepositoryPort;
 import com.akine_api.application.port.output.UserRepositoryPort;
+import com.akine_api.application.service.PlanGateService;
 import com.akine_api.application.service.ProfesionalService;
 import com.akine_api.domain.exception.ConsultorioNotFoundException;
 import com.akine_api.domain.exception.ProfesionalNotFoundException;
@@ -37,14 +38,11 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class ProfesionalServiceTest {
 
-    @Mock
-    ProfesionalRepositoryPort profesionalRepo;
-    @Mock
-    ProfesionalConsultorioRepositoryPort profesionalConsultorioRepo;
-    @Mock
-    ConsultorioRepositoryPort consultorioRepo;
-    @Mock
-    UserRepositoryPort userRepo;
+    @Mock ProfesionalRepositoryPort profesionalRepo;
+    @Mock ProfesionalConsultorioRepositoryPort profesionalConsultorioRepo;
+    @Mock ConsultorioRepositoryPort consultorioRepo;
+    @Mock UserRepositoryPort userRepo;
+    @Mock PlanGateService planGateService;
 
     ProfesionalService service;
 
@@ -56,7 +54,7 @@ class ProfesionalServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new ProfesionalService(profesionalRepo, profesionalConsultorioRepo, consultorioRepo, userRepo);
+        service = new ProfesionalService(profesionalRepo, profesionalConsultorioRepo, consultorioRepo, userRepo, planGateService);
     }
 
     private Consultorio consultorio() {

@@ -70,4 +70,9 @@ public class ProfesionalRepositoryAdapter implements ProfesionalRepositoryPort {
     public boolean existsByNroDocumentoAndIdNot(String nroDocumento, UUID excludeId) {
         return repo.existsByNroDocumentoAndIdNot(nroDocumento, excludeId);
     }
+
+    @Override
+    public long countByConsultorioId(UUID consultorioId) {
+        return repo.countByConsultorioId(consultorioId);
+    }
 }

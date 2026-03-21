@@ -1,6 +1,7 @@
 package com.akine_api.application.dto.result;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public record AuthResult(
@@ -16,5 +17,6 @@ public record AuthResult(
         String defaultRole,
         List<String> allowedRoles,
         List<UUID> consultorioIds,
-        UUID profesionalId
+        UUID profesionalId,
+        Map<UUID, String> consultorioNros
 ) {}

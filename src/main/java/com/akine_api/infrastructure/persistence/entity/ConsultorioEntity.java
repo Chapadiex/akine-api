@@ -125,6 +125,12 @@ public class ConsultorioEntity {
     @Column(name = "empresa_id")
     private UUID empresaId;
 
+    @Column(name = "nro_consultorio", length = 20, unique = true)
+    private String nroConsultorio;
+
+    @Column(name = "slug", length = 100, unique = true)
+    private String slug;
+
     @Column(nullable = false, length = 20)
     private String status;
 

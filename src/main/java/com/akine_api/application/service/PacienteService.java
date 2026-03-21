@@ -25,15 +25,18 @@ public class PacienteService {
     private final PacienteConsultorioRepositoryPort pacienteConsultorioRepo;
     private final UserRepositoryPort userRepo;
     private final ConsultorioRepositoryPort consultorioRepo;
+    private final PlanGateService planGateService;
 
     public PacienteService(PacienteRepositoryPort pacienteRepo,
                            PacienteConsultorioRepositoryPort pacienteConsultorioRepo,
                            UserRepositoryPort userRepo,
-                           ConsultorioRepositoryPort consultorioRepo) {
+                           ConsultorioRepositoryPort consultorioRepo,
+                           PlanGateService planGateService) {
         this.pacienteRepo = pacienteRepo;
         this.pacienteConsultorioRepo = pacienteConsultorioRepo;
         this.userRepo = userRepo;
         this.consultorioRepo = consultorioRepo;
+        this.planGateService = planGateService;
     }
 
     public PacienteResult createMe(CreateMyPacienteCommand cmd, String userEmail, Set<String> roles) {
@@ -89,6 +92,9 @@ public class PacienteService {
     public PacienteResult createAdmin(UUID consultorioId, CreatePacienteAdminCommand cmd, String userEmail, Set<String> roles) {
         assertBackofficeRole(roles);
         assertCanManageConsultorio(consultorioId, userEmail, roles);
+        if (!roles.contains("ROLE_ADMIN")) {
+            planGateService.checkPacienteLimit(consultorioId);
+        }
         UUID actorUserId = resolveUserId(userEmail);
 
         String dni = normalizeDni(cmd.dni());

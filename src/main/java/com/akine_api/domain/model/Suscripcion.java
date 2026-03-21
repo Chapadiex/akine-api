@@ -19,6 +19,8 @@ public class Suscripcion {
     private final Instant requestedAt;
     private LocalDate startDate;
     private LocalDate endDate;
+    private LocalDate nextRenewalDate;
+    private LocalDate gracePeriodEnd;
     private Instant reviewedAt;
     private UUID reviewedByUserId;
     private String rejectionReason;
@@ -39,6 +41,8 @@ public class Suscripcion {
                        Instant requestedAt,
                        LocalDate startDate,
                        LocalDate endDate,
+                       LocalDate nextRenewalDate,
+                       LocalDate gracePeriodEnd,
                        Instant reviewedAt,
                        UUID reviewedByUserId,
                        String rejectionReason,
@@ -58,6 +62,8 @@ public class Suscripcion {
         this.requestedAt = requestedAt;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.nextRenewalDate = nextRenewalDate;
+        this.gracePeriodEnd = gracePeriodEnd;
         this.reviewedAt = reviewedAt;
         this.reviewedByUserId = reviewedByUserId;
         this.rejectionReason = rejectionReason;
@@ -135,6 +141,25 @@ public class Suscripcion {
         this.updatedAt = Instant.now();
     }
 
+    public void markPendingRenewal() {
+        this.status = SuscripcionStatus.PENDING_RENEWAL;
+        this.onboardingStep = "PENDING_RENEWAL";
+        this.updatedAt = Instant.now();
+    }
+
+    public void renew(LocalDate newEndDate) {
+        this.status = SuscripcionStatus.ACTIVE;
+        this.endDate = newEndDate;
+        this.nextRenewalDate = null;
+        this.onboardingStep = "ACTIVE";
+        this.updatedAt = Instant.now();
+    }
+
+    public void changePlan(String newPlanCode) {
+        this.planCode = newPlanCode;
+        this.updatedAt = Instant.now();
+    }
+
     public UUID getId() { return id; }
     public UUID getOwnerUserId() { return ownerUserId; }
     public UUID getEmpresaId() { return empresaId; }
@@ -148,6 +173,8 @@ public class Suscripcion {
     public Instant getRequestedAt() { return requestedAt; }
     public LocalDate getStartDate() { return startDate; }
     public LocalDate getEndDate() { return endDate; }
+    public LocalDate getNextRenewalDate() { return nextRenewalDate; }
+    public LocalDate getGracePeriodEnd() { return gracePeriodEnd; }
     public Instant getReviewedAt() { return reviewedAt; }
     public UUID getReviewedByUserId() { return reviewedByUserId; }
     public String getRejectionReason() { return rejectionReason; }

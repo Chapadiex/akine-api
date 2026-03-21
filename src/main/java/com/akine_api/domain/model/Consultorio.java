@@ -43,6 +43,8 @@ public class Consultorio {
     private String legalNotes;
     private String status;
     private UUID empresaId;
+    private String nroConsultorio;
+    private String slug;
     private final Instant createdAt;
     private Instant updatedAt;
 
@@ -51,7 +53,7 @@ public class Consultorio {
         this(
                 id, name, null, null, cuit, null, address, null, null, null, phone, email, null, null,
                 null, null, null, null, null, null, null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, status, null, createdAt
+                null, null, null, null, null, null, null, status, null, null, null, createdAt
         );
     }
 
@@ -62,7 +64,7 @@ public class Consultorio {
                 id, name, null, null, cuit, null, address, null, null, null, phone, email, null, null,
                 mapLatitude, mapLongitude, googleMapsUrl, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null, null, null, null, status, null,
-                createdAt
+                null, null, createdAt
         );
     }
 
@@ -71,7 +73,7 @@ public class Consultorio {
         this(
                 id, name, null, null, cuit, null, address, null, null, null, phone, email, null, null,
                 null, null, null, null, null, null, null, null, null, null, null, null, null,
-                null, null, null, null, null, null, null, status, empresaId, createdAt
+                null, null, null, null, null, null, null, status, empresaId, null, null, createdAt
         );
     }
 
@@ -112,6 +114,8 @@ public class Consultorio {
             String legalNotes,
             String status,
             UUID empresaId,
+            String nroConsultorio,
+            String slug,
             Instant createdAt
     ) {
         this.id = id;
@@ -150,6 +154,8 @@ public class Consultorio {
         this.legalNotes = legalNotes;
         this.status = status;
         this.empresaId = empresaId;
+        this.nroConsultorio = nroConsultorio;
+        this.slug = slug;
         this.createdAt = createdAt;
         this.updatedAt = createdAt;
     }
@@ -242,6 +248,16 @@ public class Consultorio {
         this.updatedAt = Instant.now();
     }
 
+    /**
+     * Asigna el identificador humano de tenant. Solo se llama una vez al aprobar la suscripción.
+     * No se expone en update() para que sea inmutable después de asignado.
+     */
+    public void assignNroConsultorio(String nroConsultorio) {
+        this.nroConsultorio = nroConsultorio;
+        this.slug = nroConsultorio.toLowerCase();
+        this.updatedAt = Instant.now();
+    }
+
     public boolean isActive() { return "ACTIVE".equals(this.status); }
 
     public UUID getId() { return id; }
@@ -280,6 +296,8 @@ public class Consultorio {
     public String getLegalNotes() { return legalNotes; }
     public String getStatus() { return status; }
     public UUID getEmpresaId() { return empresaId; }
+    public String getNroConsultorio() { return nroConsultorio; }
+    public String getSlug() { return slug; }
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
 }

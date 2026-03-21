@@ -58,6 +58,12 @@ public class SuscripcionEntity {
     @Column(name = "end_date")
     private LocalDate endDate;
 
+    @Column(name = "next_renewal_date")
+    private LocalDate nextRenewalDate;
+
+    @Column(name = "grace_period_end")
+    private LocalDate gracePeriodEnd;
+
     @Column(name = "reviewed_at")
     private Instant reviewedAt;
 

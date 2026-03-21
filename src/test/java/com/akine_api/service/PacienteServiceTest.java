@@ -4,6 +4,7 @@ import com.akine_api.application.dto.command.CreateMyPacienteCommand;
 import com.akine_api.application.dto.command.CreatePacienteAdminCommand;
 import com.akine_api.application.port.output.*;
 import com.akine_api.application.service.PacienteService;
+import com.akine_api.application.service.PlanGateService;
 import com.akine_api.domain.exception.PacienteDuplicadoException;
 import com.akine_api.domain.model.Consultorio;
 import com.akine_api.domain.model.Paciente;
@@ -37,6 +38,7 @@ class PacienteServiceTest {
     @Mock PacienteConsultorioRepositoryPort pacienteConsultorioRepo;
     @Mock UserRepositoryPort userRepo;
     @Mock ConsultorioRepositoryPort consultorioRepo;
+    @Mock PlanGateService planGateService;
 
     PacienteService service;
 
@@ -46,7 +48,7 @@ class PacienteServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new PacienteService(pacienteRepo, pacienteConsultorioRepo, userRepo, consultorioRepo);
+        service = new PacienteService(pacienteRepo, pacienteConsultorioRepo, userRepo, consultorioRepo, planGateService);
     }
 
     @Test

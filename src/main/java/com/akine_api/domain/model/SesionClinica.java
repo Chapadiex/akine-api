@@ -55,8 +55,8 @@ public class SesionClinica {
                          Instant createdAt,
                          Instant updatedAt,
                          Instant closedAt) {
-        if (consultorioId == null || pacienteId == null || profesionalId == null) {
-            throw new IllegalArgumentException("Consultorio, paciente y profesional son obligatorios");
+        if (consultorioId == null || pacienteId == null) {
+            throw new IllegalArgumentException("Consultorio y paciente son obligatorios");
         }
         if (fechaAtencion == null || estado == null || tipoAtencion == null || origenRegistro == null) {
             throw new IllegalArgumentException("La sesion clinica requiere fecha, estado, tipo y origen");
@@ -99,8 +99,8 @@ public class SesionClinica {
                        String plan,
                        UUID updatedByUserId) {
         assertEditable();
-        if (profesionalId == null || fechaAtencion == null || tipoAtencion == null) {
-            throw new IllegalArgumentException("Profesional, fecha y tipo de atencion son obligatorios");
+        if (fechaAtencion == null || tipoAtencion == null) {
+            throw new IllegalArgumentException("Fecha y tipo de atencion son obligatorios");
         }
         this.profesionalId = profesionalId;
         this.turnoId = turnoId;
