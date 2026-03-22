@@ -22,5 +22,8 @@ public class ConvenioPrestacionValor {
     private LocalDate vigenciaHasta;
     private BigDecimal importeBase;
     private BigDecimal importeCopago;
+    private BigDecimal copajoPorcentaje;
+    private BigDecimal coseguroImporte;
+    private BigDecimal topeCobertura;
     private Boolean activo;
 }

@@ -41,6 +41,15 @@ public class ConvenioPrestacionValorEntity extends AuditableEntity {
     @Column(name = "importe_copago", nullable = false, precision = 19, scale = 4)
     private BigDecimal importeCopago = BigDecimal.ZERO;
 
+    @Column(name = "copago_porcentaje", precision = 5, scale = 2)
+    private BigDecimal copajoPorcentaje;
+
+    @Column(name = "coseguro_importe", precision = 19, scale = 4)
+    private BigDecimal coseguroImporte;
+
+    @Column(name = "tope_cobertura", precision = 19, scale = 4)
+    private BigDecimal topeCobertura;
+
     @Column(nullable = false)
     private Boolean activo = true;
 }

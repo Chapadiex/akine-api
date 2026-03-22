@@ -109,6 +109,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -117,6 +119,8 @@ public class HistoriaClinicaService {
 
     private static final long MAX_ATTACHMENT_BYTES = 10L * 1024L * 1024L;
     private static final Set<String> ALLOWED_ATTACHMENT_EXTENSIONS = Set.of(".pdf", ".jpg", ".jpeg", ".png");
+    private static final Pattern CANTIDAD_SESIONES_PATTERN =
+            Pattern.compile("(?i)cantidad\\s+de\\s+sesiones\\s*:\\s*(\\d+)");
 
     private final SesionClinicaRepositoryPort sesionRepo;
     private final SesionEvaluacionRepositoryPort sesionEvaluacionRepo;
@@ -1589,6 +1593,7 @@ public class HistoriaClinicaService {
         Profesional profesional = caso.getProfesionalResponsableId() != null
                 ? profesionales.get(caso.getProfesionalResponsableId())
                 : null;
+        int cantidadSesiones = resolveCantidadSesiones(caso.getDiagnosticoFuncional());
         return new CasoAtencionSummaryResult(
                 caso.getId(),
                 caso.getLegajoId(),
@@ -1602,9 +1607,24 @@ public class HistoriaClinicaService {
                 caso.getAfeccionPrincipal(),
                 caso.getEstado(),
                 caso.getPrioridad(),
-                0,
+                cantidadSesiones,
                 0
         );
+    }
+
+    private int resolveCantidadSesiones(String diagnosticoFuncional) {
+        if (diagnosticoFuncional == null || diagnosticoFuncional.isBlank()) {
+            return 0;
+        }
+        Matcher matcher = CANTIDAD_SESIONES_PATTERN.matcher(diagnosticoFuncional);
+        if (!matcher.find()) {
+            return 0;
+        }
+        try {
+            return Integer.parseInt(matcher.group(1));
+        } catch (NumberFormatException ex) {
+            return 0;
+        }
     }
 
     private HistoriaClinicaSesionSummaryResult toSesionSummary(SesionClinica sesion, Profesional profesional) {

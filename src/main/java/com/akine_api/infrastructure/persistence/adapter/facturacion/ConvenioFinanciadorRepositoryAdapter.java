@@ -8,6 +8,7 @@ import com.akine_api.infrastructure.persistence.repository.facturacion.ConvenioF
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -37,5 +38,26 @@ public class ConvenioFinanciadorRepositoryAdapter implements ConvenioFinanciador
         return jpaRepository.findByFinanciadorId(financiadorId).stream()
                 .map(mapper::toDomain)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ConvenioFinanciador> findByConsultorioId(UUID consultorioId) {
+        return jpaRepository.findByConsultorioId(consultorioId).stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<ConvenioFinanciador> findVigenteByFinanciadorPlanConsultorio(
+            UUID financiadorId, UUID planId, UUID consultorioId, LocalDate fecha) {
+        return jpaRepository.findVigenteByFinanciadorPlanConsultorio(financiadorId, planId, consultorioId, fecha)
+                .map(mapper::toDomain);
+    }
+
+    @Override
+    public boolean existsSolapamiento(UUID financiadorId, UUID planId, UUID consultorioId,
+                                      LocalDate vigenciaDesde, LocalDate vigenciaHasta, UUID excludeId) {
+        return jpaRepository.existsSolapamiento(financiadorId, planId, consultorioId,
+                vigenciaDesde, vigenciaHasta, excludeId);
     }
 }
