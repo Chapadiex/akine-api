@@ -113,6 +113,7 @@ class HistoriaClinicaServiceTest {
     @Mock ConsultorioDiagnosticosMedicosService diagnosticosMedicosService;
     @Mock ConsultorioTratamientoCatalogService tratamientoCatalogService;
     @Mock CasoAtencionRepositoryPort casoAtencionRepo;
+    @Mock com.akine_api.application.service.cobro.LiquidacionSesionService liquidacionSesionService;
 
     private HistoriaClinicaService service;
 
@@ -154,7 +155,8 @@ class HistoriaClinicaServiceTest {
                 userRepo,
                 boxRepo,
                 diagnosticosMedicosService,
-                tratamientoCatalogService
+                tratamientoCatalogService,
+                liquidacionSesionService
         );
         mockAccessBase();
         when(casoAtencionRepo.findByPacienteIdAndConsultorioIdAndEstadoIn(any(), any(), anyList())).thenReturn(List.of());

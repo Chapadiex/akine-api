@@ -146,6 +146,7 @@ public class HistoriaClinicaService {
     private final BoxRepositoryPort boxRepo;
     private final ConsultorioDiagnosticosMedicosService diagnosticosMedicosService;
     private final ConsultorioTratamientoCatalogService tratamientoCatalogService;
+    private final com.akine_api.application.service.cobro.LiquidacionSesionService liquidacionSesionService;
 
     public HistoriaClinicaService(SesionClinicaRepositoryPort sesionRepo,
                                   SesionEvaluacionRepositoryPort sesionEvaluacionRepo,
@@ -170,7 +171,8 @@ public class HistoriaClinicaService {
                                   UserRepositoryPort userRepo,
                                   BoxRepositoryPort boxRepo,
                                   ConsultorioDiagnosticosMedicosService diagnosticosMedicosService,
-                                  ConsultorioTratamientoCatalogService tratamientoCatalogService) {
+                                  ConsultorioTratamientoCatalogService tratamientoCatalogService,
+                                  com.akine_api.application.service.cobro.LiquidacionSesionService liquidacionSesionService) {
         this.sesionRepo = sesionRepo;
         this.sesionEvaluacionRepo = sesionEvaluacionRepo;
         this.sesionExamenFisicoRepo = sesionExamenFisicoRepo;
@@ -195,6 +197,7 @@ public class HistoriaClinicaService {
         this.boxRepo = boxRepo;
         this.diagnosticosMedicosService = diagnosticosMedicosService;
         this.tratamientoCatalogService = tratamientoCatalogService;
+        this.liquidacionSesionService = liquidacionSesionService;
     }
 
     @Transactional(readOnly = true)
@@ -930,7 +933,10 @@ public class HistoriaClinicaService {
                 null,
                 actorUserId);
         sesion.cerrarClinicamente(actorUserId);
-        return toSesionResult(sesionRepo.save(sesion), adjuntoRepo.findBySesionId(sesion.getId()));
+        SesionClinicaResult result = toSesionResult(sesionRepo.save(sesion), adjuntoRepo.findBySesionId(sesion.getId()));
+        // Fase 3: trigger automatic liquidation after clinical closure
+        liquidacionSesionService.liquidarAutomaticamente(sesion.getId(), userEmail);
+        return result;
     }
 
     public SesionClinicaResult annulSesion(ChangeSesionClinicaEstadoCommand command,

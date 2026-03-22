@@ -4,6 +4,7 @@ import com.akine_api.application.port.output.UserRepositoryPort;
 import com.akine_api.domain.exception.CobroNotFoundException;
 import com.akine_api.domain.exception.CobroValidationException;
 import com.akine_api.domain.model.cobro.*;
+import com.akine_api.domain.repository.cobro.LiquidacionSesionRepositoryPort;
 import com.akine_api.domain.repository.cobro.CobroPacienteRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
@@ -24,6 +25,7 @@ public class CobroPacienteService {
     private final CajaDiariaService cajaDiariaService;
     private final MovimientoCajaService movimientoCajaService;
     private final AuditoriaEventoService auditoriaService;
+    private final LiquidacionSesionRepositoryPort liquidacionRepo;
     private final UserRepositoryPort userRepo;
 
     @Transactional
@@ -35,6 +37,27 @@ public class CobroPacienteService {
 
         // 1. Validar caja abierta
         cajaDiariaService.validarCajaAbierta(cajaDiariaId);
+
+        // 1b. Si hay sesionId, validar que la liquidación esté en estado cobrable
+        UUID liquidacionSesionId = null;
+        if (sesionId != null) {
+            LiquidacionSesion liquidacion = liquidacionRepo.findActivaBySesionId(sesionId)
+                    .orElseThrow(() -> new CobroValidationException(
+                            "No existe liquidación activa para la sesión " + sesionId
+                            + ". Verifique que la sesión fue cerrada clínicamente."));
+            if (liquidacion.getEstado() != EstadoLiquidacion.LIQUIDADA_PARTICULAR
+                    && liquidacion.getEstado() != EstadoLiquidacion.LIQUIDADA_MIXTA) {
+                throw new CobroValidationException(
+                        "La liquidación está en estado " + liquidacion.getEstado()
+                        + ". Solo se puede cobrar en estados LIQUIDADA_PARTICULAR o LIQUIDADA_MIXTA.");
+            }
+            if (liquidacion.getImportePaciente() == null
+                    || liquidacion.getImportePaciente().compareTo(java.math.BigDecimal.ZERO) <= 0) {
+                throw new CobroValidationException(
+                        "La liquidación no tiene importe a cargo del paciente (importe_paciente = 0).");
+            }
+            liquidacionSesionId = liquidacion.getId();
+        }
 
         // 2. Validar suma de detalles == importeTotal
         if (detalles == null || detalles.isEmpty()) {
@@ -55,6 +78,7 @@ public class CobroPacienteService {
                 .cajaDiariaId(cajaDiariaId)
                 .pacienteId(pacienteId)
                 .sesionId(sesionId)
+                .liquidacionSesionId(liquidacionSesionId)
                 .estado(EstadoCobroPaciente.COBRADO_TOTAL)
                 .fechaCobro(LocalDate.now())
                 .importeTotal(importeTotal)

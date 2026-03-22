@@ -1,6 +1,8 @@
 package com.akine_api.interfaces.api.exception;
 
 import com.akine_api.domain.exception.*;
+import com.akine_api.domain.exception.LiquidacionConflictException;
+import com.akine_api.domain.exception.LiquidacionNotFoundException;
 import org.springframework.http.*;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
@@ -281,11 +283,19 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return pd;
     }
 
-    @ExceptionHandler({CajaNotFoundException.class, CobroNotFoundException.class})
+    @ExceptionHandler({CajaNotFoundException.class, CobroNotFoundException.class, LiquidacionNotFoundException.class})
     public ProblemDetail handleCobroNotFound(DomainException ex) {
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
         pd.setType(URI.create("urn:akine:error:not-found"));
         pd.setTitle("No encontrado");
+        return pd;
+    }
+
+    @ExceptionHandler(LiquidacionConflictException.class)
+    public ProblemDetail handleLiquidacionConflict(LiquidacionConflictException ex) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        pd.setType(URI.create("urn:akine:error:liquidacion-conflicto"));
+        pd.setTitle("Conflicto de liquidación");
         return pd;
     }
 
