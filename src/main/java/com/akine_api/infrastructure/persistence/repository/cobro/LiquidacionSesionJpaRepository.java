@@ -1,6 +1,7 @@
 package com.akine_api.infrastructure.persistence.repository.cobro;
 
 import com.akine_api.domain.model.cobro.EstadoLiquidacion;
+import com.akine_api.domain.model.cobro.TipoLiquidacion;
 import com.akine_api.infrastructure.persistence.entity.cobro.LiquidacionSesionEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -25,4 +26,6 @@ public interface LiquidacionSesionJpaRepository extends JpaRepository<Liquidacio
     List<LiquidacionSesionEntity> findFacturablesByConsultorioAndFinanciador(
             @Param("consultorioId") UUID consultorioId,
             @Param("financiadorId") UUID financiadorId);
+
+    List<LiquidacionSesionEntity> findByConsultorioIdAndTipoLiquidacion(UUID consultorioId, TipoLiquidacion tipoLiquidacion);
 }
