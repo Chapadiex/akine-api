@@ -283,7 +283,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return pd;
     }
 
-    @ExceptionHandler({CajaNotFoundException.class, CobroNotFoundException.class, LiquidacionNotFoundException.class})
+    @ExceptionHandler({CajaNotFoundException.class, CobroNotFoundException.class,
+                       LiquidacionNotFoundException.class, LoteOsNotFoundException.class,
+                       PagoOsNotFoundException.class})
     public ProblemDetail handleCobroNotFound(DomainException ex) {
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
         pd.setType(URI.create("urn:akine:error:not-found"));
@@ -291,11 +293,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return pd;
     }
 
-    @ExceptionHandler(LiquidacionConflictException.class)
-    public ProblemDetail handleLiquidacionConflict(LiquidacionConflictException ex) {
+    @ExceptionHandler({LiquidacionConflictException.class, LoteOsConflictException.class,
+                       PagoOsConflictException.class})
+    public ProblemDetail handleCobroConflict(DomainException ex) {
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
-        pd.setType(URI.create("urn:akine:error:liquidacion-conflicto"));
-        pd.setTitle("Conflicto de liquidación");
+        pd.setType(URI.create("urn:akine:error:conflicto"));
+        pd.setTitle("Conflicto");
         return pd;
     }
 

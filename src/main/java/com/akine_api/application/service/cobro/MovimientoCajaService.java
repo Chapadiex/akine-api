@@ -2,6 +2,7 @@ package com.akine_api.application.service.cobro;
 
 import com.akine_api.domain.exception.CobroNotFoundException;
 import com.akine_api.domain.model.cobro.*;
+import com.akine_api.domain.model.cobro.PagoObraSocial;
 import com.akine_api.domain.repository.cobro.MovimientoCajaRepositoryPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -81,6 +82,30 @@ public class MovimientoCajaService {
                 .anulado(false)
                 .build();
         return repositoryPort.save(reversal);
+    }
+
+    /**
+     * Generates an INGRESO movement for an OS payment imputado to a caja.
+     * Called from PagoObraSocialService.imputar() within the same transaction.
+     */
+    @Transactional
+    public MovimientoCaja generarDesde(PagoObraSocial pago, UUID cajaDiariaId, UUID consultorioId, UUID usuarioId) {
+        MovimientoCaja movimiento = MovimientoCaja.builder()
+                .consultorioId(consultorioId)
+                .cajaDiariaId(cajaDiariaId)
+                .tipoMovimiento(TipoMovimiento.INGRESO)
+                .origenMovimiento(OrigenMovimiento.PAGO_OS)
+                .origenId(pago.getId())
+                .fechaHora(Instant.now())
+                .descripcion("Pago OS lote #" + pago.getLoteId())
+                .importe(pago.getImporteRecibido())
+                .signo("PLUS")
+                .medioPago(null)
+                .esAnulable(false)
+                .usuarioId(usuarioId)
+                .anulado(false)
+                .build();
+        return repositoryPort.save(movimiento);
     }
 
     @Transactional(readOnly = true)

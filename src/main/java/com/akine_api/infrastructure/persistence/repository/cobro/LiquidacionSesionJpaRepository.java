@@ -18,4 +18,11 @@ public interface LiquidacionSesionJpaRepository extends JpaRepository<Liquidacio
     List<LiquidacionSesionEntity> findByConsultorioId(UUID consultorioId);
 
     List<LiquidacionSesionEntity> findByConsultorioIdAndEstado(UUID consultorioId, EstadoLiquidacion estado);
+
+    @Query("SELECT l FROM LiquidacionSesionEntity l " +
+           "WHERE l.consultorioId = :consultorioId AND l.financiadorId = :financiadorId " +
+           "AND l.esFacturableOs = true AND l.estado IN ('LIQUIDADA_OS', 'LIQUIDADA_MIXTA')")
+    List<LiquidacionSesionEntity> findFacturablesByConsultorioAndFinanciador(
+            @Param("consultorioId") UUID consultorioId,
+            @Param("financiadorId") UUID financiadorId);
 }

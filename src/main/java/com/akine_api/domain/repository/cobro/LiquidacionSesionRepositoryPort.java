@@ -13,4 +13,11 @@ public interface LiquidacionSesionRepositoryPort {
     Optional<LiquidacionSesion> findActivaBySesionId(UUID sesionId);
     List<LiquidacionSesion> findByConsultorioId(UUID consultorioId);
     List<LiquidacionSesion> findByConsultorioIdAndEstado(UUID consultorioId, EstadoLiquidacion estado);
+
+    /**
+     * Returns all facturable-OS liquidaciones for a consultorio/financiador
+     * whose sesion falls within the given YYYY-MM period, regardless of lote membership.
+     * Service layer is responsible for filtering out those already in active lotes.
+     */
+    List<LiquidacionSesion> findFacturablesByConsultorioAndFinanciador(UUID consultorioId, UUID financiadorId);
 }

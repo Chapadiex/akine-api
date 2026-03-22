@@ -125,6 +125,20 @@ public class CajaDiariaService {
         return repositoryPort.save(caja);
     }
 
+    @Transactional
+    public CajaDiaria sumarIngresosOs(UUID cajaId, BigDecimal importe) {
+        CajaDiaria caja = findById(cajaId);
+        caja.setTotalIngresosOs(safe(caja.getTotalIngresosOs()).add(importe));
+        return repositoryPort.save(caja);
+    }
+
+    @Transactional
+    public CajaDiaria restarIngresosOs(UUID cajaId, BigDecimal importe) {
+        CajaDiaria caja = findById(cajaId);
+        caja.setTotalIngresosOs(safe(caja.getTotalIngresosOs()).subtract(importe));
+        return repositoryPort.save(caja);
+    }
+
     private BigDecimal safe(BigDecimal v) {
         return v != null ? v : BigDecimal.ZERO;
     }

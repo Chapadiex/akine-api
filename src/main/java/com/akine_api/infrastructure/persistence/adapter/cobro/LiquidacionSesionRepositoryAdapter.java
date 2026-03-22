@@ -51,4 +51,11 @@ public class LiquidacionSesionRepositoryAdapter implements LiquidacionSesionRepo
                 .map(mapper::toDomain)
                 .toList();
     }
+
+    @Override
+    public List<LiquidacionSesion> findFacturablesByConsultorioAndFinanciador(UUID consultorioId, UUID financiadorId) {
+        return repo.findFacturablesByConsultorioAndFinanciador(consultorioId, financiadorId).stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
 }
