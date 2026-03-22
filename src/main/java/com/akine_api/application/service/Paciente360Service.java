@@ -726,6 +726,7 @@ public class Paciente360Service {
         return switch (estado) {
             case PROGRAMADO -> "Programado";
             case CONFIRMADO -> "Confirmado";
+            case CHECK_IN_REALIZADO -> "Check-in realizado";
             case EN_ESPERA -> "En espera";
             case EN_CURSO -> "En curso";
             case COMPLETADO -> "Completado";

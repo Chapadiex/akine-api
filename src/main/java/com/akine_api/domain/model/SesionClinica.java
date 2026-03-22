@@ -31,6 +31,18 @@ public class SesionClinica {
     private UUID closedByUserId;
     private Instant updatedAt;
     private Instant closedAt;
+    // Fase 2 — cierre clínico
+    private Integer duracionRealMinutos;
+    private String tratamientoRealizado;
+    private String resultadoClinico;
+    private String conductaSiguiente;
+    private boolean requiereSeguimiento;
+    private String observacionesClincias;
+    private boolean cerradaClinicamente;
+    private Instant fechaCierreClinco;
+    private UUID cierreClinicoPor;
+    private boolean esGrupal;
+    private UUID grupoSesionId;
 
     public SesionClinica(UUID id,
                          UUID consultorioId,
@@ -137,6 +149,73 @@ public class SesionClinica {
         this.closedAt = this.updatedAt;
     }
 
+    /**
+     * Updates the editable clinical fields (tratamiento, resultado, etc.).
+     * Must be called while the session is still BORRADOR.
+     */
+    public void updateCamposClinicos(Integer duracionRealMinutos,
+                                      String tratamientoRealizado,
+                                      String resultadoClinico,
+                                      String conductaSiguiente,
+                                      boolean requiereSeguimiento,
+                                      String observacionesClincias,
+                                      boolean esGrupal,
+                                      UUID grupoSesionId,
+                                      UUID updatedByUserId) {
+        assertEditable();
+        this.duracionRealMinutos = duracionRealMinutos;
+        this.tratamientoRealizado = tratamientoRealizado;
+        this.resultadoClinico = resultadoClinico;
+        this.conductaSiguiente = conductaSiguiente;
+        this.requiereSeguimiento = requiereSeguimiento;
+        this.observacionesClincias = observacionesClincias;
+        this.esGrupal = esGrupal;
+        this.grupoSesionId = grupoSesionId;
+        this.updatedByUserId = updatedByUserId;
+        this.updatedAt = Instant.now();
+    }
+
+    /**
+     * Marks the session as clinically closed. Requires 4 mandatory fields:
+     * tratamientoRealizado, resultadoClinico, duracionRealMinutos, conductaSiguiente.
+     */
+    public void cerrarClinicamente(UUID actorUserId) {
+        assertEditable();
+        if (tratamientoRealizado == null || tratamientoRealizado.isBlank()) {
+            throw new HistoriaClinicaConflictException("El tratamiento realizado es obligatorio para el cierre clínico");
+        }
+        if (resultadoClinico == null || resultadoClinico.isBlank()) {
+            throw new HistoriaClinicaConflictException("El resultado clínico es obligatorio para el cierre clínico");
+        }
+        if (duracionRealMinutos == null || duracionRealMinutos <= 0) {
+            throw new HistoriaClinicaConflictException("La duración real en minutos es obligatoria para el cierre clínico");
+        }
+        if (conductaSiguiente == null || conductaSiguiente.isBlank()) {
+            throw new HistoriaClinicaConflictException("La conducta siguiente es obligatoria para el cierre clínico");
+        }
+        this.cerradaClinicamente = true;
+        this.fechaCierreClinco = Instant.now();
+        this.cierreClinicoPor = actorUserId;
+        this.estado = HistoriaClinicaSesionEstado.CERRADA;
+        this.closedByUserId = actorUserId;
+        this.updatedByUserId = actorUserId;
+        this.updatedAt = this.fechaCierreClinco;
+        this.closedAt = this.fechaCierreClinco;
+    }
+
+    // Setters for loading from persistence (mapper use only)
+    public void setDuracionRealMinutos(Integer v) { this.duracionRealMinutos = v; }
+    public void setTratamientoRealizado(String v) { this.tratamientoRealizado = v; }
+    public void setResultadoClinico(String v) { this.resultadoClinico = v; }
+    public void setConductaSiguiente(String v) { this.conductaSiguiente = v; }
+    public void setRequiereSeguimiento(boolean v) { this.requiereSeguimiento = v; }
+    public void setObservacionesClincias(String v) { this.observacionesClincias = v; }
+    public void setCerradaClinicamente(boolean v) { this.cerradaClinicamente = v; }
+    public void setFechaCierreClinco(Instant v) { this.fechaCierreClinco = v; }
+    public void setCierreClinicoPor(UUID v) { this.cierreClinicoPor = v; }
+    public void setEsGrupal(boolean v) { this.esGrupal = v; }
+    public void setGrupoSesionId(UUID v) { this.grupoSesionId = v; }
+
     public boolean isEditable() {
         return this.estado == HistoriaClinicaSesionEstado.BORRADOR;
     }
@@ -170,4 +249,15 @@ public class SesionClinica {
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
     public Instant getClosedAt() { return closedAt; }
+    public Integer getDuracionRealMinutos() { return duracionRealMinutos; }
+    public String getTratamientoRealizado() { return tratamientoRealizado; }
+    public String getResultadoClinico() { return resultadoClinico; }
+    public String getConductaSiguiente() { return conductaSiguiente; }
+    public boolean isRequiereSeguimiento() { return requiereSeguimiento; }
+    public String getObservacionesClincias() { return observacionesClincias; }
+    public boolean isCerradaClinicamente() { return cerradaClinicamente; }
+    public Instant getFechaCierreClinco() { return fechaCierreClinco; }
+    public UUID getCierreClinicoPor() { return cierreClinicoPor; }
+    public boolean isEsGrupal() { return esGrupal; }
+    public UUID getGrupoSesionId() { return grupoSesionId; }
 }

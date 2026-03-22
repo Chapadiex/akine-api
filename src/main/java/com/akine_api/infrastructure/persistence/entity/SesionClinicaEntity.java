@@ -95,4 +95,38 @@ public class SesionClinicaEntity {
 
     @Column(name = "closed_at", columnDefinition = "TIMESTAMP")
     private Instant closedAt;
+
+    // Fase 2 — cierre clínico
+    @Column(name = "duracion_real_minutos")
+    private Integer duracionRealMinutos;
+
+    @Column(name = "tratamiento_realizado")
+    private String tratamientoRealizado;
+
+    @Column(name = "resultado_clinico")
+    private String resultadoClinico;
+
+    @Column(name = "conducta_siguiente", length = 500)
+    private String conductaSiguiente;
+
+    @Column(name = "requiere_seguimiento", nullable = false)
+    private boolean requiereSeguimiento = false;
+
+    @Column(name = "observaciones_clinicas")
+    private String observacionesClincias;
+
+    @Column(name = "cerrada_clinicamente", nullable = false)
+    private boolean cerradaClinicamente = false;
+
+    @Column(name = "fecha_cierre_clinico", columnDefinition = "TIMESTAMP")
+    private Instant fechaCierreClinco;
+
+    @Column(name = "cierre_clinico_por")
+    private UUID cierreClinicoPor;
+
+    @Column(name = "es_grupal", nullable = false)
+    private boolean esGrupal = false;
+
+    @Column(name = "grupo_sesion_id")
+    private UUID grupoSesionId;
 }

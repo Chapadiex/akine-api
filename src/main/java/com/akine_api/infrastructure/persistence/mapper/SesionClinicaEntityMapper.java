@@ -9,7 +9,7 @@ public interface SesionClinicaEntityMapper {
 
     default SesionClinica toDomain(SesionClinicaEntity entity) {
         if (entity == null) return null;
-        return new SesionClinica(
+        SesionClinica domain = new SesionClinica(
                 entity.getId(),
                 entity.getConsultorioId(),
                 entity.getPacienteId(),
@@ -34,6 +34,18 @@ public interface SesionClinicaEntityMapper {
                 entity.getUpdatedAt(),
                 entity.getClosedAt()
         );
+        domain.setDuracionRealMinutos(entity.getDuracionRealMinutos());
+        domain.setTratamientoRealizado(entity.getTratamientoRealizado());
+        domain.setResultadoClinico(entity.getResultadoClinico());
+        domain.setConductaSiguiente(entity.getConductaSiguiente());
+        domain.setRequiereSeguimiento(entity.isRequiereSeguimiento());
+        domain.setObservacionesClincias(entity.getObservacionesClincias());
+        domain.setCerradaClinicamente(entity.isCerradaClinicamente());
+        domain.setFechaCierreClinco(entity.getFechaCierreClinco());
+        domain.setCierreClinicoPor(entity.getCierreClinicoPor());
+        domain.setEsGrupal(entity.isEsGrupal());
+        domain.setGrupoSesionId(entity.getGrupoSesionId());
+        return domain;
     }
 
     default SesionClinicaEntity toEntity(SesionClinica domain) {
@@ -62,6 +74,17 @@ public interface SesionClinicaEntityMapper {
         entity.setCreatedAt(domain.getCreatedAt());
         entity.setUpdatedAt(domain.getUpdatedAt());
         entity.setClosedAt(domain.getClosedAt());
+        entity.setDuracionRealMinutos(domain.getDuracionRealMinutos());
+        entity.setTratamientoRealizado(domain.getTratamientoRealizado());
+        entity.setResultadoClinico(domain.getResultadoClinico());
+        entity.setConductaSiguiente(domain.getConductaSiguiente());
+        entity.setRequiereSeguimiento(domain.isRequiereSeguimiento());
+        entity.setObservacionesClincias(domain.getObservacionesClincias());
+        entity.setCerradaClinicamente(domain.isCerradaClinicamente());
+        entity.setFechaCierreClinco(domain.getFechaCierreClinco());
+        entity.setCierreClinicoPor(domain.getCierreClinicoPor());
+        entity.setEsGrupal(domain.isEsGrupal());
+        entity.setGrupoSesionId(domain.getGrupoSesionId());
         return entity;
     }
 }

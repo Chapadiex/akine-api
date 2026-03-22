@@ -145,6 +145,16 @@ public class TurnoController {
         return ResponseEntity.ok(result);
     }
 
+    @PostMapping("/{id}/check-in")
+    public ResponseEntity<TurnoResponse> checkIn(
+            @PathVariable UUID consultorioId,
+            @PathVariable UUID id,
+            @AuthenticationPrincipal UserDetails principal) {
+        TurnoResult result = service.realizarCheckIn(id, consultorioId,
+                principal.getUsername(), roles(principal));
+        return ResponseEntity.ok(toResponse(result));
+    }
+
     @GetMapping("/{id}/historial")
     public ResponseEntity<List<HistorialEstadoTurnoResponse>> historial(
             @PathVariable UUID consultorioId,

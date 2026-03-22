@@ -905,6 +905,34 @@ public class HistoriaClinicaService {
         return toSesionResult(sesionRepo.save(sesion), adjuntoRepo.findBySesionId(sesion.getId()));
     }
 
+    public SesionClinicaResult cerrarClinicamente(UUID consultorioId, UUID pacienteId, UUID sesionId,
+                                                    Integer duracionRealMinutos,
+                                                    String tratamientoRealizado,
+                                                    String resultadoClinico,
+                                                    String conductaSiguiente,
+                                                    Boolean requiereSeguimiento,
+                                                    String observacionesClincias,
+                                                    Boolean esGrupal,
+                                                    String userEmail,
+                                                    Set<String> roles) {
+        UUID actorUserId = resolveUserId(userEmail);
+        loadPacienteWithClinicalAccess(consultorioId, pacienteId, userEmail, roles);
+        SesionClinica sesion = loadSesion(consultorioId, pacienteId, sesionId);
+        assertCanMutateSesion(sesion, userEmail, roles);
+        sesion.updateCamposClinicos(
+                duracionRealMinutos,
+                tratamientoRealizado,
+                resultadoClinico,
+                conductaSiguiente,
+                requiereSeguimiento != null && requiereSeguimiento,
+                observacionesClincias,
+                esGrupal != null && esGrupal,
+                null,
+                actorUserId);
+        sesion.cerrarClinicamente(actorUserId);
+        return toSesionResult(sesionRepo.save(sesion), adjuntoRepo.findBySesionId(sesion.getId()));
+    }
+
     public SesionClinicaResult annulSesion(ChangeSesionClinicaEstadoCommand command,
                                            String userEmail,
                                            Set<String> roles) {

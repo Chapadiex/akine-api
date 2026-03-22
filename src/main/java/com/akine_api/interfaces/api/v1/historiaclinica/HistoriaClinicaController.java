@@ -32,6 +32,7 @@ import com.akine_api.interfaces.api.v1.historiaclinica.dto.HistoriaClinicaAntece
 import com.akine_api.interfaces.api.v1.historiaclinica.dto.HistoriaClinicaAntecedentesUpdateRequest;
 import com.akine_api.interfaces.api.v1.historiaclinica.dto.PlanTratamientoDetalleRequest;
 import com.akine_api.interfaces.api.v1.historiaclinica.dto.SesionClinicaRequest;
+import com.akine_api.interfaces.api.v1.sesion.dto.CierreClinicoRequest;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ContentDisposition;
@@ -317,6 +318,26 @@ public class HistoriaClinicaController {
                 principal.getUsername(),
                 roles(principal)
         ));
+    }
+
+    @PostMapping("/pacientes/{pacienteId}/sesiones/{sesionId}/cerrar-clinicamente")
+    public ResponseEntity<SesionClinicaResult> cerrarClinicamente(
+            @PathVariable UUID consultorioId,
+            @PathVariable UUID pacienteId,
+            @PathVariable UUID sesionId,
+            @Valid @RequestBody CierreClinicoRequest req,
+            @AuthenticationPrincipal UserDetails principal) {
+        return ResponseEntity.ok(service.cerrarClinicamente(
+                consultorioId, pacienteId, sesionId,
+                req.getDuracionRealMinutos(),
+                req.getTratamientoRealizado(),
+                req.getResultadoClinico(),
+                req.getConductaSiguiente(),
+                req.getRequiereSeguimiento(),
+                req.getObservacionesClincias(),
+                req.getEsGrupal(),
+                principal.getUsername(),
+                roles(principal)));
     }
 
     @PostMapping("/pacientes/{pacienteId}/sesiones/{sesionId}/anular")

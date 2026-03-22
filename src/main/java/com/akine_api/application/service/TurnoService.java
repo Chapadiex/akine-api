@@ -270,6 +270,21 @@ public class TurnoService {
         return toResultSingle(saved);
     }
 
+    public TurnoResult realizarCheckIn(UUID turnoId, UUID consultorioId, String userEmail, Set<String> roles) {
+        Turno turno = turnoRepo.findById(turnoId)
+                .orElseThrow(() -> new TurnoNotFoundException("Turno no encontrado: " + turnoId));
+        assertCanManage(consultorioId, userEmail, roles);
+        TurnoEstado estadoAnterior = turno.getEstado();
+        turno.cambiarEstado(TurnoEstado.CHECK_IN_REALIZADO);
+        Turno saved = turnoRepo.save(turno);
+        UUID userId = resolveUserId(userEmail);
+        historialRepo.save(new HistorialEstadoTurno(
+                UUID.randomUUID(), saved.getId(), estadoAnterior, TurnoEstado.CHECK_IN_REALIZADO,
+                userId, null, Instant.now()
+        ));
+        return toResultSingle(saved);
+    }
+
     @Transactional(readOnly = true)
     public List<HistorialEstadoTurnoResult> getHistorial(UUID turnoId, String userEmail, Set<String> roles) {
         Turno turno = turnoRepo.findById(turnoId)

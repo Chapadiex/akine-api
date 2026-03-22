@@ -281,6 +281,30 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return pd;
     }
 
+    @ExceptionHandler({CajaNotFoundException.class, CobroNotFoundException.class})
+    public ProblemDetail handleCobroNotFound(DomainException ex) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        pd.setType(URI.create("urn:akine:error:not-found"));
+        pd.setTitle("No encontrado");
+        return pd;
+    }
+
+    @ExceptionHandler(CajaConflictException.class)
+    public ProblemDetail handleCajaConflict(CajaConflictException ex) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        pd.setType(URI.create("urn:akine:error:caja-conflicto"));
+        pd.setTitle("Conflicto de caja");
+        return pd;
+    }
+
+    @ExceptionHandler(CobroValidationException.class)
+    public ProblemDetail handleCobroValidation(CobroValidationException ex) {
+        ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage());
+        pd.setType(URI.create("urn:akine:error:cobro-validation"));
+        pd.setTitle("Validación de cobro");
+        return pd;
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     public ProblemDetail handleAccessDenied(AccessDeniedException ex) {
         ProblemDetail pd = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, "Acceso denegado");
