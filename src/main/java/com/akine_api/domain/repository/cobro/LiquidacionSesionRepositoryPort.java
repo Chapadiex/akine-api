@@ -24,4 +24,7 @@ public interface LiquidacionSesionRepositoryPort {
 
     /** Used by reporting: all liquidaciones of a given tipo for a consultorio. */
     List<LiquidacionSesion> findByConsultorioIdAndTipoLiquidacion(UUID consultorioId, TipoLiquidacion tipo);
+
+    /** Returns all non-anulada liquidaciones for a specific patient in a consultorio. */
+    List<LiquidacionSesion> findByConsultorioIdAndPacienteId(UUID consultorioId, UUID pacienteId);
 }

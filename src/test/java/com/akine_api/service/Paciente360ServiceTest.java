@@ -11,6 +11,7 @@ import com.akine_api.application.port.output.SesionClinicaRepositoryPort;
 import com.akine_api.application.port.output.TurnoRepositoryPort;
 import com.akine_api.application.port.output.UserRepositoryPort;
 import com.akine_api.application.service.Paciente360Service;
+import com.akine_api.application.service.cobro.LiquidacionSesionService;
 import com.akine_api.domain.exception.PacienteNotFoundException;
 import com.akine_api.domain.model.Box;
 import com.akine_api.domain.model.Consultorio;
@@ -22,6 +23,9 @@ import com.akine_api.domain.model.HistoriaClinicaTipoAtencion;
 import com.akine_api.domain.model.Paciente;
 import com.akine_api.domain.model.Profesional;
 import com.akine_api.domain.model.SesionClinica;
+import com.akine_api.domain.model.User;
+import com.akine_api.domain.model.cobro.EstadoLiquidacion;
+import com.akine_api.domain.model.cobro.LiquidacionSesion;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,6 +35,7 @@ import org.springframework.security.access.AccessDeniedException;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -38,6 +43,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -53,6 +59,7 @@ class Paciente360ServiceTest {
     @Mock ObraSocialRepositoryPort obraSocialRepo;
     @Mock SesionClinicaRepositoryPort sesionClinicaRepo;
     @Mock DiagnosticoClinicoRepositoryPort diagnosticoClinicoRepo;
+    @Mock LiquidacionSesionService liquidacionSvc;
 
     Paciente360Service service;
 
@@ -72,7 +79,8 @@ class Paciente360ServiceTest {
                 boxRepo,
                 obraSocialRepo,
                 sesionClinicaRepo,
-                diagnosticoClinicoRepo
+                diagnosticoClinicoRepo,
+                liquidacionSvc
         );
     }
 
@@ -92,7 +100,7 @@ class Paciente360ServiceTest {
     }
 
     @Test
-    void getPagos_whenNotAdmin_throws403() {
+    void getPagos_whenProfesional_throws403() {
         when(consultorioRepo.findById(CONSULTORIO_ID)).thenReturn(Optional.of(activeConsultorio()));
 
         assertThatThrownBy(() -> service.getPagos(
@@ -100,9 +108,66 @@ class Paciente360ServiceTest {
                 PACIENTE_ID,
                 0,
                 20,
+                "prof@test.com",
+                Set.of("ROLE_PROFESIONAL")
+        )).isInstanceOf(AccessDeniedException.class);
+    }
+
+    @Test
+    void getPagos_whenAdministrativo_allowsAccess() {
+        User user = mock(User.class);
+        when(user.getId()).thenReturn(UUID.randomUUID());
+        when(consultorioRepo.findById(CONSULTORIO_ID)).thenReturn(Optional.of(activeConsultorio()));
+        when(userRepo.findByEmail("administrativo@test.com")).thenReturn(Optional.of(user));
+        when(consultorioRepo.findConsultorioIdsByUserId(user.getId())).thenReturn(Set.of(CONSULTORIO_ID));
+        when(pacienteRepo.findById(PACIENTE_ID)).thenReturn(Optional.of(samplePaciente()));
+        when(pacienteConsultorioRepo.existsByPacienteIdAndConsultorioId(PACIENTE_ID, CONSULTORIO_ID)).thenReturn(true);
+
+        var result = service.getPagos(
+                CONSULTORIO_ID,
+                PACIENTE_ID,
+                0,
+                20,
                 "administrativo@test.com",
                 Set.of("ROLE_ADMINISTRATIVO")
-        )).isInstanceOf(AccessDeniedException.class);
+        );
+
+        assertThat(result).isNotNull();
+    }
+
+    @Test
+    void getSummary_calculatesSaldoPendienteFromLiquidacionesPaciente() {
+        when(consultorioRepo.findById(CONSULTORIO_ID)).thenReturn(Optional.of(activeConsultorio()));
+        when(pacienteRepo.findById(PACIENTE_ID)).thenReturn(Optional.of(samplePaciente()));
+        when(pacienteConsultorioRepo.existsByPacienteIdAndConsultorioId(PACIENTE_ID, CONSULTORIO_ID))
+                .thenReturn(true);
+        when(turnoRepo.findByPacienteIdAndRange(PACIENTE_ID, java.time.LocalDateTime.of(2000, 1, 1, 0, 0), java.time.LocalDateTime.of(2100, 1, 1, 0, 0)))
+                .thenReturn(List.of());
+        when(sesionClinicaRepo.findByPacienteIdAndConsultorioId(PACIENTE_ID, CONSULTORIO_ID)).thenReturn(List.of());
+        when(diagnosticoClinicoRepo.findByPacienteIdAndConsultorioId(PACIENTE_ID, CONSULTORIO_ID)).thenReturn(List.of());
+        when(liquidacionSvc.findByPaciente(CONSULTORIO_ID, PACIENTE_ID)).thenReturn(List.of(
+                LiquidacionSesion.builder()
+                        .estado(EstadoLiquidacion.LIQUIDADA_PARTICULAR)
+                        .importePaciente(new BigDecimal("1000.00"))
+                        .build(),
+                LiquidacionSesion.builder()
+                        .estado(EstadoLiquidacion.LIQUIDADA_MIXTA)
+                        .importePaciente(new BigDecimal("500.00"))
+                        .build(),
+                LiquidacionSesion.builder()
+                        .estado(EstadoLiquidacion.LIQUIDADA_OS)
+                        .importePaciente(new BigDecimal("900.00"))
+                        .build()
+        ));
+
+        var result = service.getSummary(
+                CONSULTORIO_ID,
+                PACIENTE_ID,
+                "admin@test.com",
+                Set.of("ROLE_ADMIN")
+        );
+
+        assertThat(result.kpis().saldoPendiente()).isEqualByComparingTo("1500.00");
     }
 
     @Test

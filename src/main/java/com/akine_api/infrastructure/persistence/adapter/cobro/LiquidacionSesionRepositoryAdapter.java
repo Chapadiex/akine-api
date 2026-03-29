@@ -66,4 +66,11 @@ public class LiquidacionSesionRepositoryAdapter implements LiquidacionSesionRepo
                 .map(mapper::toDomain)
                 .toList();
     }
+
+    @Override
+    public List<LiquidacionSesion> findByConsultorioIdAndPacienteId(UUID consultorioId, UUID pacienteId) {
+        return repo.findByConsultorioIdAndPacienteId(consultorioId, pacienteId).stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
 }

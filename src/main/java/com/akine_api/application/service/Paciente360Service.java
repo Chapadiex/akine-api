@@ -19,6 +19,8 @@ import com.akine_api.application.port.output.SesionClinicaRepositoryPort;
 import com.akine_api.application.port.output.TurnoRepositoryPort;
 import com.akine_api.application.port.output.UserRepositoryPort;
 import com.akine_api.domain.exception.PacienteNotFoundException;
+import com.akine_api.application.service.cobro.LiquidacionSesionService;
+import com.akine_api.domain.model.cobro.EstadoLiquidacion;
 import com.akine_api.domain.model.Box;
 import com.akine_api.domain.model.Consultorio;
 import com.akine_api.domain.model.DiagnosticoClinico;
@@ -71,6 +73,7 @@ public class Paciente360Service {
     private final ObraSocialRepositoryPort obraSocialRepo;
     private final SesionClinicaRepositoryPort sesionClinicaRepo;
     private final DiagnosticoClinicoRepositoryPort diagnosticoClinicoRepo;
+    private final LiquidacionSesionService liquidacionSvc;
 
     public Paciente360Service(PacienteRepositoryPort pacienteRepo,
                               PacienteConsultorioRepositoryPort pacienteConsultorioRepo,
@@ -81,7 +84,8 @@ public class Paciente360Service {
                               BoxRepositoryPort boxRepo,
                               ObraSocialRepositoryPort obraSocialRepo,
                               SesionClinicaRepositoryPort sesionClinicaRepo,
-                              DiagnosticoClinicoRepositoryPort diagnosticoClinicoRepo) {
+                              DiagnosticoClinicoRepositoryPort diagnosticoClinicoRepo,
+                              LiquidacionSesionService liquidacionSvc) {
         this.pacienteRepo = pacienteRepo;
         this.pacienteConsultorioRepo = pacienteConsultorioRepo;
         this.consultorioRepo = consultorioRepo;
@@ -92,6 +96,7 @@ public class Paciente360Service {
         this.obraSocialRepo = obraSocialRepo;
         this.sesionClinicaRepo = sesionClinicaRepo;
         this.diagnosticoClinicoRepo = diagnosticoClinicoRepo;
+        this.liquidacionSvc = liquidacionSvc;
     }
 
     public Paciente360HeaderResult getHeader(UUID consultorioId,
@@ -183,6 +188,14 @@ public class Paciente360Service {
                 ))
                 .toList();
 
+        BigDecimal saldoPendiente = liquidacionSvc.findByPaciente(consultorioId, pacienteId)
+                .stream()
+                .filter(l -> l.getEstado() == EstadoLiquidacion.LIQUIDADA_PARTICULAR
+                        || l.getEstado() == EstadoLiquidacion.LIQUIDADA_MIXTA)
+                .filter(l -> l.getImportePaciente() != null)
+                .map(l -> l.getImportePaciente())
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
         return new Paciente360SummaryResult(
                 new Paciente360SummaryResult.Kpis(
                         nextTurno != null ? nextTurno.getFechaHoraInicio() : null,
@@ -196,7 +209,7 @@ public class Paciente360Service {
                         diagnosticosActivos,
                         sesionesMes,
                         coverage.resumen(),
-                        BigDecimal.ZERO
+                        saldoPendiente
                 ),
                 alertas,
                 acciones,
@@ -552,7 +565,9 @@ public class Paciente360Service {
             case CLINICAL -> roles.contains("ROLE_ADMIN")
                     || roles.contains("ROLE_PROFESIONAL_ADMIN")
                     || roles.contains("ROLE_PROFESIONAL");
-            case FINANCIAL -> roles.contains("ROLE_ADMIN");
+            case FINANCIAL -> roles.contains("ROLE_ADMIN")
+                    || roles.contains("ROLE_PROFESIONAL_ADMIN")
+                    || roles.contains("ROLE_ADMINISTRATIVO");
         };
     }
 

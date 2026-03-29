@@ -344,6 +344,27 @@ class HistoriaClinicaServiceTest {
     }
 
     @Test
+    void closeSesion_triggersAutomaticLiquidation() {
+        when(sesionRepo.findById(SESION_ID))
+                .thenReturn(Optional.of(sampleSesion(HistoriaClinicaSesionEstado.BORRADOR)));
+        when(adjuntoRepo.findBySesionId(SESION_ID)).thenReturn(List.of());
+
+        var result = service.closeSesion(
+                new com.akine_api.application.dto.command.ChangeSesionClinicaEstadoCommand(
+                        CONSULTORIO_ID,
+                        PACIENTE_ID,
+                        SESION_ID,
+                        null
+                ),
+                "admin@test.com",
+                Set.of("ROLE_ADMIN")
+        );
+
+        assertThat(result.estado()).isEqualTo(HistoriaClinicaSesionEstado.CERRADA);
+        verify(liquidacionSesionService).liquidarAutomaticamente(SESION_ID, "admin@test.com");
+    }
+
+    @Test
     void getSesion_crossConsultorio_throwsNotFound() {
         when(sesionRepo.findById(SESION_ID))
                 .thenReturn(Optional.of(sampleSesion(SESION_ID, OTHER_CONSULTORIO_ID, PACIENTE_ID, PROFESIONAL_ID, HistoriaClinicaSesionEstado.BORRADOR)));

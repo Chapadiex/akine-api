@@ -91,6 +91,11 @@ public class LiquidacionSesionService {
         return liquidacionRepo.findByConsultorioId(consultorioId);
     }
 
+    @Transactional(readOnly = true)
+    public List<LiquidacionSesion> findByPaciente(UUID consultorioId, UUID pacienteId) {
+        return liquidacionRepo.findByConsultorioIdAndPacienteId(consultorioId, pacienteId);
+    }
+
     /**
      * Re-runs the algorithm to update an existing liquidacion.
      * Restricted: only when estado != LIQUIDADA_OS and no lote_os with estado != borrador.

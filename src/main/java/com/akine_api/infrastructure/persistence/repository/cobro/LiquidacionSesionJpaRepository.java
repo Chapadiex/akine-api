@@ -28,4 +28,9 @@ public interface LiquidacionSesionJpaRepository extends JpaRepository<Liquidacio
             @Param("financiadorId") UUID financiadorId);
 
     List<LiquidacionSesionEntity> findByConsultorioIdAndTipoLiquidacion(UUID consultorioId, TipoLiquidacion tipoLiquidacion);
+
+    @Query("SELECT l FROM LiquidacionSesionEntity l WHERE l.consultorioId = :consultorioId AND l.pacienteId = :pacienteId AND l.estado != 'ANULADA'")
+    List<LiquidacionSesionEntity> findByConsultorioIdAndPacienteId(
+            @Param("consultorioId") UUID consultorioId,
+            @Param("pacienteId") UUID pacienteId);
 }

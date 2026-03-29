@@ -905,7 +905,9 @@ public class HistoriaClinicaService {
         SesionClinica sesion = loadSesion(command.consultorioId(), command.pacienteId(), command.sesionId());
         assertCanMutateSesion(sesion, userEmail, roles);
         sesion.close(actorUserId);
-        return toSesionResult(sesionRepo.save(sesion), adjuntoRepo.findBySesionId(sesion.getId()));
+        SesionClinicaResult result = toSesionResult(sesionRepo.save(sesion), adjuntoRepo.findBySesionId(sesion.getId()));
+        liquidacionSesionService.liquidarAutomaticamente(sesion.getId(), userEmail);
+        return result;
     }
 
     public SesionClinicaResult cerrarClinicamente(UUID consultorioId, UUID pacienteId, UUID sesionId,

@@ -79,12 +79,12 @@ public class HistoriaClinicaController {
             @RequestParam(required = false) UUID profesionalId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
-            @RequestParam(required = false) HistoriaClinicaSesionEstado estado,
+            @RequestParam(required = false) String estado,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @AuthenticationPrincipal UserDetails principal) {
         return ResponseEntity.ok(service.getWorkspace(
-                consultorioId, pacienteId, q, profesionalId, from, to, estado, page, size,
+                consultorioId, pacienteId, q, profesionalId, from, to, parseSesionEstado(estado), page, size,
                 principal.getUsername(), roles(principal)
         ));
     }
@@ -221,12 +221,12 @@ public class HistoriaClinicaController {
             @RequestParam(required = false) UUID profesionalId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
-            @RequestParam(required = false) HistoriaClinicaSesionEstado estado,
+            @RequestParam(required = false) String estado,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @AuthenticationPrincipal UserDetails principal) {
         return ResponseEntity.ok(service.listSesiones(
-                consultorioId, pacienteId, profesionalId, from, to, estado, page, size,
+                consultorioId, pacienteId, profesionalId, from, to, parseSesionEstado(estado), page, size,
                 principal.getUsername(), roles(principal)
         ));
     }
@@ -505,6 +505,17 @@ public class HistoriaClinicaController {
         return principal.getAuthorities().stream()
                 .map(a -> a.getAuthority())
                 .collect(Collectors.toSet());
+    }
+
+    private HistoriaClinicaSesionEstado parseSesionEstado(String estado) {
+        if (estado == null || estado.isBlank()) {
+            return null;
+        }
+        try {
+            return HistoriaClinicaSesionEstado.valueOf(estado.trim().toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            return null;
+        }
     }
 
     private List<HistoriaClinicaAntecedenteItemCommand> toAntecedenteCommands(List<HistoriaClinicaAntecedenteItemRequest> requests) {

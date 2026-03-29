@@ -46,6 +46,15 @@ public class LiquidacionSesionController {
         return ResponseEntity.ok(list);
     }
 
+    @GetMapping("/paciente/{pacienteId}")
+    public ResponseEntity<List<LiquidacionSesionResponse>> findByPaciente(
+            @PathVariable UUID consultorioId,
+            @PathVariable UUID pacienteId) {
+        List<LiquidacionSesionResponse> list = liquidacionService.findByPaciente(consultorioId, pacienteId)
+                .stream().map(this::toResponse).toList();
+        return ResponseEntity.ok(list);
+    }
+
     @PostMapping("/{liquidacionId}/reliquidar")
     public ResponseEntity<LiquidacionSesionResponse> reliquidar(
             @PathVariable UUID consultorioId,
