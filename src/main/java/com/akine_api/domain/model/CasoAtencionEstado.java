@@ -31,7 +31,7 @@ public enum CasoAtencionEstado {
 
     private Set<CasoAtencionEstado> allowedTransitions() {
         return switch (this) {
-            case BORRADOR       -> Set.of(EN_EVALUACION, ACTIVO, CERRADO_ABANDONO);
+            case BORRADOR       -> Set.of(EN_EVALUACION, ACTIVO, CERRADO_ALTA, CERRADO_ABANDONO, CERRADO_DERIVACION);
             case EN_EVALUACION  -> Set.of(ACTIVO, CERRADO_ABANDONO, CERRADO_DERIVACION);
             case ACTIVO         -> Set.of(EN_TRATAMIENTO, EN_PAUSA, CERRADO_ALTA, CERRADO_ABANDONO, CERRADO_DERIVACION);
             case EN_TRATAMIENTO -> Set.of(EN_PAUSA, CERRADO_ALTA, CERRADO_ABANDONO, CERRADO_DERIVACION);

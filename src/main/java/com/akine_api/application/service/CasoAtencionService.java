@@ -11,6 +11,7 @@ import com.akine_api.application.port.output.AdjuntoClinicoRepositoryPort;
 import com.akine_api.application.port.output.AttachmentStoragePort;
 import com.akine_api.application.port.output.CasoAtencionRepositoryPort;
 import com.akine_api.application.port.output.ConsultorioRepositoryPort;
+import com.akine_api.application.port.output.DiagnosticoClinicoRepositoryPort;
 import com.akine_api.application.port.output.HistoriaClinicaLegajoRepositoryPort;
 import com.akine_api.application.port.output.ProfesionalRepositoryPort;
 import com.akine_api.application.port.output.UserRepositoryPort;
@@ -19,6 +20,8 @@ import com.akine_api.domain.exception.HistoriaClinicaValidationException;
 import com.akine_api.domain.model.AdjuntoClinico;
 import com.akine_api.domain.model.CasoAtencion;
 import com.akine_api.domain.model.CasoAtencionEstado;
+import com.akine_api.domain.model.DiagnosticoClinico;
+import com.akine_api.domain.model.DiagnosticoClinicoEstado;
 import com.akine_api.domain.model.User;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -26,7 +29,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -45,6 +50,7 @@ public class CasoAtencionService {
     private final ProfesionalRepositoryPort profesionalRepo;
     private final ConsultorioRepositoryPort consultorioRepo;
     private final UserRepositoryPort userRepo;
+    private final DiagnosticoClinicoRepositoryPort diagnosticoRepo;
 
     public CasoAtencionService(CasoAtencionRepositoryPort casoAtencionRepo,
                                 AdjuntoClinicoRepositoryPort adjuntoRepo,
@@ -52,7 +58,8 @@ public class CasoAtencionService {
                                 HistoriaClinicaLegajoRepositoryPort legajoRepo,
                                 ProfesionalRepositoryPort profesionalRepo,
                                 ConsultorioRepositoryPort consultorioRepo,
-                                UserRepositoryPort userRepo) {
+                                UserRepositoryPort userRepo,
+                                DiagnosticoClinicoRepositoryPort diagnosticoRepo) {
         this.casoAtencionRepo = casoAtencionRepo;
         this.adjuntoRepo = adjuntoRepo;
         this.attachmentStorage = attachmentStorage;
@@ -60,6 +67,7 @@ public class CasoAtencionService {
         this.profesionalRepo = profesionalRepo;
         this.consultorioRepo = consultorioRepo;
         this.userRepo = userRepo;
+        this.diagnosticoRepo = diagnosticoRepo;
     }
 
     @Transactional
@@ -98,6 +106,7 @@ public class CasoAtencionService {
         );
 
         CasoAtencion saved = casoAtencionRepo.save(caso);
+        syncDiagnosticoFromCaso(saved, actorUserId);
         return toResult(saved);
     }
 
@@ -233,7 +242,9 @@ public class CasoAtencionService {
                 cmd.afeccionPrincipal(), cmd.prioridad(), cmd.profesionalResponsableId(),
                 actorUserId);
 
-        return toResult(casoAtencionRepo.save(caso));
+        CasoAtencion saved = casoAtencionRepo.save(caso);
+        syncDiagnosticoFromCaso(saved, actorUserId);
+        return toResult(saved);
     }
 
     @Transactional
@@ -247,7 +258,72 @@ public class CasoAtencionService {
                 .orElseThrow(() -> new CasoAtencionNotFoundException(id));
 
         caso.cambiarEstado(cmd.nuevoEstado(), actorUserId);
-        return toResult(casoAtencionRepo.save(caso));
+        CasoAtencion saved = casoAtencionRepo.save(caso);
+        if (saved.getEstado().isCerrado()) {
+            closeDiagnosticoFromCaso(saved, actorUserId);
+        }
+        return toResult(saved);
+    }
+
+    // ── Diagnóstico sync ───────────────────────────────────────────────────────
+
+    private void syncDiagnosticoFromCaso(CasoAtencion caso, UUID actorUserId) {
+        String descripcion = caso.getAfeccionPrincipal();
+        UUID profesionalId = caso.getProfesionalResponsableId();
+
+        Optional<DiagnosticoClinico> existing =
+                diagnosticoRepo.findByCasoAtencionId(caso.getId());
+
+        if (descripcion == null || descripcion.isBlank()) {
+            existing.filter(d -> d.getEstado() == DiagnosticoClinicoEstado.ACTIVO)
+                    .ifPresent(d -> {
+                        d.discard(LocalDate.now(), actorUserId);
+                        diagnosticoRepo.save(d);
+                    });
+            return;
+        }
+
+        if (profesionalId == null) return;
+
+        if (existing.isPresent()) {
+            DiagnosticoClinico d = existing.get();
+            if (d.getEstado() != DiagnosticoClinicoEstado.ACTIVO) return;
+            d.update(profesionalId, d.getSesionId(), d.getCodigo(), descripcion,
+                    d.getDiagnosticoTipo(), d.getDiagnosticoCategoriaCodigo(),
+                    d.getDiagnosticoCategoriaNombre(), d.getDiagnosticoSubcategoria(),
+                    d.getDiagnosticoRegionAnatomica(), d.getFechaInicio(),
+                    d.getNotas(), actorUserId);
+            diagnosticoRepo.save(d);
+        } else {
+            DiagnosticoClinico nuevo = new DiagnosticoClinico(
+                    UUID.randomUUID(),
+                    caso.getConsultorioId(),
+                    caso.getPacienteId(),
+                    profesionalId,
+                    null,
+                    caso.getId(),
+                    null, descripcion, null, null, null, null, null,
+                    DiagnosticoClinicoEstado.ACTIVO,
+                    LocalDate.now(),
+                    null, null,
+                    actorUserId, actorUserId,
+                    Instant.now(), Instant.now()
+            );
+            diagnosticoRepo.save(nuevo);
+        }
+    }
+
+    private void closeDiagnosticoFromCaso(CasoAtencion caso, UUID actorUserId) {
+        diagnosticoRepo.findByCasoAtencionId(caso.getId())
+                .filter(d -> d.getEstado() == DiagnosticoClinicoEstado.ACTIVO)
+                .ifPresent(d -> {
+                    if (caso.getEstado() == CasoAtencionEstado.CERRADO_ALTA) {
+                        d.resolve(LocalDate.now(), actorUserId);
+                    } else {
+                        d.discard(LocalDate.now(), actorUserId);
+                    }
+                    diagnosticoRepo.save(d);
+                });
     }
 
     // ── Helpers ────────────────────────────────────────────────────────────────

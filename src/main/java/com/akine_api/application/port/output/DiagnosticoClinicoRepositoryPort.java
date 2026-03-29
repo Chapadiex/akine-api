@@ -9,5 +9,6 @@ import java.util.UUID;
 public interface DiagnosticoClinicoRepositoryPort {
     DiagnosticoClinico save(DiagnosticoClinico diagnosticoClinico);
     Optional<DiagnosticoClinico> findById(UUID id);
+    Optional<DiagnosticoClinico> findByCasoAtencionId(UUID casoAtencionId);
     List<DiagnosticoClinico> findByPacienteIdAndConsultorioId(UUID pacienteId, UUID consultorioId);
 }

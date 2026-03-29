@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Data
@@ -29,4 +30,7 @@ public class ConfiguracionConsultorio {
     private Boolean habilitarMultiplesCajas;
 
     private String monedaDefault;
+
+    /** Arancel para sesiones de pacientes particulares (sin convenio OS) */
+    private BigDecimal arancelParticularPorSesion;
 }

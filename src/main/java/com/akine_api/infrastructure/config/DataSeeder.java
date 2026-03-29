@@ -4,6 +4,7 @@ import com.akine_api.application.port.output.PasswordEncoderPort;
 import com.akine_api.application.service.CargoEmpleadoCatalogoBootstrapService;
 import com.akine_api.application.service.ConsultorioAntecedenteBootstrapService;
 import com.akine_api.application.service.ConsultorioEspecialidadBootstrapService;
+import com.akine_api.application.service.facturacion.PrestacionSeedService;
 import com.akine_api.infrastructure.persistence.entity.RoleEntity;
 import com.akine_api.infrastructure.persistence.entity.UserEntity;
 import com.akine_api.infrastructure.persistence.repository.ConsultorioJpaRepository;
@@ -35,6 +36,7 @@ public class DataSeeder implements ApplicationRunner {
     private final ConsultorioEspecialidadBootstrapService consultorioEspecialidadBootstrapService;
     private final ConsultorioAntecedenteBootstrapService consultorioAntecedenteBootstrapService;
     private final CargoEmpleadoCatalogoBootstrapService cargoEmpleadoCatalogoBootstrapService;
+    private final PrestacionSeedService prestacionSeedService;
     private final PasswordEncoderPort passwordEncoder;
     private final boolean devMode;
 
@@ -50,6 +52,7 @@ public class DataSeeder implements ApplicationRunner {
                       ConsultorioEspecialidadBootstrapService consultorioEspecialidadBootstrapService,
                       ConsultorioAntecedenteBootstrapService consultorioAntecedenteBootstrapService,
                       CargoEmpleadoCatalogoBootstrapService cargoEmpleadoCatalogoBootstrapService,
+                      PrestacionSeedService prestacionSeedService,
                       PasswordEncoderPort passwordEncoder,
                       @Value("${app.seed.dev-users:false}") boolean devMode) {
         this.userRepo = userRepo;
@@ -58,6 +61,7 @@ public class DataSeeder implements ApplicationRunner {
         this.consultorioEspecialidadBootstrapService = consultorioEspecialidadBootstrapService;
         this.consultorioAntecedenteBootstrapService = consultorioAntecedenteBootstrapService;
         this.cargoEmpleadoCatalogoBootstrapService = cargoEmpleadoCatalogoBootstrapService;
+        this.prestacionSeedService = prestacionSeedService;
         this.passwordEncoder = passwordEncoder;
         this.devMode = devMode;
     }
@@ -66,6 +70,7 @@ public class DataSeeder implements ApplicationRunner {
     @Transactional
     public void run(ApplicationArguments args) {
         seedAdminUser();
+        prestacionSeedService.seedIfEmpty();
         seedDefaultsForExistingConsultorios();
         if (devMode) {
             seedDevUsers();

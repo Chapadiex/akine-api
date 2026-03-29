@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -39,8 +40,9 @@ public class FinanciadorSaludController {
     }
 
     @PostMapping("/seed")
-    public ResponseEntity<Void> seed(@RequestParam UUID consultorioId) {
-        seedService.seedForConsultorio(consultorioId);
+    public ResponseEntity<Void> seed(@RequestParam UUID consultorioId,
+                                     @RequestParam(required = false) BigDecimal precioLista) {
+        seedService.seedForConsultorio(consultorioId, precioLista);
         return ResponseEntity.ok().build();
     }
 

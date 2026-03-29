@@ -13,6 +13,7 @@ import com.akine_api.domain.model.facturacion.ConvenioPrestacionValor;
 import com.akine_api.domain.model.sesion.CoberturaTipo;
 import com.akine_api.domain.model.sesion.SesionAdministrativa;
 import com.akine_api.domain.model.sesion.ValidacionCoberturaEstado;
+import com.akine_api.domain.repository.ConfiguracionConsultorioRepositoryPort;
 import com.akine_api.domain.repository.facturacion.ConvenioFinanciadorRepositoryPort;
 import com.akine_api.domain.repository.facturacion.ConvenioPrestacionValorRepositoryPort;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,6 +39,7 @@ class LiquidacionCalculadorServiceTest {
 
     @Mock ConvenioFinanciadorRepositoryPort convenioRepo;
     @Mock ConvenioPrestacionValorRepositoryPort convenioPrestacionRepo;
+    @Mock ConfiguracionConsultorioRepositoryPort configuracionRepo;
 
     private LiquidacionCalculadorService service;
 
@@ -50,7 +52,7 @@ class LiquidacionCalculadorServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new LiquidacionCalculadorService(convenioRepo, convenioPrestacionRepo);
+        service = new LiquidacionCalculadorService(convenioRepo, convenioPrestacionRepo, configuracionRepo);
     }
 
     // ─── Circuito 1: Particular puro (sin convenio) ──────────────────────────

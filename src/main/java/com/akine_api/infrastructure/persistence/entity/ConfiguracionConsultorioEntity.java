@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
@@ -37,4 +38,7 @@ public class ConfiguracionConsultorioEntity extends AuditableEntity {
 
     @Column(name = "moneda_default", nullable = false, length = 5)
     private String monedaDefault = "ARS";
+
+    @Column(name = "arancel_particular_por_sesion", precision = 12, scale = 2)
+    private BigDecimal arancelParticularPorSesion;
 }

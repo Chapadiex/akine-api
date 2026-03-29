@@ -7,7 +7,9 @@ import com.akine_api.domain.model.cobro.TipoLiquidacion;
 import com.akine_api.domain.model.facturacion.ConvenioFinanciador;
 import com.akine_api.domain.model.facturacion.ConvenioPrestacionValor;
 import com.akine_api.domain.model.sesion.SesionAdministrativa;
+import com.akine_api.domain.model.ConfiguracionConsultorio;
 import com.akine_api.domain.model.SesionClinica;
+import com.akine_api.domain.repository.ConfiguracionConsultorioRepositoryPort;
 import com.akine_api.domain.repository.facturacion.ConvenioFinanciadorRepositoryPort;
 import com.akine_api.domain.repository.facturacion.ConvenioPrestacionValorRepositoryPort;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -36,6 +38,7 @@ public class LiquidacionCalculadorService {
 
     private final ConvenioFinanciadorRepositoryPort convenioRepo;
     private final ConvenioPrestacionValorRepositoryPort convenioPrestacionRepo;
+    private final ConfiguracionConsultorioRepositoryPort configuracionRepo;
 
     /**
      * Executes the 9-step algorithm and returns an unsaved LiquidacionSesion.
@@ -178,9 +181,10 @@ public class LiquidacionCalculadorService {
                                                boolean documentacionCompleta,
                                                UUID liquidadoPorUserId,
                                                OrigenTipoCobro origen) {
-        // For particular with no convenio, valor_bruto is 0 (no fee configured)
-        // Admin must set the amount manually or from ConfiguracionConsultorio (Fase 0 — not yet)
-        BigDecimal valorBruto = BigDecimal.ZERO;
+        BigDecimal valorBruto = configuracionRepo.findByConsultorioId(sesion.getConsultorioId())
+                .map(ConfiguracionConsultorio::getArancelParticularPorSesion)
+                .filter(a -> a != null && a.compareTo(BigDecimal.ZERO) > 0)
+                .orElse(BigDecimal.ZERO);
         EstadoLiquidacion estado = documentacionCompleta
                 ? EstadoLiquidacion.LIQUIDADA_PARTICULAR
                 : EstadoLiquidacion.LIQUIDADA_PARTICULAR; // particular always valid even without docs

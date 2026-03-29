@@ -1,9 +1,12 @@
 package com.akine_api.infrastructure.persistence.adapter.facturacion;
 
 import com.akine_api.domain.model.facturacion.ConvenioFinanciador;
+import com.akine_api.domain.model.facturacion.ModoFacturacion;
 import com.akine_api.domain.repository.facturacion.ConvenioFinanciadorRepositoryPort;
 import com.akine_api.infrastructure.persistence.entity.facturacion.ConvenioFinanciadorEntity;
 import com.akine_api.infrastructure.persistence.mapper.facturacion.ConvenioFinanciadorEntityMapper;
+import com.akine_api.infrastructure.persistence.repository.cobertura.FinanciadorSaludJpaRepository;
+import com.akine_api.infrastructure.persistence.repository.cobertura.PlanFinanciadorJpaRepository;
 import com.akine_api.infrastructure.persistence.repository.facturacion.ConvenioFinanciadorJpaRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -19,11 +22,22 @@ import java.util.stream.Collectors;
 public class ConvenioFinanciadorRepositoryAdapter implements ConvenioFinanciadorRepositoryPort {
 
     private final ConvenioFinanciadorJpaRepository jpaRepository;
+    private final FinanciadorSaludJpaRepository financiadorJpaRepository;
+    private final PlanFinanciadorJpaRepository planJpaRepository;
     private final ConvenioFinanciadorEntityMapper mapper;
 
     @Override
     public ConvenioFinanciador save(ConvenioFinanciador convenio) {
         ConvenioFinanciadorEntity entity = mapper.toEntity(convenio);
+        entity.setFinanciador(financiadorJpaRepository.getReferenceById(convenio.getFinanciadorId()));
+        if (convenio.getPlanId() != null) {
+            entity.setPlan(planJpaRepository.getReferenceById(convenio.getPlanId()));
+        } else {
+            entity.setPlan(null);
+        }
+        if (entity.getModoFacturacion() == null) {
+            entity.setModoFacturacion(ModoFacturacion.MENSUAL);
+        }
         ConvenioFinanciadorEntity saved = jpaRepository.save(entity);
         return mapper.toDomain(saved);
     }

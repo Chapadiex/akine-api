@@ -21,11 +21,21 @@ public class ConfiguracionConsultorioService {
     }
 
     @Transactional
-    public ConfiguracionConsultorio upsert(UUID consultorioId, ConfiguracionConsultorio config) {
-        config.setConsultorioId(consultorioId);
-        repositoryPort.findByConsultorioId(consultorioId)
-                .ifPresent(existing -> config.setId(existing.getId()));
-        return repositoryPort.save(config);
+    public ConfiguracionConsultorio upsert(UUID consultorioId, ConfiguracionConsultorio incoming) {
+        ConfiguracionConsultorio base = repositoryPort.findByConsultorioId(consultorioId)
+                .orElse(defaultsFor(consultorioId));
+
+        // Merge: only override fields that are explicitly provided (non-null)
+        if (incoming.getPoliticaNoShow() != null)           base.setPoliticaNoShow(incoming.getPoliticaNoShow());
+        if (incoming.getNoShowHorasAviso() != null)         base.setNoShowHorasAviso(incoming.getNoShowHorasAviso());
+        if (incoming.getAlertaSesionSinCierreHoras() != null) base.setAlertaSesionSinCierreHoras(incoming.getAlertaSesionSinCierreHoras());
+        if (incoming.getFormatoNumeracionRecibo() != null)  base.setFormatoNumeracionRecibo(incoming.getFormatoNumeracionRecibo());
+        if (incoming.getHabilitarMultiplesCajas() != null)  base.setHabilitarMultiplesCajas(incoming.getHabilitarMultiplesCajas());
+        if (incoming.getMonedaDefault() != null)            base.setMonedaDefault(incoming.getMonedaDefault());
+        if (incoming.getArancelParticularPorSesion() != null) base.setArancelParticularPorSesion(incoming.getArancelParticularPorSesion());
+
+        base.setConsultorioId(consultorioId);
+        return repositoryPort.save(base);
     }
 
     private ConfiguracionConsultorio defaultsFor(UUID consultorioId) {

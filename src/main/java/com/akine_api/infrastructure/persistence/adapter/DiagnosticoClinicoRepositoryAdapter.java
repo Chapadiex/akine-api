@@ -33,6 +33,11 @@ public class DiagnosticoClinicoRepositoryAdapter implements DiagnosticoClinicoRe
     }
 
     @Override
+    public Optional<DiagnosticoClinico> findByCasoAtencionId(UUID casoAtencionId) {
+        return repo.findByCasoAtencionId(casoAtencionId).map(mapper::toDomain);
+    }
+
+    @Override
     public List<DiagnosticoClinico> findByPacienteIdAndConsultorioId(UUID pacienteId, UUID consultorioId) {
         return repo.findByPacienteIdAndConsultorioIdOrderByFechaInicioDesc(pacienteId, consultorioId).stream()
                 .map(mapper::toDomain)

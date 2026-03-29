@@ -34,6 +34,7 @@ public class CobroPacienteService {
                                  List<CobroPacienteDetalle> detalles,
                                  String observaciones, String userEmail) {
         UUID usuarioId = resolveUserId(userEmail);
+        UUID cobroId = UUID.randomUUID();
 
         // 1. Validar caja abierta
         cajaDiariaService.validarCajaAbierta(cajaDiariaId);
@@ -72,8 +73,16 @@ public class CobroPacienteService {
                     + ") no coincide con el importe total (" + importeTotal + ")");
         }
 
+        List<CobroPacienteDetalle> detallesNormalizados = detalles.stream()
+                .map(d -> {
+                    d.setCobroPacienteId(cobroId);
+                    return d;
+                })
+                .toList();
+
         // 3. Persistir cobro
         CobroPaciente cobro = CobroPaciente.builder()
+                .id(cobroId)
                 .consultorioId(consultorioId)
                 .cajaDiariaId(cajaDiariaId)
                 .pacienteId(pacienteId)
@@ -82,11 +91,11 @@ public class CobroPacienteService {
                 .estado(EstadoCobroPaciente.COBRADO_TOTAL)
                 .fechaCobro(LocalDate.now())
                 .importeTotal(importeTotal)
-                .esPagoMixto(detalles.size() > 1)
+                .esPagoMixto(detallesNormalizados.size() > 1)
                 .reciboEmitido(false)
                 .observaciones(observaciones)
                 .cobradoPor(usuarioId)
-                .detalles(detalles)
+                .detalles(detallesNormalizados)
                 .build();
 
         CobroPaciente saved = repositoryPort.save(cobro);
